@@ -1,0 +1,201 @@
+.material {
+    position: relative; /*set the position of the container to be relative because one or more of its children needs to be absolutely positioned.*/
+    margin: 1.2em 0; /*adds a top/bottom margin*/
+}
+
+.material label {
+    position: absolute; /*set position to absolute for z-index to work and to position label on top of input (before transform)*/
+    z-index: 1; /*set label's z-index to 1 and set input's z-index to 2 label does not blocks the input*/
+    bottom: 100%; /*place label on top of the input*/
+    left: 0;
+
+    /*
+    transform the label and move it 28 px towards bottom so that the label (originally placed on top of the input) now appears to be positioned
+    as if its placeholder. in browsers where transform does not work, the label remains on top of the input.
+    */
+    -webkit-transform: translate3d(0, 28px, 0) scale(1);
+    transform: translate3d(0, 28px, 0) scale(1);
+
+    transition: -webkit-transform .4s cubic-bezier(.25, .8, .25, 1);
+    transition: transform .4s cubic-bezier(.25, .8, .25, 1);
+    -webkit-transform-origin: left top;
+    transform-origin: left top;
+
+    max-width: 100%;
+    margin: 0; /*remove default styling added by browser*/
+
+    /*font related.*/
+    color: #9E9E9E; /*simulate placeholder and hence gray*/
+    font-weight: normal;
+    font-size: 1.2em;
+}
+
+.material label.error {
+    color: #dd2c00; /*turn red to indicate error*/
+}
+
+.material label.value-or-focus {
+    color: #77aa43;
+    /*
+    transform into the look of normal label from the look of placeholder, if transform does not work, the label remains on top of the input,
+    rather than staying at the placeholder position.
+    */
+    -webkit-transform: translate3d(0, 6px, 0) scale(.75);
+    transform: translate3d(0, 6px, 0) scale(.75);
+}
+
+.material label.value-or-focus.error {
+    color: #dd2c00;
+}
+
+.material input {
+    position: relative; /*set position to relative so that z-index can work*/
+    z-index: 2; /*make sure that input is not blocked by label*/
+
+    width: 100%;
+    background: transparent;
+    outline: none;
+    border: none;
+
+    border-bottom: 1px solid #9E9E9E;
+
+    /*font related;*/
+    font-weight: normal;
+    font-size: 1.2em;
+}
+
+.material input.error {
+    border-color: #dd2c00;
+}
+
+.material input.active {
+    border-color: #77aa43;
+}
+
+.material input.active.error {
+    border-color: #dd2c00;
+}
+
+.material .error-msg {
+    position: absolute; /*absolute position so that it does not take extra space*/
+    color: #dd2c00;
+    font-size: 12px;
+    line-height: 14px;
+    overflow: hidden;
+    padding-top: 1px;
+
+    /*the following gives the effect of flying in from right*/
+    opacity: 0;
+    margin-left: 4em;
+    transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2);
+}
+
+.material .error-msg.show {
+    opacity: 1;
+    margin-left: 0;
+}
+
+.material tr:hover {
+    cursor: pointer;
+}
+
+.material td.icon, .material td.text {
+    position: relative;
+    padding: 8px 0;
+}
+
+.material td.icon .container {
+    width: 20px;
+    height: 20px;
+    position: relative;
+}
+
+.material td.icon .container .radio-outer,
+.material td.icon .container .radio-inner {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; /*make it look like a circle*/
+
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.material td.icon .container .radio-outer {
+    border: 2px solid #95918F;
+    z-index: 2;
+}
+
+.material td.icon .container .radio-inner {
+    background: #77AA43; /*green when selected*/
+
+    transform: scale(0, 0); /*by default it scales to 0 so that it is hidden*/
+    transition: 0.3s;
+
+    z-index: 3;
+}
+
+.material td.icon .check-box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #95918F;
+    transition: 0.3s;
+    line-height: 20px; /*vertically center the tick*/
+    color: white;
+}
+
+.material td.icon .check-box .tick {
+    display: none;
+}
+
+.material td.icon.selected .radio-outer {
+    border-color: #77AA43; /*when selected, border turns green*/
+}
+
+.material td.icon.selected .radio-inner {
+    transform: scale(0.5, 0.5); /*shows the inner circle by scaling it from 0 to 1*/
+}
+
+.material td.icon.selected .check-box {
+    background: #77AA43;
+    border-color: #77AA43;
+}
+
+.material td.icon.selected .check-box .tick {
+    display: inline;
+}
+
+@keyframes ripple-key-frame {
+    from {
+        transform: scale(0, 0);
+        opacity: 0.8;
+    }
+    to {
+        transform: scale(2, 2);
+        opacity: 0;
+    }
+}
+
+.ripple {
+    /*when scaled to 1, it looks identical to .radio-outer, and are positioned exactly the same*/
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+
+    position: absolute;
+    z-index: 1; /*ripple should appear under radio button*/
+    top: 0;
+    left: 0;
+
+    background: darkgray;
+    opacity: 0.8;
+    transform: scale(0, 0);
+
+    animation-name: ripple-key-frame;
+    animation-duration: 0.2s;
+}
+
+
+
+
+
