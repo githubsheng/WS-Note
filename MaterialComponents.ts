@@ -1,5 +1,5 @@
 /**
- * Created by wangsheng on 4/5/16.
+ * Created by wangsheng on 6/5/16.
  */
 
 class MaterialInput {
@@ -56,6 +56,7 @@ class MaterialInput {
     }
 
 }
+
 
 class MaterialRoundButton {
     public containerEle: HTMLDivElement;
@@ -126,13 +127,6 @@ class MaterialRoundButton {
     };
 }
 
-let usernameInput = new MaterialInput("Username", "username-input");
-document.body.appendChild(usernameInput.containerEle);
-
-usernameInput.addValueChangeListener(function(value: string){
-    console.log(value);
-});
-
 function createOptionsSection(parentContainer:HTMLDivElement | HTMLBodyElement){
 
     let optionsSection = document.createElement("div");
@@ -140,7 +134,7 @@ function createOptionsSection(parentContainer:HTMLDivElement | HTMLBodyElement){
     parentContainer.appendChild(optionsSection);
 
     let optionsButton = new MaterialRoundButton("fa fa-plus");
-    
+
     optionsButton.addMouseDownEventHandler(function(){
         optionsButton.buttonEle.classList.toggle("rotate");
         optionsSection.classList.toggle("expand");
@@ -171,5 +165,12 @@ function createOptionsSection(parentContainer:HTMLDivElement | HTMLBodyElement){
 
 }
 
-createOptionsSection(<HTMLBodyElement>document.body);
+let usernameInput = new MaterialInput("Username", "username-input");
+document.body.appendChild(usernameInput.containerEle);
 
+usernameInput.addValueChangeListener(function(value: string){
+    console.log(value);
+});
+
+
+createOptionsSection(<HTMLBodyElement>document.body);
