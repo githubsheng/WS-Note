@@ -60,7 +60,7 @@ class MaterialInput {
 class MaterialRoundButton {
     public containerEle: HTMLDivElement;
     public buttonEle: HTMLDivElement;
-    private mouseDownEventHanlder:(evt:MouseEvent) => void;
+    private mouseDownEventHandler:(evt:MouseEvent) => void;
     private mouseUpEventHandler:(evt:MouseEvent) => void;
 
     constructor(fontAwesomeClassName: string) {
@@ -77,7 +77,7 @@ class MaterialRoundButton {
         this.buttonEle = document.createElement("div");
         let buttonEle = this.buttonEle;
         positionRef.appendChild(buttonEle);
-        buttonEle.classList.add("round-button");
+        buttonEle.classList.add("button");
 
         let icon = document.createElement("i");
         buttonEle.appendChild(icon);
@@ -95,7 +95,7 @@ class MaterialRoundButton {
                 isAnimationPlaying = true;
                 mouseDownMouseUpPair++;
                 rippleEle.classList.add("mousedown");
-                if(this.mouseDownEventHanlder) this.mouseDownEventHanlder(evt);
+                if(this.mouseDownEventHandler) this.mouseDownEventHandler(evt);
             }
         });
 
@@ -118,7 +118,7 @@ class MaterialRoundButton {
     }
 
     addMouseDownEventHandler(handler: (evt:MouseEvent)=> void){
-        this.mouseDownEventHanlder = handler;
+        this.mouseDownEventHandler = handler;
     };
 
     addMouseUpEventHandler(handler: (evt:MouseEvent) => void) {
@@ -133,31 +133,43 @@ usernameInput.addValueChangeListener(function(value: string){
     console.log(value);
 });
 
-let optionsSection = document.createElement("div");
-optionsSection.classList.add("optionsSection");
-document.body.appendChild(optionsSection);
+function createOptionsSection(parentContainer:HTMLDivElement | HTMLBodyElement){
 
-let optionsButton = new MaterialRoundButton("fa fa-plus");
+    let optionsSection = document.createElement("div");
+    optionsSection.classList.add("optionsSection");
+    parentContainer.appendChild(optionsSection);
 
-optionsButton.addMouseDownEventHandler(function(){
-    optionsButton.buttonEle.classList.toggle("rotate");
-    optionsSection.classList.toggle("expand");
-});
-optionsButton.containerEle.classList.add("optionsButton");
-optionsSection.appendChild(optionsButton.containerEle);
+    let optionsButton = new MaterialRoundButton("fa fa-plus");
+    
+    optionsButton.addMouseDownEventHandler(function(){
+        optionsButton.buttonEle.classList.toggle("rotate");
+        optionsSection.classList.toggle("expand");
+    });
 
-let editButton = new MaterialRoundButton("fa fa-pencil");
-editButton.containerEle.classList.add("editButton");
-optionsSection.appendChild(editButton.containerEle);
+    optionsButton.containerEle.classList.add("optionsButton");
+    optionsSection.appendChild(optionsButton.containerEle);
 
-let imageButton = new MaterialRoundButton("fa fa-file-image-o");
-imageButton.containerEle.classList.add("imageButton");
-optionsSection.appendChild(imageButton.containerEle);
+    let editButton = new MaterialRoundButton("fa fa-pencil");
+    editButton.containerEle.classList.add("editButton");
+    editButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(editButton.containerEle);
 
-let paintButton = new MaterialRoundButton("fa fa-paint-brush");
-paintButton.containerEle.classList.add("paintButton");
-optionsSection.appendChild(paintButton.containerEle);
+    let imageButton = new MaterialRoundButton("fa fa-file-image-o");
+    imageButton.containerEle.classList.add("imageButton");
+    imageButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(imageButton.containerEle);
 
-let trashButton = new MaterialRoundButton("fa fa-trash");
-trashButton.containerEle.classList.add("trashButton");
-optionsSection.appendChild(trashButton.containerEle);
+    let paintButton = new MaterialRoundButton("fa fa-paint-brush");
+    paintButton.containerEle.classList.add("paintButton");
+    paintButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(paintButton.containerEle);
+
+    let trashButton = new MaterialRoundButton("fa fa-trash");
+    trashButton.containerEle.classList.add("trashButton");
+    trashButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(trashButton.containerEle);
+
+}
+
+createOptionsSection(<HTMLBodyElement>document.body);
+

@@ -54,7 +54,7 @@ var MaterialRoundButton = (function () {
         this.buttonEle = document.createElement("div");
         var buttonEle = this.buttonEle;
         positionRef.appendChild(buttonEle);
-        buttonEle.classList.add("round-button");
+        buttonEle.classList.add("button");
         var icon = document.createElement("i");
         buttonEle.appendChild(icon);
         icon.className = fontAwesomeClassName;
@@ -68,8 +68,8 @@ var MaterialRoundButton = (function () {
                 isAnimationPlaying = true;
                 mouseDownMouseUpPair++;
                 rippleEle.classList.add("mousedown");
-                if (_this.mouseDownEventHanlder)
-                    _this.mouseDownEventHanlder(evt);
+                if (_this.mouseDownEventHandler)
+                    _this.mouseDownEventHandler(evt);
             }
         });
         buttonEle.addEventListener("mouseup", function (evt) {
@@ -89,7 +89,7 @@ var MaterialRoundButton = (function () {
         });
     }
     MaterialRoundButton.prototype.addMouseDownEventHandler = function (handler) {
-        this.mouseDownEventHanlder = handler;
+        this.mouseDownEventHandler = handler;
     };
     ;
     MaterialRoundButton.prototype.addMouseUpEventHandler = function (handler) {
@@ -103,26 +103,33 @@ document.body.appendChild(usernameInput.containerEle);
 usernameInput.addValueChangeListener(function (value) {
     console.log(value);
 });
-var optionsSection = document.createElement("div");
-optionsSection.classList.add("optionsSection");
-document.body.appendChild(optionsSection);
-var optionsButton = new MaterialRoundButton("fa fa-plus");
-optionsButton.addMouseDownEventHandler(function () {
-    optionsButton.buttonEle.classList.toggle("rotate");
-    optionsSection.classList.toggle("expand");
-});
-optionsButton.containerEle.classList.add("optionsButton");
-optionsSection.appendChild(optionsButton.containerEle);
-var editButton = new MaterialRoundButton("fa fa-pencil");
-editButton.containerEle.classList.add("editButton");
-optionsSection.appendChild(editButton.containerEle);
-var imageButton = new MaterialRoundButton("fa fa-file-image-o");
-imageButton.containerEle.classList.add("imageButton");
-optionsSection.appendChild(imageButton.containerEle);
-var paintButton = new MaterialRoundButton("fa fa-paint-brush");
-paintButton.containerEle.classList.add("paintButton");
-optionsSection.appendChild(paintButton.containerEle);
-var trashButton = new MaterialRoundButton("fa fa-trash");
-trashButton.containerEle.classList.add("trashButton");
-optionsSection.appendChild(trashButton.containerEle);
+function createOptionsSection(parentContainer) {
+    var optionsSection = document.createElement("div");
+    optionsSection.classList.add("optionsSection");
+    parentContainer.appendChild(optionsSection);
+    var optionsButton = new MaterialRoundButton("fa fa-plus");
+    optionsButton.addMouseDownEventHandler(function () {
+        optionsButton.buttonEle.classList.toggle("rotate");
+        optionsSection.classList.toggle("expand");
+    });
+    optionsButton.containerEle.classList.add("optionsButton");
+    optionsSection.appendChild(optionsButton.containerEle);
+    var editButton = new MaterialRoundButton("fa fa-pencil");
+    editButton.containerEle.classList.add("editButton");
+    editButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(editButton.containerEle);
+    var imageButton = new MaterialRoundButton("fa fa-file-image-o");
+    imageButton.containerEle.classList.add("imageButton");
+    imageButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(imageButton.containerEle);
+    var paintButton = new MaterialRoundButton("fa fa-paint-brush");
+    paintButton.containerEle.classList.add("paintButton");
+    paintButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(paintButton.containerEle);
+    var trashButton = new MaterialRoundButton("fa fa-trash");
+    trashButton.containerEle.classList.add("trashButton");
+    trashButton.containerEle.classList.add("actionButton");
+    optionsSection.appendChild(trashButton.containerEle);
+}
+createOptionsSection(document.body);
 //# sourceMappingURL=material.js.map

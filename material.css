@@ -16,8 +16,7 @@
     -webkit-transform: translate3d(0, 28px, 0) scale(1);
     transform: translate3d(0, 28px, 0) scale(1);
 
-    transition: -webkit-transform .4s cubic-bezier(.25, .8, .25, 1);
-    transition: transform .4s cubic-bezier(.25, .8, .25, 1);
+    transition: transform 0.4s, color 0.4s;
     -webkit-transform-origin: left top;
     transform-origin: left top;
 
@@ -30,8 +29,11 @@
     font-size: 1.2em;
 }
 
-.mInput label.focus, .mInput label.hasValue{
+.mInput label.focus {
     color: #006600;
+}
+
+.mInput label.focus, .mInput label.hasValue{
     /*
     transform into the look of normal label from the look of placeholder, if transform does not work, the label remains on top of the input,
     rather than staying at the placeholder position.
@@ -61,7 +63,7 @@
     font-size: 1.2em;
 }
 
-.mInput input.active {
+.mInput input:focus {
     border-color: #77aa43;
 }
 
@@ -71,26 +73,25 @@
     height: 30px;
 }
 
-.roundButton .positionRef .round-button {
+.roundButton .positionRef .button {
     position: absolute;
     width: 30px;
     height: 30px;
     border-radius: 50%;
     line-height: 30px;
     text-align: center;
-    box-shadow: 0 0 2px 1px darkgray;
-
-    color: #006600;
-    background: white;
-    transition: 0.2s; /*for box shadow transition when hovered*/
+    color: white;
+    background: #006600;
+    box-shadow: 0 0 0 1px lightgray;
+    transition: box-shadow 0.2s, transform 0.2s; /*for box shadow transition when hovered*/
 }
 
-.roundButton .positionRef .round-button:hover {
+.roundButton .positionRef .button:hover {
     cursor: pointer;
-    box-shadow: 0 0 2px 1px #006600;
+    box-shadow: 0 0 3px 1px darkgray;
 }
 
-.roundButton .positionRef .round-button.rotate {
+.roundButton .positionRef .button.rotate {
     transform: rotate(45deg);
 }
 
@@ -100,26 +101,26 @@
     height: 30px;
     border-radius: 50%;
     transition: 0.5s;
-    background: #006600;
+    background: lightgray;
     opacity: 0.7;
     transform: scale(0.9, 0.9);
 }
 
 .roundButton .positionRef .ripple.mousedown {
     opacity: 0.9;
-    transform: scale(1.3, 1.3);
+    transform: scale(1.5, 1.5);
 }
 
 .roundButton .positionRef .ripple.mouseup {
     opacity: 0;
-    transform: scale(1.5, 1.5);
+    transform: scale(1.7, 1.7);
 }
 
 .optionsSection {
     position: relative;
 }
 
-.optionsSection .material {
+.optionsSection .roundButton {
     position: absolute;
 }
 
@@ -127,10 +128,9 @@
     z-index: 2;
 }
 
-.optionsSection .editButton, .optionsSection .imageButton,
-.optionsSection .paintButton, .optionsSection .trashButton {
+.optionsSection .actionButton {
     z-index: 1;
-    transition: 0.5s;
+    transition: transform 0.5s;
 }
 
 .optionsSection.expand .editButton {
@@ -148,7 +148,6 @@
 .optionsSection.expand .trashButton {
     transform: translateY(12em);
 }
-
 
 
 
