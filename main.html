@@ -5,8 +5,65 @@
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="material.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+    <style>
+        .autoCompletion {
+            width: 400px;
+            background: #4B4B4B;
+            padding-top: 1px;
+            border-radius: 4px;
+        }
+
+        #searchBoxContainer input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.5em;
+            border: none;
+            outline: none;
+            background: none;
+            color: white;
+            font-size: 1.2em;
+            border-bottom: 1px solid darkgray;
+        }
+
+        .autoCompletionList {
+            color: white;
+        }
+
+        .autoCompletionList:hover {
+            cursor: pointer;
+        }
+
+        .autoCompletionList .item {
+            padding: 0.5em;
+        }
+
+        .autoCompletionList .item:last-child {
+            border-radius: 0 0 4px 4px;
+        }
+
+        .autoCompletionList .item:hover {
+            background: #77AA43;
+        }
+    </style>
 </head>
 <body>
-<script src="MaterialComponents.js"></script>
+<div>
+    <div id="autoCompletion" class="autoCompletion">
+        <div id="searchBoxContainer">
+            <input/>
+        </div>
+        <div id="autoCompletionList" class="autoCompletionList">
+            <div class="item">aaaa</div>
+            <div class="item">ddddd</div>
+            <div class="item">cccc</div>
+            <div class="item">ddddd</div>
+        </div>
+    </div>
+
+</div>
+<div></div>
+
+
+<script src="Button.js"></script>
 </body>
 </html>

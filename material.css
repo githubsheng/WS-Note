@@ -30,7 +30,7 @@
 }
 
 .mInput label.focus {
-    color: #006600;
+    color: #77AA43;
 }
 
 .mInput label.focus, .mInput label.hasValue{
@@ -81,7 +81,7 @@
     line-height: 30px;
     text-align: center;
     color: white;
-    background: #006600;
+    background: #77AA43;
     box-shadow: 0 0 0 1px lightgray;
     transition: box-shadow 0.2s, transform 0.2s; /*for box shadow transition when hovered*/
 }
