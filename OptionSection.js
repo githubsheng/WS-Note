@@ -2,10 +2,9 @@
  * Created by wangsheng on 7/5/16.
  */
 /// <reference path="Button.ts" />
-function createOptionsSection(parentContainer) {
+function createOptionsSection() {
     let optionsSection = document.createElement("div");
     optionsSection.classList.add("optionsSection");
-    parentContainer.appendChild(optionsSection);
     let optionsButton = new MaterialRoundButton("fa fa-plus");
     optionsButton.addMouseDownEventHandler(function () {
         optionsButton.buttonEle.classList.toggle("rotate");
@@ -29,5 +28,6 @@ function createOptionsSection(parentContainer) {
     trashButton.containerEle.classList.add("trashButton");
     trashButton.containerEle.classList.add("actionButton");
     optionsSection.appendChild(trashButton.containerEle);
+    return optionsSection;
 }
 //# sourceMappingURL=OptionSection.js.map

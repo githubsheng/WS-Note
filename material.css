@@ -1,3 +1,7 @@
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
 .material {
     position: relative; /*set the position of the container to be relative because one or more of its children needs to be absolutely positioned.*/
     margin: 1.2em 0; /*adds a top/bottom margin*/
@@ -149,6 +153,49 @@
     transform: translateY(12em);
 }
 
+.autoCompletion {
+    width: 400px;
+    background: #4B4B4B;
+    border-radius: 4px;
+}
+
+.autoCompletion .search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5em;
+    border: none;
+    outline: none;
+    background: none;
+    color: white;
+    font-size: 1em;
+    border-bottom: 1px solid darkgray;
+}
+
+.autoCompletion .autoCompletionList {
+    color: white;
+}
+
+.autoCompletion .autoCompletionList:hover {
+    cursor: pointer;
+}
+
+.autoCompletion .item {
+    padding: 0.5em 4em 0.5em 0.5em;
+    position: relative;
+}
+
+.autoCompletion .tag {
+    position: absolute;
+    right: 0.5em;
+}
+
+.autoCompletion .item:last-child {
+    border-radius: 0 0 4px 4px;
+}
+
+.autoCompletion .item:hover {
+    background: #77AA43;
+}
 
 
 

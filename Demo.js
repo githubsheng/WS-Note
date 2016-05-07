@@ -8,5 +8,5 @@ document.body.appendChild(usernameInput.containerEle);
 usernameInput.addValueChangeListener(function (value) {
     console.log(value);
 });
-createOptionsSection(document.body);
+document.body.appendChild(createOptionsSection());
 //# sourceMappingURL=Demo.js.map

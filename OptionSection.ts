@@ -4,11 +4,10 @@
 
 /// <reference path="Button.ts" />
 
-function createOptionsSection(parentContainer:HTMLDivElement | HTMLBodyElement){
+function createOptionsSection():HTMLDivElement{
 
     let optionsSection = document.createElement("div");
     optionsSection.classList.add("optionsSection");
-    parentContainer.appendChild(optionsSection);
 
     let optionsButton = new MaterialRoundButton("fa fa-plus");
 
@@ -39,5 +38,7 @@ function createOptionsSection(parentContainer:HTMLDivElement | HTMLBodyElement){
     trashButton.containerEle.classList.add("trashButton");
     trashButton.containerEle.classList.add("actionButton");
     optionsSection.appendChild(trashButton.containerEle);
+
+    return optionsSection;
 
 }

@@ -12,4 +12,4 @@ usernameInput.addValueChangeListener(function(value: string){
     console.log(value);
 });
 
-createOptionsSection(<HTMLBodyElement>document.body);
+document.body.appendChild(createOptionsSection());

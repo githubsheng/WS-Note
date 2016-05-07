@@ -3,3 +3,6 @@ tsc --outFile app.js Demo.ts
 
 google font
 https://www.google.com/fonts
+
+reference
+/// <reference path="Input.ts" />

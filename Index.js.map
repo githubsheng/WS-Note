@@ -1,1 +1,1 @@
-{"version":3,"file":"TrieTree.js","sourceRoot":"","sources":["TrieTree.ts"],"names":[],"mappings":"AAAA;;GAEG"}
+{"version":3,"file":"Index.js","sourceRoot":"","sources":["Index.ts"],"names":[],"mappings":"AAAA;;GAEG;AACH,gCAAgC;AAEhC;IAEI,cAAc,CAAC,MAAa;QACxB,MAAM,CAAC,CAAC,IAAI,EAAE,IAAI,CAAC,CAAC;IACxB,CAAC;IAED,SAAS,CAAC,OAAc;QACpB,MAAM,CAAC,EAAE,CAAC;IACd,CAAC;IAED,iBAAiB,CAAC,OAAe,EAAE,IAAU;IAE7C,CAAC;IAED,qBAAqB,CAAC,OAAe,EAAE,IAAU;IAEjD,CAAC;AAEL,CAAC;AAAA"}
