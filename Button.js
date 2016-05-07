@@ -50,10 +50,8 @@ class MaterialRoundButton {
     addMouseDownEventHandler(handler) {
         this.mouseDownEventHandler = handler;
     }
-    ;
     addMouseUpEventHandler(handler) {
         this.mouseUpEventHandler = handler;
     }
-    ;
 }
 //# sourceMappingURL=Button.js.map

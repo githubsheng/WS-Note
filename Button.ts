@@ -64,9 +64,9 @@ class MaterialRoundButton {
 
     addMouseDownEventHandler(handler: (evt:MouseEvent)=> void){
         this.mouseDownEventHandler = handler;
-    };
+    }
 
     addMouseUpEventHandler(handler: (evt:MouseEvent) => void) {
         this.mouseUpEventHandler = handler;
-    };
+    }
 }

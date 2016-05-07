@@ -1,0 +1,5 @@
+example to concatenate all output js file into one
+tsc --outFile app.js Demo.ts
+
+google font
+https://www.google.com/fonts
