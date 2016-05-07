@@ -14,4 +14,14 @@ class Index {
     unlinkKeywordFromNote(keyword, note) {
     }
 }
+let index;
+function getIndex() {
+    if (!index) {
+        index = new Index();
+        return index;
+    }
+    else {
+        return index;
+    }
+}
 //# sourceMappingURL=Index.js.map

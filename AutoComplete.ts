@@ -2,13 +2,12 @@
  * Created by wangsheng on 7/5/16.
  */
 
-class AutoComplete {
+/// <reference path="Index.ts" />
 
-    private index: Index;
+function createAutoComplete(): void {
 
-    constructor(index: Index, parentContainer: HTMLDivElement) {
-        
-    }
+
+
 
 
 }

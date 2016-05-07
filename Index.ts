@@ -22,3 +22,14 @@ class Index {
     }
 
 }
+
+let index;
+
+function getIndex():Index{
+    if(!index) {
+        index = new Index();
+        return index;
+    } else {
+        return index;
+    }
+}
