@@ -154,33 +154,37 @@
 }
 
 .autoCompletion {
-    width: 400px;
+    width: 350px;
+    position: relative;
+}
+
+.autoCompletion .searchAndSuggestionContainer {
     background: #4B4B4B;
     border-radius: 4px;
+    margin-top: 2em;
+    position: relative;
+    box-shadow: 0 5px 10px 2px #969696;
+    overflow: hidden;
 }
 
 .autoCompletion .search {
     width: 100%;
     box-sizing: border-box;
-    padding: 0.5em;
+    padding: 10px;
     border: none;
     outline: none;
-    background: none;
+    background: #676767;
     color: white;
     font-size: 1em;
-    border-bottom: 1px solid darkgray;
 }
 
 .autoCompletion .autoCompletionList {
     color: white;
-}
-
-.autoCompletion .autoCompletionList:hover {
-    cursor: pointer;
+    font-size: 0.8em;
 }
 
 .autoCompletion .item {
-    padding: 0.5em 4em 0.5em 0.5em;
+    padding: 10px 20px 10px 10px;
     position: relative;
 }
 
@@ -189,12 +193,29 @@
     right: 0.5em;
 }
 
-.autoCompletion .item:last-child {
-    border-radius: 0 0 4px 4px;
+.autoCompletion .item.selected {
+    background: #77AA43;
 }
 
-.autoCompletion .item:hover {
-    background: #77AA43;
+.autoCompletion .criteria {
+    position: absolute;
+    top: -2em;
+    font-size: 0.8em;
+    white-space: nowrap;
+}
+
+.autoCompletion .criteria span {
+    display: block;
+    background: #476D20;
+    padding: 0.3em 0.5em;
+    border-radius: 4px;
+    color: white;
+    position: absolute;
+    transition: transform 0.5s;
+}
+
+.autoCompletion .criteria span:hover {
+    cursor: pointer;
 }
 
 

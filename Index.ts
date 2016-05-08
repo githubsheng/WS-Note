@@ -6,7 +6,8 @@
 class Index {
 
     suggestKeyword(prefix:string):string[] {
-        return ["aa", "bb"];
+        let end = getRandomInt(0, 10);
+        return dummySuggestions.slice(0, end);
     }
 
     findNotes(keyword:string):Note[] {
@@ -24,6 +25,12 @@ class Index {
 }
 
 let index;
+
+let dummySuggestions = ["hello", "there", "how you", "function", "switch case", "if else", "array length", "number", "linked list", "hash map"];
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
 
 function getIndex():Index{
     if(!index) {

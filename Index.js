@@ -4,7 +4,8 @@
 /// <reference path="Note.ts" />
 class Index {
     suggestKeyword(prefix) {
-        return ["aa", "bb"];
+        let end = getRandomInt(0, 10);
+        return dummySuggestions.slice(0, end);
     }
     findNotes(keyword) {
         return [];
@@ -15,6 +16,10 @@ class Index {
     }
 }
 let index;
+let dummySuggestions = ["hello", "there", "how you", "function", "switch case", "if else", "array length", "number", "linked list", "hash map"];
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
 function getIndex() {
     if (!index) {
         index = new Index();
