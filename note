@@ -8,3 +8,6 @@ https://www.google.com/fonts
 reference
 /// <reference path="Input.ts" />
 
+download the typings
+tsd install chrome-app
+
