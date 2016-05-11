@@ -5,7 +5,7 @@
   "icons": {
     "128": "images/icon_128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["unlimitedStorage"],
   "app": {
     "background": {
       "scripts": ["background.js"]
