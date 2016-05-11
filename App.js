@@ -128,6 +128,10 @@ function createOptionsSection() {
  * Created by wangsheng on 7/5/16.
  */
 class Note {
+    constructor(createdWhen, modifiedWhen) {
+        this.createdWhen = createdWhen;
+        this.modifiedWhen = modifiedWhen;
+    }
 }
 /**
  * Created by wangsheng on 7/5/16.
@@ -276,10 +280,40 @@ function createAutoComplete() {
             searchEle.value = suggestedKeywords[selectedSuggestionIndex];
         }
     });
-    //首先构筑好html 结构 (固定数据)
-    //使用假的数据来动态的构建建议菜单
-    //实现最基本的互动,比如按上下按键
     return autoCompletionEle;
+}
+/// <reference path="Note.ts" />
+let dbFactory = window.indexedDB;
+let request = dbFactory.open("test");
+const noteStoreName = "notes";
+let db;
+request.onupgradeneeded = function (evt) {
+    let idb = IDBOpenDBRequest.result;
+    if (idb.objectStoreNames.contains(noteStoreName))
+        idb.deleteObjectStore(noteStoreName);
+    let store = idb.createObjectStore(noteStoreName, { keyPath: 'id', autoIncrement: true });
+    store.createIndex('title', 'title', { unique: true, multiEntry: false });
+};
+request.onsuccess = function (evt) {
+    db = evt.target.result;
+};
+request.onerror = function () {
+    throw new Error("an error has occurred when connecting to indexdedDB");
+};
+function addNote() {
+    let note = new Note(1, 1);
+    var transaction = db.transaction(noteStoreName, 'readwrite');
+    var store = transaction.objectStore(noteStoreName);
+    var requestOne = store.add(note);
+    var requestTwo = store.add(note);
+    if (requestOne === requestTwo)
+        console.log("same request man");
+    requestOne.onsuccess = function () {
+        console.log("request successful");
+    };
+    transaction.oncomplete = function () {
+        console.log("transaction completed");
+    };
 }
 /**
  * Created by wangsheng on 7/5/16.
@@ -287,6 +321,7 @@ function createAutoComplete() {
 /// <reference path="Input.ts" />
 /// <reference path="OptionSection.ts" />
 /// <reference path="AutoComplete.ts" />
+///<reference path="Storage.ts"/>
 let usernameInput = new MaterialInput("Username", "username-input");
 document.body.appendChild(usernameInput.containerEle);
 usernameInput.addValueChangeListener(function (value) {
@@ -294,3 +329,6 @@ usernameInput.addValueChangeListener(function (value) {
 });
 document.body.appendChild(createAutoComplete());
 document.body.appendChild(createOptionsSection());
+function testAddNote() {
+    addNote();
+}
