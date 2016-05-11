@@ -25,8 +25,13 @@ function *testStorage(): any{
     });
     console.log("done iterating all notes");
 
-    let id = yield addNote(idb, new Note(1, 1));
-    console.log("id of the new entity is " + id);
+    let note = new Note(Date.now(), Date.now());
+
+    note = yield storeNote(idb, note);
+    console.log(note);
+
+    let id = yield deleteNote(idb, 3);
+    console.log("item with id " + id + " gets deleted");
 }
 
 runGenerator(testStorage);
