@@ -1,3 +1,22 @@
+/**
+ * Created by wangsheng on 11/5/16.
+ */
+function runGenerator(genFunc) {
+    let iterator = genFunc();
+    let result;
+    function iterate(value) {
+        result = iterator.next(value);
+        if (!result.done) {
+            if (result.value instanceof Promise) {
+                result.value.then(iterate);
+            }
+            else {
+                iterate(result.value);
+            }
+        }
+    }
+    iterate();
+}
 class MaterialInput {
     constructor(label, id) {
         this.containerEle = document.createElement("div");
@@ -128,6 +147,10 @@ function createOptionsSection() {
  * Created by wangsheng on 7/5/16.
  */
 class Note {
+    constructor(createdWhen, modifiedWhen) {
+        this.createdWhen = createdWhen;
+        this.modifiedWhen = modifiedWhen;
+    }
 }
 /**
  * Created by wangsheng on 7/5/16.
@@ -278,12 +301,77 @@ function createAutoComplete() {
     });
     return autoCompletionEle;
 }
-/**
- * Created by wangsheng on 7/5/16.
- */
-/// <reference path="Input.ts" />
-/// <reference path="OptionSection.ts" />
-/// <reference path="AutoComplete.ts" />
+/// <reference path="Note.ts" />
+const dbName = "test";
+const noteStoreName = "notes";
+function connectToDB() {
+    function promiseFunc(resolve) {
+        //get idb factory
+        let dbFactory = window.indexedDB;
+        //use idb factory to connect to db called `test`. the function call immediately returns the request that is sent to
+        //connect to db. When the connection is successful, the request's onsuccess/onerror call back will be invoked.
+        let request = dbFactory.open(dbName);
+        //when the connection is successful this call back is invoked.
+        //note that if onupgradeneeded is invoked, it is called before onsuccess.
+        request.onsuccess = function (evt) {
+            //once connection is successful, database is available as the `result` of IDBOpenDBRequest. store this to a global
+            //variable for reuse later. this connection will be closed automatically when you leave the page.
+            let idb = request.result;
+            resolve(idb);
+        };
+        //if this connection fails, this call back is invoked.
+        request.onerror = function () {
+            throw new Error("an error has occurred when connecting to indexdedDB");
+        };
+        //if I connect to a database that does not exist, it will be created, when it is created, this call back will be invoked,
+        //this is where i define the database schema, such as objectStore, index, id and so on.
+        //this call back is also invoked when i upgrade the database. Check out IDBFactory::open
+        //notice if this call back get invoked, it is invoked before onsuccess.
+        request.onupgradeneeded = function (evt) {
+            //when the callback is invoked, database is available as IDBOpenDBRequest.result
+            let idb = request.result;
+            if (idb.objectStoreNames.contains(noteStoreName))
+                idb.deleteObjectStore(noteStoreName);
+            let store = idb.createObjectStore(noteStoreName, { keyPath: 'id', autoIncrement: true });
+            store.createIndex('title', 'title', { unique: true, multiEntry: false });
+        };
+    }
+    return new Promise(promiseFunc);
+}
+function iterateAllNotes(idb, noteProcessor) {
+    function promiseFunc(resolve) {
+        let transaction = idb.transaction(noteStoreName, "readonly");
+        let objectStore = transaction.objectStore(noteStoreName);
+        let request = objectStore.openCursor();
+        request.onsuccess = function () {
+            let cursor = request.result;
+            if (cursor) {
+                noteProcessor(cursor.value);
+                cursor.continue();
+            }
+            else {
+                resolve();
+            }
+        };
+    }
+    return new Promise(promiseFunc);
+}
+function addNote(idb, note) {
+    function promiseFunc(resolve) {
+        var transaction = idb.transaction(noteStoreName, 'readwrite');
+        var store = transaction.objectStore(noteStoreName);
+        var request = store.add(note);
+        request.onsuccess = function () {
+            resolve(request.result);
+        };
+    }
+    return new Promise(promiseFunc);
+}
+///<reference path="AsyncUtil.ts"/>
+///<reference path="Input.ts" />
+///<reference path="OptionSection.ts" />
+///<reference path="AutoComplete.ts" />
+///<reference path="Storage.ts"/>
 let usernameInput = new MaterialInput("Username", "username-input");
 document.body.appendChild(usernameInput.containerEle);
 usernameInput.addValueChangeListener(function (value) {
@@ -291,3 +379,14 @@ usernameInput.addValueChangeListener(function (value) {
 });
 document.body.appendChild(createAutoComplete());
 document.body.appendChild(createOptionsSection());
+function* testStorage() {
+    let idb = yield connectToDB();
+    console.log("getting database");
+    yield iterateAllNotes(idb, function (note) {
+        console.log(note);
+    });
+    console.log("done iterating all notes");
+    let id = yield addNote(idb, new Note(1, 1));
+    console.log("id of the new entity is " + id);
+}
+runGenerator(testStorage);
