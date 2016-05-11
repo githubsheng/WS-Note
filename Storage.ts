@@ -78,13 +78,32 @@ function iterateAllNotes(idb: IDBDatabase, noteProcessor: (note: Note) => any): 
 function addNote(idb: IDBDatabase, note: Note): Promise<number> {
 
     function promiseFunc(resolve){
-        var transaction = idb.transaction(noteStoreName, "readwrite");
-        var store = transaction.objectStore(noteStoreName);
-        var request = store.add(note);
+        //signal to start a transaction, you need to tell which object stores the transaction is going
+        //to deal with (so that maybe it can lock it or something?)
+        let transaction = idb.transaction(noteStoreName, "readwrite");
 
+        //now i need to pick one object store mentioned above
+        let store = transaction.objectStore(noteStoreName);
+        //this `add` operation will be included in the transaction
+        let request = store.add(note);
+
+        let generatedId;
+        //this callback will be invoked when the item gets added
+        //note that if the transaction fail, the addition may be rolled back
         request.onsuccess = function(){
-            resolve(request.result);
+            //here the generated id of the item is available as request result
+            //remember it for now and do not do anything hasty.
+            generatedId = request.result;
         };
+
+        //the transaction is complete, now its safe to move on.
+        transaction.oncomplete = function() {
+            //finally fulfill the promise and send the generated ids to resolve callback.
+            resolve(generatedId);
+        };
+        //my guess:
+        //transaction will really start after this function call and the control returned back to event loop
+
     }
 
     return new Promise(promiseFunc);
