@@ -20,3 +20,5 @@ function runGenerator(genFunc:() => IterableIterator<any>) {
 
     iterate();
 }
+
+let r = runGenerator;
