@@ -11,3 +11,5 @@ reference
 download the typings
 tsd install chrome-app
 
+//remove the test db
+window.indexedDB.deleteDatabase("test");
