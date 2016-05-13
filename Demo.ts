@@ -7,7 +7,7 @@
 
 import storage = StorageNamespace;
 
-let usernameInput = new MaterialInput("Username", "username-input");
+let usernameInput = new MaterialInput("Username");
 document.body.appendChild(usernameInput.containerEle);
 
 usernameInput.addValueChangeListener(function(value: string){
