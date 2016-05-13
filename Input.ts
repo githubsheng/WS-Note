@@ -5,13 +5,11 @@ class MaterialInput {
     public inputEle:HTMLInputElement;
     private valueChangeListener: (value: string, evt?:Event) => void;
 
-    constructor(label: string, id?: string) {
+    constructor(label: string) {
         this.containerEle = document.createElement("div");
         let containerEle = this.containerEle;
         containerEle.classList.add("material");
         containerEle.classList.add("mInput");
-
-        if(id) containerEle.id = id;
 
         this.labelEle = document.createElement("label");
         let labelEle = this.labelEle;
