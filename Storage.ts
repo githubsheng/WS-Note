@@ -40,7 +40,7 @@ namespace StorageNamespace {
                 let idb: IDBDatabase = request.result;
                 if (idb.objectStoreNames.contains(noteStoreName)) idb.deleteObjectStore(noteStoreName);
                 let store:IDBObjectStore = idb.createObjectStore(noteStoreName, {keyPath: 'id', autoIncrement: true});
-                store.createIndex('title', 'title', {unique: true, multiEntry: false});
+                store.createIndex('url', 'url', {unique: true, multiEntry: false});
             };
         }
 
