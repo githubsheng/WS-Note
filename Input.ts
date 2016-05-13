@@ -47,6 +47,10 @@ class MaterialInput {
         });
     }
 
+    getValue(): string{
+        return this.inputEle.value;
+    }
+
     addValueChangeListener(listener: (value: string) => void) {
         this.valueChangeListener = listener;
     }
