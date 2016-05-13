@@ -7,6 +7,7 @@ class Note {
     public id:number;
     public title: string;
     public content: string;
+    public url: string;
     public createdWhen: number;
     public modifiedWhen: number;
 
