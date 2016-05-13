@@ -11,6 +11,9 @@ class Note {
     public createdWhen: number;
     public modifiedWhen: number;
 
+    public referencedBy: Set<number> = new Set();
+    public referenceTo: Set<number> = new Set();
+
     constructor(createdWhen: number, modifiedWhen: number) {
         this.createdWhen = createdWhen;
         this.modifiedWhen = modifiedWhen;
