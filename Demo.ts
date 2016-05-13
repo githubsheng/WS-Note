@@ -3,6 +3,9 @@
 ///<reference path="OptionSection.ts" />
 ///<reference path="AutoComplete.ts" />
 ///<reference path="Storage.ts"/>
+///<reference path="CodeEditor.ts"/>
+
+import storage = StorageNamespace;
 
 let usernameInput = new MaterialInput("Username", "username-input");
 document.body.appendChild(usernameInput.containerEle);
@@ -15,24 +18,27 @@ document.body.appendChild(createAutoComplete());
 
 document.body.appendChild(createOptionsSection());
 
-function *testStorage(): any{
+document.body.appendChild(document.createElement("hr"));
 
-    let idb:IDBDatabase = yield connectToDB();
-    console.log("getting database");
+var titleInput = new MaterialInput("title");
+document.body.appendChild(titleInput.containerEle);
 
-    yield iterateAllNotes(idb, function(note: Note) {
-        console.log(note);
+var codeEditor = createCodeEditor();
+document.body.appendChild(codeEditor.containerEle);
+
+var saveButton = new MaterialRoundButton("fa fa-floppy-o");
+saveButton.addMouseUpEventHandler(function(){
+    r(function*(){
+        let note = new Note(Date.now(), Date.now());
+        note.title = titleInput.getValue();
+        note.content = codeEditor.getValue();
+
+        let idb: IDBDatabase = yield storage.getIDB();
+        note = yield storage.storeNote(idb, note);
+
+        console.log("note saved with id: " + note.id);
     });
-    console.log("done iterating all notes");
+});
 
-    let note = new Note(Date.now(), Date.now());
-
-    note = yield storeNote(idb, note);
-    console.log(note);
-
-    let id = yield deleteNote(idb, 3);
-    console.log("item with id " + id + " gets deleted");
-}
-
-runGenerator(testStorage);
+document.body.appendChild(saveButton.containerEle);
 
