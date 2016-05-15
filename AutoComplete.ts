@@ -6,7 +6,7 @@
 
 function createAutoComplete():HTMLDivElement {
 
-    let index = getIndex();
+    let index = IndexNamespace.getIndex();
 
     let autoCompletionEle = document.createElement("div");
     autoCompletionEle.classList.add("autoCompletion");
@@ -62,7 +62,7 @@ function createAutoComplete():HTMLDivElement {
 
     searchEle.addEventListener("input", function () {
 
-        suggestedKeywords = index.suggestKeyword(searchEle.value);
+        suggestedKeywords = index.keysWithPrefix(searchEle.value);
 
         updateItemElesOnSuggestedKeywordsChange();
 
