@@ -36,6 +36,7 @@ function shouldInclude(array: any[], ...elements: any[]) {
 }
 
 function arrayShouldBeIdentical(a: any[], b: any[]) {
+    if(a.length !== b.length) throw new Error('the two arrays are not identical');
     for(let i = 0; i < a.length; i++)
         if(a[i] !== b[i]) throw new Error('the two arrays are not identical');
 }
