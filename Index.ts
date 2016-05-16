@@ -1,8 +1,6 @@
 /// <reference path="Note.ts" />
+/// <reference path="StopWords.ts" />
 
-/**
- *
- */
 namespace IndexNamespace {
 
     const r = 256; //extended ascii.
@@ -27,18 +25,31 @@ namespace IndexNamespace {
         next: Node[] = new Array(r);
         numberOfRelatedNotes = 0;
         relatedNotes: number[];
+        isStopWord = false;
     }
 
     class KeywordIndex {
 
         private root: Node;
-        private numberOfKeys: number;
         constructor(){};
 
-        public get(key: string): number[] {
+        /**
+         * get the related notes linked to a key. if the key happens to be a stop word, it will return false.
+         */
+        public get(key: string): number[] | boolean {
             let x: Node = this.getHelper(this.root, key, 0);
             if( x === undefined ) return undefined;
-            return x.relatedNotes;
+            if(x.isStopWord) {
+                return false;
+            } else {
+                return x.relatedNotes;
+            }
+        }
+
+        public isStopWord(key: string): boolean {
+            let x: Node = this.getHelper(this.root, key, 0);
+            if( x === undefined ) return false;
+            return x.isStopWord;
         }
 
         private getHelper(x: Node, key: string, d: number) {
@@ -52,45 +63,53 @@ namespace IndexNamespace {
             this.root = this.putHelper(this.root, key, reversed, noteIndex, 0);
         }
 
+        public putAsStopWords(key: string): void {
+            this.root = this.putHelper(this.root, key, false, -1, 0);
+        }
+
+        //if note index is -1 then this key is regarded as a stop word
         private putHelper(x: Node, key: string, reversed: boolean,  noteIndex: number, d: number): Node {
             if(x === undefined) x = new Node();
             if(d === key.length) {
-                if(x.relatedNotes === undefined) {
-                    //if the array is not there, create it.
-                    x.relatedNotes = [];
-                    //set the corresponding frequency to 1.
-                    x.relatedNotes[noteIndex] = 1;
-                    //the number of keys gets incremented.
-                    this.numberOfKeys++;
-                    //here i relate one note to this key word.
-                    x.numberOfRelatedNotes++;
+                if(noteIndex === -1) {
+                    x.isStopWord = true;
                 } else {
-                    //the array exists, but many of its slots could be undefined, rather than a number
-                    if(x.relatedNotes[noteIndex] === undefined) {
-                        //if the corresponding frequency is undefined, initialize it to 1.
+                    if(x.relatedNotes === undefined) {
+                        //if the array is not there, create it.
+                        x.relatedNotes = [];
+                        //set the corresponding frequency to 1.
                         x.relatedNotes[noteIndex] = 1;
-                        //one more note is related to this keyword
+                        //here i relate one note to this key word.
                         x.numberOfRelatedNotes++;
                     } else {
-                        //well, its already a number, increment it then.
-                        x.relatedNotes[noteIndex] += 1;
+                        //the array exists, but many of its slots could be undefined, rather than a number
+                        if(x.relatedNotes[noteIndex] === undefined) {
+                            //if the corresponding frequency is undefined, initialize it to 1.
+                            x.relatedNotes[noteIndex] = 1;
+                            //one more note is related to this keyword
+                            x.numberOfRelatedNotes++;
+                        } else {
+                            //well, its already a number, increment it then.
+                            x.relatedNotes[noteIndex] += 1;
+                        }
+                    }
+
+                    if(reversed) {
+                        x.reversedOrderCount++;
+                    } else {
+                        x.naturalOrderCount++;
                     }
                 }
-
-                if(reversed) {
-                    x.reversedOrderCount++;
-                } else {
-                    x.naturalOrderCount++;
-                }
-
                 return x;
             }
             let c: number = key.charCodeAt(d);
-            x.next[c] = this.putHelper(x.next[c], key, reversed, noteIndex, d+1);
+            //only index english for now, if a character is not in ascii extended, do not continue.
+            if(c < r)
+                x.next[c] = this.putHelper(x.next[c], key, reversed, noteIndex, d+1);
             return x;
         }
 
-        public delete(key: string, reversed: boolean, noteIndex: number) {
+        public remove(key: string, reversed: boolean, noteIndex: number) {
             this.root = this.deleteHelper(this.root, key, reversed, noteIndex, 0);
         }
 
@@ -114,8 +133,6 @@ namespace IndexNamespace {
                     if(x.numberOfRelatedNotes === 0) {
                         //if no notes are related to this keyword, remove the array to save memory
                         x.relatedNotes = undefined;
-                        //and of course this key will no longer be a key.
-                        this.numberOfKeys--;
                     }
                 }
             } else {
@@ -128,10 +145,6 @@ namespace IndexNamespace {
                 if(x.next[c] !== undefined) return x;
             }
             return undefined;
-        }
-
-        public size(): number {
-            return this.numberOfKeys;
         }
 
         public keysWithPrefix(prefix: string): string[] {
@@ -176,6 +189,8 @@ namespace IndexNamespace {
     export function getIndex():KeywordIndex{
         if(!keywordIndex) {
             keywordIndex = new KeywordIndex();
+            for(var stopWord of StopWordsNamespace.stopWords)
+                keywordIndex.putAsStopWords(stopWord);
             return keywordIndex;
         } else {
             return keywordIndex;
