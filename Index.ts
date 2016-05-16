@@ -34,7 +34,10 @@ namespace IndexNamespace {
         constructor(){};
 
         /**
-         * get the related notes linked to a key. if the key happens to be a stop word, it will return false.
+         * get the related notes linked to a key.
+         * if the key does not exists, it will return undefined.
+         * if the key happens to be a stop word, it will return false.
+         * if the key exists and is linked to some notes, the notes will be returned.
          */
         public get(key: string): number[] | boolean {
             key = key.toLowerCase();
@@ -47,10 +50,16 @@ namespace IndexNamespace {
             }
         }
 
+        /**
+         * checks if a key is a stop word.
+         * if the key is not found, undefined is returned.
+         * if the key is a stop word, true is returned.
+         * if the key is not a stop word, false is returned.
+         */
         public isStopWord(key: string): boolean {
             key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
-            if( x === undefined ) return false;
+            if( x === undefined ) return undefined;
             return x.isStopWord;
         }
 
