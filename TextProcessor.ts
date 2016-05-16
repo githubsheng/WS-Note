@@ -1,4 +1,5 @@
-///<reference path="Trie.ts"/>
+///<reference path="Index.ts" />
+
 /**
  * This keyword processor processes the text of a note and returns keywords, and keyword combination that needs to be indexed.
  * Text is split into words by delimiters. Most commonly seen delimiter is whitespace. For instance, "wang sheng" is split into
@@ -40,13 +41,11 @@ class KeywordProcessor {
     private nextWord: string;
     private delimiterCodes: boolean[] = [];
     private wordCombinationStoppingDelimiters: boolean[] = [];
-    private wordsToIgnore: TrieST;
     private readIndex = 0;
     private static r = 256; //extended ascii
 
-    constructor(text:string, wordsToIgnore){
+    constructor(text:string){
         this.text = text;
-        this.wordsToIgnore = wordsToIgnore;
         this.delimiterCodes = new Array(KeywordProcessor.r);
         
         let delimiters = [' ', ',', '.', '`', '*'];
@@ -105,7 +104,7 @@ class KeywordProcessor {
             return undefined;
         } else {
             let result =  this.text.substring(wordStartIndex, wordEndIndex);
-            if(this.wordsToIgnore.get(result)) return undefined;
+            if(IndexNamespace.getIndex().isStopWord(result)) return undefined;
             return result;
         }
 
@@ -122,6 +121,8 @@ class KeywordProcessor {
         //if `nextWordHelper` cannot find next word, it will set `readIndex` to -1, indicating the `currentWord` is already
         //the last word. `hasNext` will then return false.
         this.nextWord = this.nextWordHelper();
+
+        console.log({prev: this.previousWord, cur: this.currentWord, next: this.nextWord});
 
         return {
             prevComb: this.previousWord === undefined ? this.previousWord : this.currentWord + " " + this.previousWord,
