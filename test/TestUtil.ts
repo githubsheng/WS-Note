@@ -1,0 +1,41 @@
+/**
+ * Created by wangsheng on 16/5/16.
+ */
+
+function shouldBeEqual(left: any, right: any) {
+    if(left !== right)
+        throw new Error("should be equal");
+}
+
+function shouldNotBeEqual(left: any, right: any) {
+    if(left === right)
+        throw new Error("should not be equal");
+}
+
+function shouldBeUndefined(i: any) {
+    shouldBeEqual(i, undefined);
+}
+
+function shouldNotBeUndefined(i: any) {
+    shouldNotBeEqual(i, undefined);
+}
+
+function shouldBeTrue(i: any) {
+    if(i !== true) throw new Error("should be true");
+}
+
+function shouldBeFalse(i: any) {
+    if(i !== false) throw new Error("should be false");
+}
+
+function shouldInclude(array: any[], ...elements: any[]) {
+    let found = 0;
+    for(var ai of array)
+        if(elements.indexOf(ai) > -1) found++;
+    if(elements.length !== found) throw new Error("not all are found");
+}
+
+function arrayShouldBeIdentical(a: any[], b: any[]) {
+    for(let i = 0; i < a.length; i++)
+        if(a[i] !== b[i]) throw new Error('the two arrays are not identical');
+}
