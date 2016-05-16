@@ -37,6 +37,7 @@ namespace IndexNamespace {
          * get the related notes linked to a key. if the key happens to be a stop word, it will return false.
          */
         public get(key: string): number[] | boolean {
+            key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
             if( x === undefined ) return undefined;
             if(x.isStopWord) {
@@ -47,6 +48,7 @@ namespace IndexNamespace {
         }
 
         public isStopWord(key: string): boolean {
+            key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
             if( x === undefined ) return false;
             return x.isStopWord;
@@ -60,10 +62,12 @@ namespace IndexNamespace {
         }
 
         public put(key:string, reversed: boolean, noteIndex: number): void {
+            key = key.toLowerCase();
             this.root = this.putHelper(this.root, key, reversed, noteIndex, 0);
         }
 
         public putAsStopWords(key: string): void {
+            key = key.toLowerCase();
             this.root = this.putHelper(this.root, key, false, -1, 0);
         }
 
@@ -110,6 +114,7 @@ namespace IndexNamespace {
         }
 
         public remove(key: string, reversed: boolean, noteIndex: number) {
+            key = key.toLowerCase();
             this.root = this.deleteHelper(this.root, key, reversed, noteIndex, 0);
         }
 
@@ -148,6 +153,7 @@ namespace IndexNamespace {
         }
 
         public keysWithPrefix(prefix: string): string[] {
+            prefix = prefix.toLowerCase();
             let results: string[] = [];
             let x = this.getHelper(this.root, prefix, 0);
             this.collect(x, prefix.split(""), results);
