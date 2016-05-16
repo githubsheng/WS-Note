@@ -48,7 +48,7 @@ class KeywordProcessor {
         this.text = text;
         this.delimiterCodes = new Array(KeywordProcessor.r);
         
-        let delimiters = [' ', ',', '.', '`', '*'];
+        let delimiters = [' ', ',', '.', '`', '_', '*', ':', '-'];
         for(let i = 0; i < delimiters.length; i++) {
             let cc = delimiters[i].charCodeAt(0);
             if(cc < KeywordProcessor.r) {
@@ -56,7 +56,7 @@ class KeywordProcessor {
             }
         }
 
-        let wordCombinationStoppingDelimiters = [',', '.'];
+        let wordCombinationStoppingDelimiters = [',', '.', ":"];
         for(let i = 0; i < wordCombinationStoppingDelimiters.length; i++) {
             let cc = wordCombinationStoppingDelimiters[i].charCodeAt(0);
             if(cc < KeywordProcessor.r) {
@@ -122,12 +122,12 @@ class KeywordProcessor {
         //the last word. `hasNext` will then return false.
         this.nextWord = this.nextWordHelper();
 
-        console.log({prev: this.previousWord, cur: this.currentWord, next: this.nextWord});
-
         return {
-            prevComb: this.previousWord === undefined ? this.previousWord : this.currentWord + " " + this.previousWord,
+            prevComb: this.previousWord === undefined || this.currentWord === undefined ?
+                        undefined : this.currentWord + " " + this.previousWord,
             cur: this.currentWord,
-            nextComb: this.nextWord === undefined ? this.nextWord : this.currentWord + " " + this.nextWord
+            nextComb: this.nextWord === undefined || this.currentWord === undefined ?
+                        undefined : this.currentWord + " " + this.nextWord
         };
     }
 
