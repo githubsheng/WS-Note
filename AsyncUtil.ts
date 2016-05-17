@@ -1,7 +1,3 @@
-/**
- * Created by wangsheng on 11/5/16.
- */
-
 function runGenerator(genFunc:() => IterableIterator<any>) {
 
     let iterator = genFunc();
@@ -18,7 +14,8 @@ function runGenerator(genFunc:() => IterableIterator<any>) {
         }
     }
 
-    function reject(){
+    function reject(reason){
+        console.log(reason);
         throw new Error("promise is rejected");
     }
 
