@@ -48,6 +48,9 @@ function runIndexTest(){
         let unAffectedResults = index.get("JavaScript");
         arrayShouldBeIdentical(<number[]>relatedNotes, <number[]>unAffectedResults);
 
+        index.remove("javascript", false, 1);
+        shouldBeUndefined(index.get("javascript")[1]);
+
         index.remove("java", false, 5);
         let searchResult = index.get("java");
         shouldBeUndefined(searchResult);
