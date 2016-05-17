@@ -40,3 +40,7 @@ function arrayShouldBeIdentical(a: any[], b: any[]) {
     for(let i = 0; i < a.length; i++)
         if(a[i] !== b[i]) throw new Error('the two arrays are not identical');
 }
+
+function shouldBeInstanceOf(i: any, t: any) {
+    if(!(i instanceof t)) throw new Error("not expected type");
+}
