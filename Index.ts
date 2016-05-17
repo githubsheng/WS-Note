@@ -137,7 +137,7 @@ namespace IndexNamespace {
                     }
                     if(x.relatedNotes[noteIndex] === 0) {
                         //if the frequency is reduced to 0, then the note is no longer related to the key
-                        x.relatedNotes.splice(noteIndex, 1);
+                        x.relatedNotes[noteIndex] = undefined;
                         x.numberOfRelatedNotes--;
                     }
                     if(reversed) {
