@@ -78,6 +78,39 @@ namespace StorageNamespace {
 
     }
 
+    export function getNote(idb: IDBDatabase, id: number): Promise<Note> {
+
+        function promiseFunc(resolve) {
+
+            let transaction = idb.transaction(noteStoreName, "readonly");
+            let store = transaction.objectStore(noteStoreName);
+            let request = store.get(id);
+
+            let note: Note;
+
+            request.onsuccess = function(){
+                note = request.result;
+            };
+
+            request.onerror = function(){
+                console.log(request.error);
+                throw new Error("request failed");
+            };
+
+            transaction.oncomplete = function() {
+                resolve(note);
+            };
+
+            transaction.onerror = function(){
+                console.log(transaction.error);
+                throw new Error("transaction failed");
+            };
+
+        }
+
+        return new Promise<Note>(promiseFunc);
+    }
+
     export function storeNote(idb: IDBDatabase, note: Note): Promise<Note> {
 
         function promiseFunc(resolve){
