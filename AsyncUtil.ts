@@ -11,11 +11,15 @@ function runGenerator(genFunc:() => IterableIterator<any>) {
         result = iterator.next(value);
         if (!result.done) {
             if (result.value instanceof Promise) {
-                result.value.then(iterate);
+                result.value.then(iterate, reject);
             } else {
                 iterate(result.value);
             }
         }
+    }
+
+    function reject(){
+        throw new Error("promise is rejected");
     }
 
     iterate();
