@@ -20,7 +20,7 @@ function createCodeEditor():CodeEditor {
         }
     }
 
-    containerEle.addEventListener("paste", function (evt:ClipboardEvent) {
+    function pastePlainText (evt:ClipboardEvent) {
         evt.preventDefault();
         let pastePlainString = evt.clipboardData.getData("text/plain");
         if (pastePlainString.trim() !== "") {
@@ -34,7 +34,9 @@ function createCodeEditor():CodeEditor {
             }
             document.execCommand("insertHTML", false, htmlStr);
         }
-    });
+    }
+
+    containerEle.addEventListener("paste", pastePlainText);
 
     let recordedRangeWhenFocusLost: Range;
 
