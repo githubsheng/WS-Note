@@ -218,5 +218,10 @@
     cursor: pointer;
 }
 
+.codeEditor {
+    width: 400px;
+    height: 400px;
+    white-space: pre-wrap;
+}
 
 
