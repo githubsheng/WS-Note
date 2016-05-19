@@ -64,10 +64,11 @@ namespace CodeEditorNamespace {
         }
 
         dropContainerEle.ondragenter = function (e) {
-            // If the drag is something other than files, ignore it.
+            //if the drag is something other than files, ignore it.
             var types = e.dataTransfer.types;
             if ((types.contains && types.contains("Files")) || (types["indexOf"] && types["indexOf"]("Files") != -1)) {
-                dropContainerEle.classList.add("active"); // Highlight the drop container element
+                //highlight the drop container element
+                dropContainerEle.classList.add("active");
                 //return false to show interest to the drag and drop.
                 return false;
             }
@@ -82,21 +83,6 @@ namespace CodeEditorNamespace {
         dropContainerEle.ondragover = function () {
             return false;
         };
-
-        //create an image and assign an object url to its src. once the image is loaded, release memory and resolve
-        function createImage(objectURL:string) {
-            return new Promise<HTMLImageElement>(function (resolve) {
-                let img = new Image();
-                img.src = objectURL;
-                img.onload = function () {
-                    // But don't leak memory!
-                    // This is necessary when use ObjectURL
-                    // this is one of the reason i don't use execCommand.insertImage
-                    window.URL.revokeObjectURL(this.src);
-                    resolve(img);
-                }
-            });
-        }
 
         const brNodeType = 1;
 
@@ -156,8 +142,8 @@ namespace CodeEditorNamespace {
                     let imgId:number = yield storeImage(idb, file);
                     // Use Blob URL with <img>
                     let objectURL = window.URL.createObjectURL(file);
-                    let img:HTMLImageElement = yield createImage(objectURL);
-                    let freeDraw = new FreeDraw(imgId, img);
+                    let img:HTMLImageElement = yield createImageFromObjectURL(objectURL);
+                    let freeDraw = new FreeDraw(img, imgId);
                     insertCanvasAtReferenceRangeAndSetCaret(freeDraw.canvas);
                 }
                 dropContainerEle.classList.remove("active"); // Unhighlight droptarget
@@ -168,8 +154,12 @@ namespace CodeEditorNamespace {
             return false;
         };
 
-        function getValue():string {
+        function getValue(): string {
             return "";
+        }
+
+        function setValue(): void {
+
         }
 
         function startInsertingImg() {
