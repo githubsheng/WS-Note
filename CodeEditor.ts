@@ -84,7 +84,7 @@ namespace CodeEditorNamespace {
         };
 
         //create an image and assign an object url to its src. once the image is loaded, release memory and resolve
-        function* createImage(objectURL:string) {
+        function createImage(objectURL:string) {
             return new Promise<HTMLImageElement>(function (resolve) {
                 let img = new Image();
                 img.src = objectURL;
