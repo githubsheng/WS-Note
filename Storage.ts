@@ -4,6 +4,7 @@ namespace StorageNamespace {
 
     const dbName = "test";
     const noteStoreName = "notes";
+    const imageStoreName = "images";
     let idb: IDBDatabase;
 
     export function getIDB(): Promise<IDBDatabase>{
@@ -39,8 +40,11 @@ namespace StorageNamespace {
                 //when the callback is invoked, database is available as IDBOpenDBRequest.result
                 let idb: IDBDatabase = request.result;
                 if (idb.objectStoreNames.contains(noteStoreName)) idb.deleteObjectStore(noteStoreName);
-                let store:IDBObjectStore = idb.createObjectStore(noteStoreName, {keyPath: 'id', autoIncrement: true});
-                store.createIndex('url', 'url', {unique: true, multiEntry: false});
+
+                let noteStore:IDBObjectStore = idb.createObjectStore(noteStoreName, {keyPath: 'id', autoIncrement: true});
+                noteStore.createIndex('url', 'url', {unique: true, multiEntry: false});
+
+                idb.createObjectStore(imageStoreName, {autoIncrement: true});
             };
         }
 
@@ -172,15 +176,86 @@ namespace StorageNamespace {
 
     }
 
-    export function storeImageBlob(idb: IDBDatabase, image: Blob, id?: number): Promise<number> {
+    export function storeImageBlob(idb: IDBDatabase, image: Blob, key?: number): Promise<number> {
 
+        function promiseFunc(resolve){
+            //signal to start a transaction, you need to tell which object stores the transaction is going
+            //to deal with (so that maybe it can lock it or something?)
+            let transaction = idb.transaction(imageStoreName, "readwrite");
 
-        return undefined;
+            //now i need to pick one object store mentioned above
+            let store = transaction.objectStore(imageStoreName);
+            //this `add` operation will be included in the transaction
+
+            let request;
+            if(Number.isInteger(key)) {
+                request = store.put(image, key);
+            } else {
+                request = store.put(image);
+            }
+
+            let id;
+            //this callback will be invoked when the item gets added
+            //note that if the transaction fail, the addition may be rolled back
+            request.onsuccess = function(){
+                //here the generated id of the item is available as request result if we are adding a new item
+                //if updating existing one, then the existing id is returned untouched.
+                //remember it for now and do not do anything hasty.
+                id = request.result;
+            };
+
+            request.onerror = function(){
+                console.log(request.error);
+                throw new Error("request failed");
+            };
+
+            //the transaction is complete, now its safe to move on.
+            transaction.oncomplete = function() {
+                //finally fulfill the promise and send the generated ids to resolve callback.
+                resolve(id);
+            };
+
+            transaction.onerror = function(){
+                console.log(transaction.error);
+                throw new Error("transaction failed");
+            };
+            //my guess:
+            //transaction will really start after this function call and the control returned back to event loop
+        }
+
+        return new Promise<number>(promiseFunc);
     }
 
     export function getImageBlob(idb: IDBDatabase, id: number): Promise<Blob> {
+        function promiseFunc(resolve) {
 
-        return undefined;
+            let transaction = idb.transaction(imageStoreName, "readonly");
+            let store = transaction.objectStore(imageStoreName);
+            let request = store.get(id);
+
+            let blob: Blob;
+
+            request.onsuccess = function(){
+                blob = request.result;
+            };
+
+            request.onerror = function(){
+                console.log(request.error);
+                throw new Error("request failed");
+            };
+
+            transaction.oncomplete = function() {
+                resolve(blob);
+            };
+
+            transaction.onerror = function(){
+                console.log(transaction.error);
+                throw new Error("transaction failed");
+            };
+
+        }
+
+        return new Promise<Blob>(promiseFunc);
     }
 
 }
