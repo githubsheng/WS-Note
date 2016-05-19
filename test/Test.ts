@@ -1,11 +1,14 @@
 ///<reference path="TestStorage.ts"/>
 ///<reference path="TestTextProcessor.ts" />
 ///<reference path="TestIndex.ts" />
-///<reference path="../CodeEditor.ts"/>
+///<reference path="TestCodeEditor.ts"/>
 
 runIndexTest();
 runTextProcessorTest();
-runStorageTest();
+TestStorageNamespace.runStorageTest();
+TestCodeEditorNamespace.runCodeEditorTest();
 
-var editor = createCodeEditor();
-document.body.appendChild(editor.containerEle);
+// var idb = getIDB();
+// var editor = createCodeEditor(idb, StorageNamespace.s);
+// document.body.appendChild(editor.containerEle);
+//
