@@ -218,10 +218,32 @@
     cursor: pointer;
 }
 
+.codeEditorContainer {
+    width: 400px;
+    height: 400px;
+    position: relative;
+}
+
 .codeEditor {
     width: 400px;
     height: 400px;
+    background: white;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 2;
     white-space: pre-wrap;
+}
+
+.codeEditorDropGround {
+    width: 400px;
+    height: 400px;
+    position: absolute;
+    z-index: 1;
+    background: lightblue;
+}
+
+.codeEditorDropGround.active {
+    background: lightgray;
 }
 
 
