@@ -23,3 +23,28 @@ function runGenerator(genFunc:() => IterableIterator<any>) {
 }
 
 let r = runGenerator;
+
+//create an image and assign an object url to its src. once the image is loaded, release memory and resolve
+function createImageFromObjectURL(objectURL:string) {
+    return new Promise<HTMLImageElement>(function (resolve) {
+        let img = new Image();
+        img.src = objectURL;
+        img.onload = function () {
+            // But don't leak memory!
+            // This is necessary when use ObjectURL
+            // this is one of the reason i don't use execCommand.insertImage
+            window.URL.revokeObjectURL(this.src);
+            resolve(img);
+        }
+    });
+}
+
+function createImageFromRegularURL(url: string) {
+    return new Promise<HTMLImageElement>(function (resolve) {
+        let img = new Image();
+        img.src = url;
+        img.onload = function () {
+            resolve(img);
+        }
+    });
+}
