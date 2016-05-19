@@ -172,4 +172,15 @@ namespace StorageNamespace {
 
     }
 
+    export function storeImageBlob(idb: IDBDatabase, image: Blob, id?: number): Promise<number> {
+
+
+        return undefined;
+    }
+
+    export function getImageBlob(idb: IDBDatabase, id: number): Promise<Blob> {
+
+        return undefined;
+    }
+
 }
