@@ -1,25 +1,51 @@
 ///<reference path="typings/extended.d.ts"/>
-class FreeDraw {
-    private imgId: number;
-    public canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
+///<reference path="AsyncUtil.ts"/>
+///<reference path="typings/extended.d.ts"/>
 
-    constructor(img: HTMLImageElement, imgId?: number){
-        this.imgId = imgId;
-        let canvas = document.createElement("canvas");
-        this.canvas = canvas;
-        canvas.width = img.width;
-        canvas.height = img.height;
-        let ctx = canvas.getContext("2d");
-        this.ctx = ctx;
-        ctx.drawImage(img, 0, 0);
-    }
+function* createCanvasBasedOnImageData(blob: Blob, imageDataId?: number) {
+    let img = yield createImageFromBlob(blob);
+    return createCanvasBasedOnImage(img, imageDataId);
+}
 
-    toBlob() {
-        return new Promise<Blob>((resolve) => {
-            this.canvas.toBlob(function(blob: Blob){
-                resolve(blob);
-            });
+function createCanvasBasedOnImage(img: HTMLImageElement, imageDataId?: number) {
+    let canvas = document.createElement("canvas");
+    canvas.imageDataId = imageDataId;
+    canvas.width = img.width;
+    canvas.height = img.height;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    return canvas;
+}
+
+function getBlobFromCanvas(canvas: HTMLCanvasElement): Promise<Blob>{
+    return new Promise<Blob>((resolve) => {
+        canvas.toBlob(function(blob: Blob){
+            resolve(blob);
         });
-    }
+    });
+}
+
+function createImageFromBlob(blob: Blob): Promise<HTMLImageElement> {
+    let objectURL = window.URL.createObjectURL(blob);
+    return new Promise<HTMLImageElement>(function (resolve) {
+        let img = new Image();
+        img.src = objectURL;
+        img.onload = function () {
+            // But don't leak memory!
+            // This is necessary when use ObjectURL
+            // this is one of the reason i don't use execCommand.insertImage
+            window.URL.revokeObjectURL(this.src);
+            resolve(img);
+        }
+    });
+}
+
+function createImageFromRegularURL(url: string): Promise<HTMLImageElement> {
+    return new Promise<HTMLImageElement>(function (resolve) {
+        let img = new Image();
+        img.src = url;
+        img.onload = function () {
+            resolve(img);
+        }
+    });
 }
