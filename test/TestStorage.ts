@@ -81,8 +81,8 @@ namespace TestStorageNamespace {
 
         function* testStoreImage(idb: IDBDatabase): IterableIterator<any> {
             let img = yield createImageFromRegularURL(testImagePath);
-            let fd = new FreeDraw(img);
-            let blob = yield fd.toBlob();
+            let canvas = createCanvasBasedOnImage(img);
+            let blob = yield getBlobFromCanvas(canvas);
             let id = yield storeImageBlob(idb, blob);
             shouldBeEqual(id, imgId);
         }
@@ -90,8 +90,7 @@ namespace TestStorageNamespace {
         //to see if the image is rendered correctly is better done by eyes...
         function* getImage(idb: IDBDatabase): IterableIterator<any> {
             let blob = yield getImageBlob(idb, imgId);
-            let objectURL = window.URL.createObjectURL(blob);
-            let img:HTMLImageElement = yield createImageFromObjectURL(objectURL);
+            let img:HTMLImageElement = yield createImageFromBlob(blob);
             let div = document.createElement("div");
             div.appendChild(img);
             document.body.appendChild(div);
