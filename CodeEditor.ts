@@ -1,12 +1,19 @@
 ///<reference path="test/TestStorage.ts"/>
 ///<reference path="FreeDraw.ts"/>
+///<reference path="ContentTransformer.ts"/>
 
 namespace CodeEditorNamespace {
+
+    import Component = ContentTransformerNamespace.Component;
+    import convertToStorageFormat = ContentTransformerNamespace.convertToStorageFormat;
+    import convertToDomNode = ContentTransformerNamespace.convertToDomNode;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
         startInsertingImg:() => void;
-        getValue:() => string;
+        getValue:() => Component;
+        clearContent:() => void;
+        setValue:(root:Component) => void;
     }
 
     interface StorageImageFunc {
@@ -141,12 +148,11 @@ namespace CodeEditorNamespace {
                         continue;
                     let imgId:number = yield storeImage(idb, file);
                     // Use Blob URL with <img>
-                    let objectURL = window.URL.createObjectURL(file);
-                    let img:HTMLImageElement = yield createImageFromObjectURL(objectURL);
-                    let freeDraw = new FreeDraw(img, imgId);
-                    insertCanvasAtReferenceRangeAndSetCaret(freeDraw.canvas);
+                    let canvas = yield* createCanvasBasedOnImageData(file, imgId);
+                    insertCanvasAtReferenceRangeAndSetCaret(canvas);
                 }
-                dropContainerEle.classList.remove("active"); // Unhighlight droptarget
+                //Unhighlight droptarget
+                dropContainerEle.classList.remove("active");
                 dropContainerEle.style.zIndex = "1";
                 codeEditorEle.focus();
             });
@@ -154,12 +160,21 @@ namespace CodeEditorNamespace {
             return false;
         };
 
-        function getValue(): string {
-            return "";
+        function getValue(): Component {
+            return convertToStorageFormat(codeEditorEle);
         }
 
-        function setValue(): void {
+        function clearContent(){
+            while(codeEditorEle.firstChild) {
+                codeEditorEle.removeChild(codeEditorEle.firstChild);
+            }
+        }
 
+        function setValue(root: Component): void {
+            r(function*(){
+                let fragment: DocumentFragment = yield* convertToDomNode(root);
+                codeEditorEle.appendChild(fragment);
+            });
         }
 
         function startInsertingImg() {
@@ -169,7 +184,9 @@ namespace CodeEditorNamespace {
         return {
             containerEle: containerEle,
             startInsertingImg: startInsertingImg,
-            getValue: getValue
+            getValue: getValue,
+            clearContent: clearContent,
+            setValue: setValue
         }
 
     }
