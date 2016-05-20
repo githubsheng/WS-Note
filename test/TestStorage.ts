@@ -92,7 +92,9 @@ namespace TestStorageNamespace {
             let blob = yield getImageBlob(idb, imgId);
             let objectURL = window.URL.createObjectURL(blob);
             let img:HTMLImageElement = yield createImageFromObjectURL(objectURL);
-            document.body.appendChild(img);
+            let div = document.createElement("div");
+            div.appendChild(img);
+            document.body.appendChild(div);
         }
 
         function* runAllTest():IterableIterator<any> {
