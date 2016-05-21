@@ -2,71 +2,77 @@
  * Created by wangsheng on 6/5/16.
  */
 
-class MaterialRoundButton {
-    public containerEle: HTMLDivElement;
-    public buttonEle: HTMLDivElement;
-    private mouseDownEventHandler:(evt:MouseEvent) => void;
-    private mouseUpEventHandler:(evt:MouseEvent) => void;
+namespace UIComponentNamespace {
 
-    constructor(fontAwesomeClassName: string) {
-        const transitionDurationInMS = 500;
+    export class MaterialRoundButton {
+        public containerEle: HTMLDivElement;
+        public buttonEle: HTMLDivElement;
+        private mouseDownEventHandler:(evt:MouseEvent) => void;
+        private mouseUpEventHandler:(evt:MouseEvent) => void;
 
-        this.containerEle = document.createElement("div");
-        this.containerEle.classList.add("material");
-        this.containerEle.classList.add("roundButton");
+        constructor(fontAwesomeClassName: string) {
+            const transitionDurationInMS = 500;
 
-        let positionRef = document.createElement("div");
-        this.containerEle.appendChild(positionRef);
-        positionRef.classList.add("positionRef");
+            this.containerEle = document.createElement("div");
+            this.containerEle.classList.add("material");
+            this.containerEle.classList.add("roundButton");
 
-        this.buttonEle = document.createElement("div");
-        let buttonEle = this.buttonEle;
-        positionRef.appendChild(buttonEle);
-        buttonEle.classList.add("button");
+            let positionRef = document.createElement("div");
+            this.containerEle.appendChild(positionRef);
+            positionRef.classList.add("positionRef");
 
-        let icon = document.createElement("i");
-        buttonEle.appendChild(icon);
-        icon.className = fontAwesomeClassName;
+            this.buttonEle = document.createElement("div");
+            let buttonEle = this.buttonEle;
+            positionRef.appendChild(buttonEle);
+            buttonEle.classList.add("button");
 
-        let rippleEle = document.createElement("div");
-        positionRef.insertBefore(rippleEle, buttonEle);
-        rippleEle.classList.add("ripple");
+            let icon = document.createElement("i");
+            buttonEle.appendChild(icon);
+            icon.className = fontAwesomeClassName;
 
-        let isAnimationPlaying = false;
-        let mouseDownMouseUpPair = 0;
+            let rippleEle = document.createElement("div");
+            positionRef.insertBefore(rippleEle, buttonEle);
+            rippleEle.classList.add("ripple");
 
-        buttonEle.addEventListener("mousedown", (evt:MouseEvent) => {
-            if(!isAnimationPlaying) {
-                isAnimationPlaying = true;
-                mouseDownMouseUpPair++;
-                rippleEle.classList.add("mousedown");
-                if(this.mouseDownEventHandler) this.mouseDownEventHandler(evt);
-            }
-        });
+            let isAnimationPlaying = false;
+            let mouseDownMouseUpPair = 0;
 
-        buttonEle.addEventListener("mouseup", (evt:MouseEvent) => {
-            if(mouseDownMouseUpPair === 1) {
-                mouseDownMouseUpPair--;
-                rippleEle.classList.add("mouseup");
+            buttonEle.addEventListener("mousedown", (evt:MouseEvent) => {
+                if(!isAnimationPlaying) {
+                    isAnimationPlaying = true;
+                    mouseDownMouseUpPair++;
+                    rippleEle.classList.add("mousedown");
+                    if(this.mouseDownEventHandler) this.mouseDownEventHandler(evt);
+                }
+            });
 
-                if(this.mouseUpEventHandler) this.mouseUpEventHandler(evt);
+            buttonEle.addEventListener("mouseup", (evt:MouseEvent) => {
+                if(mouseDownMouseUpPair === 1) {
+                    mouseDownMouseUpPair--;
+                    rippleEle.classList.add("mouseup");
 
-                window.setTimeout(()=>{
-                    rippleEle.remove();
-                    rippleEle = document.createElement("div");
-                    positionRef.insertBefore(rippleEle, buttonEle);
-                    rippleEle.classList.add("ripple");
-                    isAnimationPlaying = false;
-                }, transitionDurationInMS);
-            }
-        });
+                    if(this.mouseUpEventHandler) this.mouseUpEventHandler(evt);
+
+                    window.setTimeout(()=>{
+                        rippleEle.remove();
+                        rippleEle = document.createElement("div");
+                        positionRef.insertBefore(rippleEle, buttonEle);
+                        rippleEle.classList.add("ripple");
+                        isAnimationPlaying = false;
+                    }, transitionDurationInMS);
+                }
+            });
+        }
+
+        addMouseDownEventHandler(handler: (evt:MouseEvent)=> void){
+            this.mouseDownEventHandler = handler;
+        }
+
+        addMouseUpEventHandler(handler: (evt:MouseEvent) => void) {
+            this.mouseUpEventHandler = handler;
+        }
     }
 
-    addMouseDownEventHandler(handler: (evt:MouseEvent)=> void){
-        this.mouseDownEventHandler = handler;
-    }
-
-    addMouseUpEventHandler(handler: (evt:MouseEvent) => void) {
-        this.mouseUpEventHandler = handler;
-    }
 }
+
+

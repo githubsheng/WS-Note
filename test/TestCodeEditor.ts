@@ -8,6 +8,7 @@ namespace TestCodeEditorNamespace {
     import storeImageBlob = StorageNamespace.storeImageBlob;
     import createCodeEditor = CodeEditorNamespace.createCodeEditor;
     import Component = ContentTransformerNamespace.Component;
+    import r = Utility.r;
 
     export function runCodeEditorTest(){
         r(function*(){

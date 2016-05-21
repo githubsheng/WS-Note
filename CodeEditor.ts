@@ -1,5 +1,5 @@
 ///<reference path="test/TestStorage.ts"/>
-///<reference path="FreeDraw.ts"/>
+///<reference path="ImageCanvasUtility.ts"/>
 ///<reference path="ContentTransformer.ts"/>
 
 namespace CodeEditorNamespace {
@@ -7,6 +7,8 @@ namespace CodeEditorNamespace {
     import Component = ContentTransformerNamespace.Component;
     import convertToStorageFormat = ContentTransformerNamespace.convertToStorageFormat;
     import convertToDomNode = ContentTransformerNamespace.convertToDomNode;
+    import createCanvasBasedOnImageData = FreeDrawNamespace.createCanvasBasedOnImageData;
+    import r = Utility.r;
 
     export interface CodeEditor {
         containerEle:HTMLElement;

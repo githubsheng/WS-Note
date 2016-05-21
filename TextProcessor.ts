@@ -33,102 +33,105 @@
  * You use `hasNext` method to check if there are more words, and call `nextWordCombination` to get current word, the combination of
  * current word and previous word, and the combination of current word and next word.
  */
-class KeywordProcessor {
+namespace IndexNamespace {
 
-    private text: string;
-    private previousWord: string;
-    private currentWord: string;
-    private nextWord: string;
-    private delimiterCodes: boolean[] = [];
-    private wordCombinationStoppingDelimiters: boolean[] = [];
-    private readIndex = 0;
-    private static r = 256; //extended ascii
+    export class KeywordProcessor {
+        private text: string;
+        private previousWord: string;
+        private currentWord: string;
+        private nextWord: string;
+        private delimiterCodes: boolean[] = [];
+        private wordCombinationStoppingDelimiters: boolean[] = [];
+        private readIndex = 0;
+        private static r = 256; //extended ascii
 
-    constructor(text:string){
-        this.text = text;
-        this.delimiterCodes = new Array(KeywordProcessor.r);
-        
-        let delimiters = [' ', ',', '.', '`', '_', '*', ':', '-', '\n'];
-        for(let i = 0; i < delimiters.length; i++) {
-            let cc = delimiters[i].charCodeAt(0);
-            if(cc < KeywordProcessor.r) {
-                this.delimiterCodes[cc] = true;
+        constructor(text:string){
+            this.text = text;
+            this.delimiterCodes = new Array(KeywordProcessor.r);
+
+            let delimiters = [' ', ',', '.', '`', '_', '*', ':', '-', '\n'];
+            for(let i = 0; i < delimiters.length; i++) {
+                let cc = delimiters[i].charCodeAt(0);
+                if(cc < KeywordProcessor.r) {
+                    this.delimiterCodes[cc] = true;
+                }
             }
+
+            let wordCombinationStoppingDelimiters = [',', '.', ":", '\n'];
+            for(let i = 0; i < wordCombinationStoppingDelimiters.length; i++) {
+                let cc = wordCombinationStoppingDelimiters[i].charCodeAt(0);
+                if(cc < KeywordProcessor.r) {
+                    this.wordCombinationStoppingDelimiters[cc] = true;
+                }
+            }
+
+            //init, prev: undefined, cur: undefined, next: first word. so that when `nextWordCombination` gets called for the
+            //first time, prev will be undefined, cur will be first word and next will be second word.
+            this.nextWord = this.nextWordHelper();
         }
 
-        let wordCombinationStoppingDelimiters = [',', '.', ":", '\n'];
-        for(let i = 0; i < wordCombinationStoppingDelimiters.length; i++) {
-            let cc = wordCombinationStoppingDelimiters[i].charCodeAt(0);
-            if(cc < KeywordProcessor.r) {
-                this.wordCombinationStoppingDelimiters[cc] = true;
-            }
+        private isCharAtIndexDelimeter(): boolean {
+            let cc = this.text.charCodeAt(this.readIndex);
+            return this.delimiterCodes[cc] === true;
         }
 
-        //init, prev: undefined, cur: undefined, next: first word. so that when `nextWordCombination` gets called for the
-        //first time, prev will be undefined, cur will be first word and next will be second word.
-        this.nextWord = this.nextWordHelper();
-    }
+        private isCharAtIndexCombinationStoppingDelimiter(): boolean {
+            let cc = this.text.charCodeAt(this.readIndex);
+            return this.wordCombinationStoppingDelimiters[cc] === true;
+        }
 
-    private isCharAtIndexDelimeter(): boolean {
-        let cc = this.text.charCodeAt(this.readIndex);
-        return this.delimiterCodes[cc] === true;
-    }
+        private nextWordHelper(): string {
 
-    private isCharAtIndexCombinationStoppingDelimiter(): boolean {
-        let cc = this.text.charCodeAt(this.readIndex);
-        return this.wordCombinationStoppingDelimiters[cc] === true;
-    }
+            while(this.isCharAtIndexDelimeter() && this.readIndex < this.text.length) {
+                if(this.isCharAtIndexCombinationStoppingDelimiter()) {
+                    this.readIndex++;
+                    return undefined;
+                } else {
+                    this.readIndex++;
+                }
+            }
 
-    private nextWordHelper(): string {
 
-        while(this.isCharAtIndexDelimeter() && this.readIndex < this.text.length) {
-            if(this.isCharAtIndexCombinationStoppingDelimiter()) {
+            let wordStartIndex = this.readIndex;
+
+            while(!this.isCharAtIndexDelimeter() && this.readIndex < this.text.length)
                 this.readIndex++;
+
+            let wordEndIndex = this.readIndex;
+
+            if(wordStartIndex === wordEndIndex) {
+                //no more words
+                this.readIndex = -1; //use this as the flag
                 return undefined;
             } else {
-                this.readIndex++;
+                let result =  this.text.substring(wordStartIndex, wordEndIndex);
+                if(IndexNamespace.getIndex().isStopWord(result)) return undefined;
+                return result;
             }
+
         }
 
+        public hasNext(): boolean {
+            return this.readIndex !== -1;
+        }
 
-        let wordStartIndex = this.readIndex;
+        //"there are many types of lists, singly linked list, doubly linked list, and array list"
+        public nextWordCombination(): {prevComb: string, cur: string, nextComb: string} {
+            this.previousWord = this.currentWord;
+            this.currentWord = this.nextWord;
+            //if `nextWordHelper` cannot find next word, it will set `readIndex` to -1, indicating the `currentWord` is already
+            //the last word. `hasNext` will then return false.
+            this.nextWord = this.nextWordHelper();
 
-        while(!this.isCharAtIndexDelimeter() && this.readIndex < this.text.length)
-            this.readIndex++;
-
-        let wordEndIndex = this.readIndex;
-
-        if(wordStartIndex === wordEndIndex) {
-            //no more words
-            this.readIndex = -1; //use this as the flag
-            return undefined;
-        } else {
-            let result =  this.text.substring(wordStartIndex, wordEndIndex);
-            if(IndexNamespace.getIndex().isStopWord(result)) return undefined;
-            return result;
+            return {
+                prevComb: this.previousWord === undefined || this.currentWord === undefined ?
+                    undefined : this.currentWord + " " + this.previousWord,
+                cur: this.currentWord,
+                nextComb: this.nextWord === undefined || this.currentWord === undefined ?
+                    undefined : this.currentWord + " " + this.nextWord
+            };
         }
 
     }
-
-    public hasNext(): boolean {
-        return this.readIndex !== -1;
-    }
-
-    //"there are many types of lists, singly linked list, doubly linked list, and array list"
-    public nextWordCombination(): {prevComb: string, cur: string, nextComb: string} {
-        this.previousWord = this.currentWord;
-        this.currentWord = this.nextWord;
-        //if `nextWordHelper` cannot find next word, it will set `readIndex` to -1, indicating the `currentWord` is already
-        //the last word. `hasNext` will then return false.
-        this.nextWord = this.nextWordHelper();
-
-        return {
-            prevComb: this.previousWord === undefined || this.currentWord === undefined ?
-                        undefined : this.currentWord + " " + this.previousWord,
-            cur: this.currentWord,
-            nextComb: this.nextWord === undefined || this.currentWord === undefined ?
-                        undefined : this.currentWord + " " + this.nextWord
-        };
-    }
-
 }
+

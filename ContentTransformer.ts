@@ -1,12 +1,13 @@
 ///<reference path="typings/extended.d.ts"/>
 ///<reference path="Storage.ts"/>
 ///<reference path="AsyncUtil.ts"/>
-///<reference path="FreeDraw.ts"/>
+///<reference path="ImageCanvasUtility.ts"/>
 
 namespace ContentTransformerNamespace {
 
     import getImageBlob = StorageNamespace.getImageBlob;
     import getIDB = StorageNamespace.getIDB;
+    import createCanvasBasedOnImageData = FreeDrawNamespace.createCanvasBasedOnImageData;
 
     export interface Component {
         nodeName: string;
