@@ -13,10 +13,10 @@ namespace TestStorageNamespace {
     import storeImageBlob = StorageNamespace.storeImageBlob;
     import getImageBlob = StorageNamespace.getImageBlob;
 
-    import createImageFromRegularURL = FreeDrawNamespace.createImageFromRegularURL;
-    import getBlobFromCanvas = FreeDrawNamespace.getBlobFromCanvas;
-    import createCanvasBasedOnImage = FreeDrawNamespace.createCanvasBasedOnImage;
-    import createImageFromBlob = FreeDrawNamespace.createImageFromBlob;
+    import createImageFromRegularURL = Utility.createImageFromRegularURL;
+    import getBlobFromCanvas = Utility.getBlobFromCanvas;
+    import createCanvasBasedOnImage = Utility.createCanvasBasedOnImage;
+    import createImageFromBlob = Utility.createImageFromBlob;
     import r = Utility.r;
 
     export function runStorageTest() {

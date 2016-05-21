@@ -7,7 +7,7 @@ namespace ContentTransformerNamespace {
 
     import getImageBlob = StorageNamespace.getImageBlob;
     import getIDB = StorageNamespace.getIDB;
-    import createCanvasBasedOnImageData = FreeDrawNamespace.createCanvasBasedOnImageData;
+    import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
 
     export interface Component {
         nodeName: string;

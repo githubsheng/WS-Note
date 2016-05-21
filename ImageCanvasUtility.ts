@@ -2,8 +2,8 @@
 ///<reference path="AsyncUtil.ts"/>
 ///<reference path="typings/extended.d.ts"/>
 
-namespace FreeDrawNamespace {
-    
+namespace Utility {
+
     export function* createCanvasBasedOnImageData(blob: Blob, imageDataId?: number) {
         let img = yield createImageFromBlob(blob);
         return createCanvasBasedOnImage(img, imageDataId);

@@ -7,7 +7,7 @@ namespace CodeEditorNamespace {
     import Component = ContentTransformerNamespace.Component;
     import convertToStorageFormat = ContentTransformerNamespace.convertToStorageFormat;
     import convertToDomNode = ContentTransformerNamespace.convertToDomNode;
-    import createCanvasBasedOnImageData = FreeDrawNamespace.createCanvasBasedOnImageData;
+    import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
     import r = Utility.r;
 
     export interface CodeEditor {
