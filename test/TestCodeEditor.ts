@@ -23,18 +23,17 @@ namespace TestCodeEditorNamespace {
                 codeEditor.startInsertingImg();
             };
 
-            var root: Component;
+            var components: Component[];
             var getValueAndClearButton = document.createElement("button");
-            getValueAndClearButton.innerText = "Get value and clear";
+            getValueAndClearButton.innerText = "Get value";
             getValueAndClearButton.onclick = function(){
-                root = codeEditor.getValue();
-                codeEditor.clearContent();
+                components = codeEditor.getValue();
             };
 
             var setValueButton = document.createElement("button");
             setValueButton.innerText = "Set value";
             setValueButton.onclick = function(){
-                if(root) codeEditor.setValue(root);
+                if(components) codeEditor.setValue(components);
             };
 
             document.body.appendChild(toggleImageInsertButton);

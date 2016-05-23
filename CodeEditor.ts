@@ -5,17 +5,17 @@
 namespace CodeEditorNamespace {
 
     import Component = ContentTransformerNamespace.Component;
-    import convertToStorageFormat = ContentTransformerNamespace.convertToStorageFormat;
-    import convertToDomNode = ContentTransformerNamespace.convertToDomNode;
+    import convertToStorageFormat = ContentTransformerNamespace.convertToComponentFormat;
     import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
     import r = Utility.r;
+    import convertToDocumentFragment = ContentTransformerNamespace.convertToDocumentFragment;
+    import createImageFromBlob = Utility.createImageFromBlob;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
         startInsertingImg:() => void;
-        getValue:() => Component;
-        clearContent:() => void;
-        setValue:(root:Component) => void;
+        getValue:() => Component[];
+        setValue:(components:Component[]) => void;
     }
 
     interface StorageImageFunc {
@@ -41,8 +41,31 @@ namespace CodeEditorNamespace {
         function keyHandler(e:KeyboardEvent) {
             const TAB_KEY = 9;
             const TAB_SPACE = "    ";
+            const ENTER_KEY = 13;
             if (e.keyCode == TAB_KEY) {
                 document.execCommand("insertText", false, TAB_SPACE);
+                e.preventDefault();
+                return false;
+            } else if (e.keyCode === ENTER_KEY) {
+                let selection = window.getSelection();
+                let range = selection.getRangeAt(0);
+                range.deleteContents();
+                let br = document.createElement("br");
+                range.insertNode(br);
+                //webkit sometimes oddly inserts a text with empty value "". this empty text node turns out be to useless
+                //and results in the following check !br.nextSibling to be false positive. therefore I remove this text node.
+                //so far in practice i can do just fine without this empty text node.
+                if(br.nextSibling && br.nextSibling.nodeName === "#text" && br.nextSibling.nodeValue === "")
+                    codeEditorEle.removeChild(br.nextSibling);
+                if(!br.nextSibling) {
+                    br = document.createElement("br");
+                    codeEditorEle.insertBefore(br, br.nextSibling);
+                }
+                let newRange = new Range();
+                newRange.setEndAfter(br);
+                newRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
                 e.preventDefault();
                 return false;
             }
@@ -57,11 +80,11 @@ namespace CodeEditorNamespace {
                 let lines = pastePlainString.split('\n');
                 let htmlStr = "";
                 for (let line of lines) {
-                    //if the line is empty, give it a <br>
                     //replaces all potential html markup.
                     let newLine = line === "" ? "<br>" : line.replace('<', "&lt;").replace('>', "&gt;");
-                    htmlStr += "<div>" + newLine + "</div>";
+                    htmlStr += newLine + "<br>";
                 }
+                console.log(htmlStr);
                 document.execCommand("insertHTML", false, htmlStr);
             }
         }
@@ -93,51 +116,6 @@ namespace CodeEditorNamespace {
             return false;
         };
 
-        const brNodeType = 1;
-
-        function insertCanvasAtReferenceRangeAndSetCaret(canvas:HTMLCanvasElement) {
-            if (referenceRangeToInsertNode === undefined) {
-                //in rare cases, use may have never focused on the editor. he may open a note directly and just
-                //start inserting images, in this case no caret range has been recorded yet.
-                codeEditorEle.appendChild(canvas);
-            } else {
-                referenceRangeToInsertNode.insertNode(canvas);
-            }
-
-            /*
-             I want br surrounding the canvas, so that the canvas can be placed on its own line. br is also useful
-             when it comes to placing the caret. Please see the annotations below.
-             */
-            let parent = canvas.parentNode;
-            if (canvas.previousSibling && canvas.previousSibling.nodeType !== brNodeType) {
-                let brBeforeCanvas = document.createElement("br");
-                parent.insertBefore(brBeforeCanvas, canvas);
-            }
-
-            if (!canvas.nextSibling || (canvas.nextSibling && canvas.nextSibling.nodeType !== brNodeType)) {
-                let brAfterCanvas = document.createElement("br");
-                parent.insertBefore(brAfterCanvas, canvas.nextSibling);
-            }
-
-            //has to create a new range. modifying existing ones won't work
-            let newRange = document.createRange();
-
-            /*
-             set the caret to be the br after canvas.
-             i cannot set a caret directly after a canvas element because browser simply does not allow this.
-             in this case br is ideal because:
-             1. it is allowed to place the caret behind the br.
-             2. br itself is a line break, and I want each image to be in a separate line.
-             */
-            newRange.setStartAfter(canvas.nextSibling);
-            newRange.collapse(true); //collapse to start
-            let selection = window.getSelection();
-            selection.removeAllRanges(); //normally there is only one range, unless i use js to select multiple range
-            selection.addRange(newRange); //use the new range
-
-            referenceRangeToInsertNode = newRange;
-        }
-
         //When the user drops files, store the file if the files are images, and insert the images in editor
         dropContainerEle.ondrop = function (e) {
             r(function*() {
@@ -148,10 +126,19 @@ namespace CodeEditorNamespace {
                     if (type.substring(0, 6) !== "image/")
                         //Skip any none images
                         continue;
-                    let imgId:number = yield storeImage(idb, file);
-                    // Use Blob URL with <img>
-                    let canvas = yield* createCanvasBasedOnImageData(file, imgId);
-                    insertCanvasAtReferenceRangeAndSetCaret(canvas);
+                    let imgId = yield storeImage(idb, file);
+                    let img:HTMLImageElement = yield createImageFromBlob(file);
+                    img.imageDataId = imgId;
+
+                    let selection = window.getSelection();
+                    let range = selection.getRangeAt(0);
+                    range.insertNode(img);
+
+                    let newRange = new Range();
+                    newRange.setEndAfter(img);
+                    newRange.collapse(false);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
                 }
                 //Unhighlight droptarget
                 dropContainerEle.classList.remove("active");
@@ -162,19 +149,16 @@ namespace CodeEditorNamespace {
             return false;
         };
 
-        function getValue(): Component {
+        function getValue(): Component[] {
             return convertToStorageFormat(codeEditorEle);
         }
 
-        function clearContent(){
+        function setValue(components: Component[]): void {
             while(codeEditorEle.firstChild) {
                 codeEditorEle.removeChild(codeEditorEle.firstChild);
             }
-        }
-
-        function setValue(root: Component): void {
             r(function*(){
-                let fragment: DocumentFragment = yield* convertToDomNode(root);
+                let fragment: DocumentFragment = yield* convertToDocumentFragment(components);
                 codeEditorEle.appendChild(fragment);
             });
         }
@@ -187,7 +171,6 @@ namespace CodeEditorNamespace {
             containerEle: containerEle,
             startInsertingImg: startInsertingImg,
             getValue: getValue,
-            clearContent: clearContent,
             setValue: setValue
         }
 
