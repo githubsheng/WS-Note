@@ -54,7 +54,7 @@ namespace ContentTransformerNamespace {
         return result;
     }
 
-    function addChildAndNormalize(result:Component[], child:Component) {
+    export function addChildAndNormalize(result:Component[], child:Component) {
         if(result.length === 0) {
             result.push(child);
             return;
@@ -85,6 +85,7 @@ namespace ContentTransformerNamespace {
                     let imageDataId = cp.imageDataId;
                     let imageData = yield getImageBlob(idb, imageDataId);
                     node = yield createImageFromBlob(imageData);
+                    (<HTMLImageElement>node).imageDataId = imageDataId;
                     break;
                 default:
                     node =  document.createElement(cp.nodeName);
