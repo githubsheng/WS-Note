@@ -1,5 +1,9 @@
 
 interface HTMLCanvasElement {
     toBlob(callback: (blob: Blob) => void): void;
-    imageDataId: number;
+    imageDataId?: number;
+}
+
+interface HTMLImageElement {
+    imageDataId?: number;
 }
