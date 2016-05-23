@@ -3,65 +3,125 @@
 ///<reference path="AsyncUtil.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
 
+/**
+ * Inside the editor is a large dom fragment. While I can store that dom fragment in the indexeddb,
+ * it is not a good idea. Dom objects are large and contains too many unneeded information.
+ *
+ * Instead I extract only the useful information from the dom fragment and build my own component tree.
+ * Each node in the component tree is the of type `Component`. and contains at most 4 properties.
+ *
+ * This component tree can then be easily cloned and stored in database, or copied over to another page.
+ *
+ * I can rebuild an identical dom fragment based on this component tree.
+ * I can also build a string out of the component tree. KeywordProcessor can later process this string to have
+ * keywords indexed.
+ */
 namespace ContentTransformerNamespace {
 
     import getImageBlob = StorageNamespace.getImageBlob;
     import getIDB = StorageNamespace.getIDB;
     import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
+    import createImageFromBlob = Utility.createImageFromBlob;
 
+    const textNodeName = "#text";
+    const imgNodeName = "img";
+    const brNodeName = "br";
+
+    /**
+     * if the component represents a text node, then the text is value.
+     * if the component represents a canvas, then the imageDataId is the id of the corresponding image blob stored in db.
+     * if the component represents a div, or other types that may have children, then the components that represents the
+     * children are stored in children property.
+     */
     export interface Component {
         nodeName: string;
         value?: string;
         imageDataId?: number;
-        children?: Component[];
     }
 
-    export function convertToStorageFormat(codeEditorEle: HTMLDivElement): Component {
-        let root: Component = {nodeName: "root", children: []};
-        for(let i = 0; i < codeEditorEle.childNodes.length; i++) {
-            root.children.push(convertToStorageFormatHelper(codeEditorEle.childNodes[i]));
+    /**
+     * convert the code editor to component tree. the code editor itself is transformed into a document fragment.
+     */
+    export function convertToComponentFormat(codeEditor: Node): Component[] {
+        let result = [];
+        for(let i = 0; i < codeEditor.childNodes.length; i++) {
+            let node = codeEditor.childNodes[i];
+            let cp: Component = {nodeName: node.nodeName.toLowerCase()};
+            if(cp.nodeName === textNodeName) cp.value = node.nodeValue;
+            if(cp.nodeName === imgNodeName) cp.imageDataId = (<HTMLImageElement>node).imageDataId;
+            addChildAndNormalize(result, cp);
         }
-        return root;
+        return result;
     }
 
-    function convertToStorageFormatHelper(node: Node):Component{
-        let cp: Component = {nodeName: node.nodeName.toLowerCase(), children: []};
-        if(cp.nodeName === "#text") cp.value = node.nodeValue;
-        if(cp.nodeName === "canvas") cp.imageDataId = (<HTMLCanvasElement>node).imageDataId;
-        for(let i = 0; i < node.childNodes.length; i++)
-            cp.children.push(convertToStorageFormatHelper(node.childNodes[i]));
-        return cp;
+    function addChildAndNormalize(result:Component[], child:Component) {
+        if(result.length === 0) {
+            result.push(child);
+            return;
+        }
+
+        let li = result.length - 1;
+        if(result[li].nodeName === textNodeName && child.nodeName === textNodeName) {
+            result[li].value += child.value;
+        } else {
+            result.push(child);
+        }
     }
 
-    export function* convertToDomNode(root: Component){
+    /**
+     * build the dom nodes based on given component tree.
+     */
+    export function* convertToDocumentFragment(components: Component[]): IterableIterator<any>{
         let frag = document.createDocumentFragment();
-        for(let i = 0; i < root.children.length; i++) {
-            let cp = root.children[i];
-            let node = yield* convertToDomNodeHelper(cp);
+        for(let i = 0; i < components.length; i++) {
+            let cp = components[i];
+            let node;
+            switch(cp.nodeName) {
+                case textNodeName:
+                    node = document.createTextNode(cp.value);
+                    break;
+                case imgNodeName:
+                    let idb = yield getIDB();
+                    let imageDataId = cp.imageDataId;
+                    let imageData = yield getImageBlob(idb, imageDataId);
+                    node = yield createImageFromBlob(imageData);
+                    break;
+                default:
+                    node =  document.createElement(cp.nodeName);
+            }
             frag.appendChild(node);
         }
         return frag;
     }
 
-    function* convertToDomNodeHelper(cp: Component):IterableIterator<any> {
-        let node: Node;
-        switch(cp.nodeName) {
-            case "#text":
-                node = document.createTextNode(cp.value);
-                break;
-            case "canvas":
-                let idb = yield getIDB();
-                let imageDataId = cp.imageDataId;
-                let imageData = yield getImageBlob(idb, imageDataId);
-                node = yield* createCanvasBasedOnImageData(imageData, imageDataId);
-                break;
-            default:
-                node = document.createElement(cp.nodeName);
+    export function* convertToStyledDocumentFragment(components: Component[]) {
+        
+    }
+
+    /**
+     * covert storage format into a single string. keywordProcessor can then process the string and have
+     * the key words properly indexed.
+     * stringBuilder represents the currently built string.
+     * if the current component is a text node, the text is directly appended to the string builder.
+     * if the current component is a br, a line break "\n" is appended.
+     * if the current component is of other types, "-" is appended to serve as word combo stopping delimiter.
+     * see KeywordProcessor documentation for more details.
+     */
+    function convertToString(components: Component[]): string {
+        let stringBuilder = "";
+        for(let i = 0; i < components.length; i++) {
+            let cp = components[i];
+            switch (cp.nodeName) {
+                case textNodeName:
+                    stringBuilder += cp.value;
+                    break;
+                case brNodeName:
+                    stringBuilder += "\n";
+                    break;
+                default:
+                    stringBuilder += "-";
+            }
         }
-        for(let i = 0; i < cp.children.length; i++) {
-            let child = yield* convertToDomNodeHelper(cp.children[i]);
-            node.appendChild(child);
-        }
-        return node;
+        return stringBuilder;
     }
 }
