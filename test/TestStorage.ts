@@ -19,6 +19,14 @@ namespace TestStorageNamespace {
     import createImageFromBlob = Utility.createImageFromBlob;
     import r = Utility.r;
 
+    export function* storeTestImage(idb: IDBDatabase): IterableIterator<any> {
+        let img = yield createImageFromRegularURL("test.jpeg");
+        let canvas = createCanvasBasedOnImage(img);
+        let blob = yield getBlobFromCanvas(canvas);
+        let id = yield storeImageBlob(idb, blob);
+        return id;
+    }
+
     export function runStorageTest() {
 
         function* testGetIDB() {
@@ -82,19 +90,15 @@ namespace TestStorageNamespace {
             arrayShouldBeIdentical(["aaa", "bbb", "ccc"], results);
         }
 
-        const imgId = 1;
-        const testImagePath = "test.jpeg";
-
         function* testStoreImage(idb: IDBDatabase): IterableIterator<any> {
-            let img = yield createImageFromRegularURL(testImagePath);
-            let canvas = createCanvasBasedOnImage(img);
-            let blob = yield getBlobFromCanvas(canvas);
-            let id = yield storeImageBlob(idb, blob);
-            shouldBeEqual(id, imgId);
+            let id = yield* storeTestImage(idb);
+            shouldBeTrue(Number.isInteger(id));
+            shouldBeTrue(id > 0);
+            return id;
         }
 
         //to see if the image is rendered correctly is better done by eyes...
-        function* getImage(idb: IDBDatabase): IterableIterator<any> {
+        function* getImage(idb: IDBDatabase, imgId: number): IterableIterator<any> {
             let blob = yield getImageBlob(idb, imgId);
             let img:HTMLImageElement = yield createImageFromBlob(blob);
             let div = document.createElement("div");
@@ -119,8 +123,8 @@ namespace TestStorageNamespace {
             yield* testGetAndStoreNote(idb);
             yield* testDeleteNote(idb);
             yield* testIterateAllNotes(idb);
-            yield* testStoreImage(idb);
-            yield* getImage(idb);
+            let imgId = yield* testStoreImage(idb);
+            yield* getImage(idb, imgId);
         }
 
         r(runAllTest);
