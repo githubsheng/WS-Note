@@ -83,7 +83,7 @@ namespace TestStorageNamespace {
         }
 
         const imgId = 1;
-        const testImagePath = "test.jpg";
+        const testImagePath = "test.jpeg";
 
         function* testStoreImage(idb: IDBDatabase): IterableIterator<any> {
             let img = yield createImageFromRegularURL(testImagePath);
@@ -98,7 +98,19 @@ namespace TestStorageNamespace {
             let blob = yield getImageBlob(idb, imgId);
             let img:HTMLImageElement = yield createImageFromBlob(blob);
             let div = document.createElement("div");
+            div.appendChild(document.createTextNode("image fetched from database:"));
+            div.appendChild(document.createElement("br"));
             div.appendChild(img);
+            div.style.marginTop = "10px";
+            document.body.appendChild(div);
+
+            div = document.createElement("div");
+            div.appendChild(document.createTextNode("original image:"));
+            div.appendChild(document.createElement("br"));
+            img = document.createElement("img");
+            img.src = "test.jpeg";
+            div.appendChild(img);
+            div.style.marginTop = "10px";
             document.body.appendChild(div);
         }
 
