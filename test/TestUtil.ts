@@ -2,9 +2,13 @@
  * Created by wangsheng on 16/5/16.
  */
 
-function shouldBeEqual(left: any, right: any) {
-    if(left !== right)
+function shouldBeEqual(left: any, right: any, compareFunc?: (a: any, b: any) => boolean) {
+    if(compareFunc) {
+        let r = compareFunc(left, right);
+        if(!r) throw new Error("should be equal");
+    } else if(left !== right) {
         throw new Error("should be equal");
+    }
 }
 
 function shouldNotBeEqual(left: any, right: any) {
