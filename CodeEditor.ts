@@ -10,6 +10,7 @@ namespace CodeEditorNamespace {
     import r = Utility.r;
     import convertToDocumentFragment = ContentTransformerNamespace.convertToDocumentFragment;
     import createImageFromBlob = Utility.createImageFromBlob;
+    import storeImageBlob = StorageNamespace.storeImageBlob;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
@@ -18,11 +19,7 @@ namespace CodeEditorNamespace {
         setValue:(components:Component[]) => void;
     }
 
-    interface StorageImageFunc {
-        (idb:IDBDatabase, image:Blob, id?:number):Promise<number>;
-    }
-
-    export function createCodeEditor(idb:IDBDatabase, storeImage:StorageImageFunc):CodeEditor {
+    export function createCodeEditor(idb:IDBDatabase):CodeEditor {
         let containerEle = document.createElement("div");
         containerEle.classList.add("codeEditorContainer");
 
@@ -126,7 +123,7 @@ namespace CodeEditorNamespace {
                     if (type.substring(0, 6) !== "image/")
                         //Skip any none images
                         continue;
-                    let imgId = yield storeImage(idb, file);
+                    let imgId = yield storeImageBlob(idb, file);
                     let img:HTMLImageElement = yield createImageFromBlob(file);
                     img.imageDataId = imgId;
 
