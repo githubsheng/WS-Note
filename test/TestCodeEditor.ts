@@ -1,11 +1,8 @@
 ///<reference path="../Storage.ts"/>
 ///<reference path="../CodeEditor.ts"/>
 
-var globalCodeEditor;
-
 namespace TestCodeEditorNamespace {
     import getIDB = StorageNamespace.getIDB;
-    import storeImageBlob = StorageNamespace.storeImageBlob;
     import createCodeEditor = CodeEditorNamespace.createCodeEditor;
     import Component = ContentTransformerNamespace.Component;
     import r = Utility.r;
@@ -13,8 +10,8 @@ namespace TestCodeEditorNamespace {
     export function runCodeEditorTest(){
         r(function*(){
             let idb = yield getIDB();
-            let codeEditor = createCodeEditor(idb, storeImageBlob);
-            globalCodeEditor = codeEditor;
+            let codeEditor = createCodeEditor(idb);
+            document.body.appendChild(document.createTextNode("code editor test"));
             document.body.appendChild(codeEditor.containerEle);
 
             var toggleImageInsertButton = document.createElement("button");
