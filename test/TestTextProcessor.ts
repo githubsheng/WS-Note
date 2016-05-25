@@ -4,11 +4,13 @@
 namespace TestTextProcessorNamespace {
 
     import KeywordProcessor = IndexNamespace.KeywordProcessor;
+    import normalizeComponents = TestUtilNamespace.normalizeComponents;
+    import createDummyComponents = TestUtilNamespace.createDummyComponents;
+    import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
     
     export function runTextProcessorTest(){
-        let wordsToProcess = " Data structure 101: there are 一些中文乱入 many types of lists, singly linked list, doubly " +
-            "linked list, and array list. ,";
-        var tpc = new KeywordProcessor(wordsToProcess);
+        let components = normalizeComponents(createDummyComponents());
+        var tpc = new KeywordProcessor(components);
         let results = [];
         while(tpc.hasNext()) {
             let c = tpc.nextWordCombination();
@@ -19,11 +21,11 @@ namespace TestTextProcessorNamespace {
             if(c.nextComb !== undefined)
                 results.push(c.nextComb);
         }
-
-        let expectedResults = ["Data", "Data structure", "structure Data", "structure", "structure 101", "101 structure",
+        
+        let expectedResults = ["WSNote", "amazing", "Data", "Data structure", "structure Data", "structure", "structure 101", "101 structure",
             "101", "一些中文乱入", "types", "lists", "singly", "singly linked", "linked singly", "linked", "linked list",
             "list linked", "list", "doubly", "doubly linked", "linked doubly", "linked", "linked list", "list linked",
-            "list", "array", "array list", "list array", "list"];
+            "list", "array", "array list", "list array", "list", "wang", "wang sheng", "sheng wang", "sheng", "zeng", "zeng ying", "ying zeng", "ying"];
 
         arrayShouldBeIdentical(results, expectedResults);
     }

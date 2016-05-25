@@ -98,31 +98,4 @@ namespace ContentTransformerNamespace {
     export function* convertToStyledDocumentFragment(components: Component[]) {
         
     }
-
-    /**
-     * covert storage format into a single string. keywordProcessor can then process the string and have
-     * the key words properly indexed.
-     * stringBuilder represents the currently built string.
-     * if the current component is a text node, the text is directly appended to the string builder.
-     * if the current component is a br, a line break "\n" is appended.
-     * if the current component is of other types, "-" is appended to serve as word combo stopping delimiter.
-     * see KeywordProcessor documentation for more details.
-     */
-    function convertToString(components: Component[]): string {
-        let stringBuilder = "";
-        for(let i = 0; i < components.length; i++) {
-            let cp = components[i];
-            switch (cp.nodeName) {
-                case textNodeName:
-                    stringBuilder += cp.value;
-                    break;
-                case brNodeName:
-                    stringBuilder += "\n";
-                    break;
-                default:
-                    stringBuilder += "-";
-            }
-        }
-        return stringBuilder;
-    }
 }
