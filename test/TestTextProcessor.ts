@@ -21,7 +21,7 @@ namespace TestTextProcessorNamespace {
             if(c.nextComb !== undefined)
                 results.push(c.nextComb);
         }
-        
+
         let expectedResults = ["WSNote", "amazing", "Data", "Data structure", "structure Data", "structure", "structure 101", "101 structure",
             "101", "一些中文乱入", "types", "lists", "singly", "singly linked", "linked singly", "linked", "linked list",
             "list linked", "list", "doubly", "doubly linked", "linked doubly", "linked", "linked list", "list linked",

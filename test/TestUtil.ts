@@ -75,7 +75,14 @@ namespace TestUtilNamespace {
         root.appendChild(br());
         root.appendChild(tn("wang sheng"));
         root.appendChild(br());
+
+        root.appendChild(tn("@important"));
+        root.appendChild(br());
         root.appendChild(tn("zeng ying      ."));
+        root.appendChild(br());
+        root.appendChild(tn("@"));
+        root.appendChild(br());
+
         root.appendChild(img(imgId || 1));
         root.appendChild(br());
         root.appendChild(br());
@@ -90,7 +97,14 @@ namespace TestUtilNamespace {
         components.push({nodeName: "br"});
         components.push({nodeName: "#text", value: "wang sheng"});
         components.push({nodeName: "br"});
+
+        components.push({nodeName: "#text", value: "@important"});
+        components.push({nodeName: "br"});
         components.push({nodeName: "#text", value: "zeng ying      ."});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "@"});
+        components.push({nodeName: "br"});
+
         components.push({nodeName: "img", imageDataId: imgId || 1});
         components.push({nodeName: "br"});
         components.push({nodeName: "br"});

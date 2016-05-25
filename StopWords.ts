@@ -66,4 +66,13 @@ namespace StopWordsNamespace {
         "within", "without", "won’t", "wonder", "would", "would", "wouldn’t", "yes", "yet", "you", "you’d",
         "you’ll", "you’re", "you’ve", "your", "yours", "yourself", "yourselves", "zero"];
 
+    //special ones that serve as my mark up.
+    stopWords.push("@");
+    stopWords.push("@header");
+    stopWords.push("@line");
+    stopWords.push("@js");
+    stopWords.push("@java");
+    stopWords.push("@important");
+    stopWords.push("@less");
+
 }
