@@ -10,57 +10,10 @@ namespace TestContentTransformerNamespace {
     import r = Utility.r;
     import storeTestImage = TestStorageNamespace.storeTestImage;
     import getIDB = StorageNamespace.getIDB;
-    import addChildAndNormalize = ContentTransformerNamespace.addChildAndNormalize;
-
-    function tn(val: string){
-        return document.createTextNode(val);
-    }
-
-    function br(){
-        return document.createElement("br");
-    }
-
-    function img(imageDataId: number){
-        let img = document.createElement("img");
-        img.imageDataId = imageDataId;
-        return img;
-    }
-
-    function createDummyDomContent(root: Node, imgId?: number){
-        root.appendChild(tn("abc"));
-        root.appendChild(tn("normalize"));
-        root.appendChild(br());
-        root.appendChild(br());
-        root.appendChild(tn("def"));
-        root.appendChild(br());
-        root.appendChild(tn("ghi"));
-        root.appendChild(img(imgId || 1));
-        root.appendChild(br());
-        root.appendChild(br());
-    }
-
-    function createDummyComponents(imgId?: number) {
-        let components: Component[] = [];
-        components.push({nodeName: "#text", value: "abc"});
-        components.push({nodeName: "#text", value: "normalize"});
-        components.push({nodeName: "br"});
-        components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "def"});
-        components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "ghi"});
-        components.push({nodeName: "img", imageDataId: imgId || 1});
-        components.push({nodeName: "br"});
-        components.push({nodeName: "br"});
-        return components;
-    }
-    
-    function normalizeComponents(components: Component[]) {
-        let normalized = [];
-        for(let c of components) {
-            addChildAndNormalize(normalized, c);
-        }
-        return normalized;
-    }
+    import shouldBeEqual = TestUtilNamespace.shouldBeEqual;
+    import normalizeComponents = TestUtilNamespace.normalizeComponents;
+    import createDummyDomContent = TestUtilNamespace.createDummyDomContent;
+    import createDummyComponents = TestUtilNamespace.createDummyComponents;
 
     function testConvertToComponentFormat() {
         let codeEditorEle = document.createElement("div");

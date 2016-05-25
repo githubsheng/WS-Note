@@ -18,6 +18,12 @@ namespace TestStorageNamespace {
     import createCanvasBasedOnImage = Utility.createCanvasBasedOnImage;
     import createImageFromBlob = Utility.createImageFromBlob;
     import r = Utility.r;
+    import shouldBeTrue = TestUtilNamespace.shouldBeTrue;
+    import shouldNotBeUndefined = TestUtilNamespace.shouldNotBeUndefined;
+    import shouldBeInstanceOf = TestUtilNamespace.shouldBeInstanceOf;
+    import shouldBeUndefined = TestUtilNamespace.shouldBeUndefined;
+    import shouldBeEqual = TestUtilNamespace.shouldBeEqual;
+    import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
 
     export function* storeTestImage(idb: IDBDatabase): IterableIterator<any> {
         let img = yield createImageFromRegularURL("test.jpeg");

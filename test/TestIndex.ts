@@ -7,6 +7,12 @@
 
 namespace TestIndexNamespace {
 
+    import shouldBeUndefined = TestUtilNamespace.shouldBeUndefined;
+    import shouldBeEqual = TestUtilNamespace.shouldBeEqual;
+    import shouldInclude = TestUtilNamespace.shouldInclude;
+    import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
+    import shouldBeTrue = TestUtilNamespace.shouldBeTrue;
+    import shouldBeFalse = TestUtilNamespace.shouldBeFalse;
     export function runIndexTest(){
 
         let index = IndexNamespace.getIndex();
