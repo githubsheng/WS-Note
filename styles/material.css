@@ -246,4 +246,7 @@
     background: lightgray;
 }
 
+.noteViewer {
+    white-space: pre-wrap;
+}
 

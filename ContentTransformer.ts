@@ -94,15 +94,18 @@ namespace ContentTransformerNamespace {
         return frag;
     }
 
+    let markupsForBlock = ["@js", "@java", "@important", "@less"];
     export function* convertToStyledDocumentFragment(components:Component[]):IterableIterator<any> {
         let frag = document.createDocumentFragment();
         let styledContainer:HTMLDivElement;
         let isParsingCodeBlock = false;
-        let markupsForBlock = ["@js", "@java", "@important", "@less"];
+
+        function getParent(): Node{
+            return styledContainer ? styledContainer : frag;
+        }
 
         for (let i = 0; i < components.length; i++) {
             let cp = components[i];
-            let node;
             switch (cp.nodeName) {
                 case textNodeName:
                     if (cp.value.startsWith("@") && cp.value !== "@" && styledContainer === undefined) {
@@ -166,26 +169,87 @@ namespace ContentTransformerNamespace {
                             continue;
                         }
                     }
-                    node = document.createTextNode(cp.value);
+                    convertStyledParagraph(getParent(), cp.value);
                     break;
                 case
                 imgNodeName:
                     let idb = yield getIDB();
                     let imageDataId = cp.imageDataId;
                     let imageData = yield getImageBlob(idb, imageDataId);
-                    node = yield createImageFromBlob(imageData);
-                    (<HTMLImageElement>node).imageDataId = imageDataId;
+                    let img = yield createImageFromBlob(imageData);
+                    img.imageDataId = imageDataId;
+                    getParent().appendChild(img);
                     break;
                 default:
-                    node = document.createElement(cp.nodeName);
+                    getParent().appendChild(document.createElement(cp.nodeName));
             }
-            if (styledContainer) {
-                styledContainer.appendChild(node);
-            } else {
-                frag.appendChild(node);
-            }
+
         }
 
         return frag;
+    }
+
+    function convertStyledParagraph(parent: Node, text: string) {
+
+        let si = 0; //starting or continue processing from this point
+        let cmi = -1; //code markup index
+        let bmi = -1; //bold markup index
+        let imi = -1; //italic markup index
+
+        for(let i = 0; i < text.length; i++) {
+            let c = text[i];
+            if(c === '`') {
+                if(cmi == - 1) {
+                    cmi = i;
+                } else {
+                    let tn = document.createTextNode(text.substring(si, cmi));
+                    parent.appendChild(tn);
+                    let sp = document.createElement("span");
+                    sp.classList.add("inlineCode");
+                    sp.appendChild(document.createTextNode(text.substring(cmi + 1, i)));
+                    parent.appendChild(sp);
+                    cmi = -1;
+                    bmi = -1;
+                    imi = -1;
+                    si = i + 1;
+                }
+            } else if(c === '~') {
+                if(bmi == - 1) {
+                    bmi = i;
+                } else {
+                    let tn = document.createTextNode(text.substring(si, bmi));
+                    parent.appendChild(tn);
+                    let sp = document.createElement("span");
+                    sp.classList.add("emphasis");
+                    sp.appendChild(document.createTextNode(text.substring(bmi + 1, i)));
+                    parent.appendChild(sp);
+                    cmi = -1;
+                    bmi = -1;
+                    imi = -1;
+                    si = i + 1;
+                }
+            } else if(c === '_') {
+                if(imi == - 1) {
+                    imi = i;
+                } else {
+                    let tn = document.createTextNode(text.substring(si, imi));
+                    parent.appendChild(tn);
+                    let sp = document.createElement("span");
+                    sp.classList.add("italic");
+                    sp.appendChild(document.createTextNode(text.substring(imi + 1, i)));
+                    parent.appendChild(sp);
+                    cmi = -1;
+                    bmi = -1;
+                    imi = -1;
+                    si = i + 1;
+                }
+            }
+        }
+
+        if(si === 0) {
+            parent.appendChild(document.createTextNode(text))
+        } else {
+            parent.appendChild(document.createTextNode(text.substring(si)));
+        }
     }
 }

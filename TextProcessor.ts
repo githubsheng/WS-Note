@@ -61,7 +61,7 @@ namespace IndexNamespace {
 
             this.delimiterCodes = new Array(KeywordProcessor.r);
 
-            let delimiters = [' ', ',', '.', '`', '_', '*', ':', '-', '\n'];
+            let delimiters = [' ', ',', '.', '`', '_', '~', ':', '-', '\n'];
             for (let i = 0; i < delimiters.length; i++) {
                 let cc = delimiters[i].charCodeAt(0);
                 if (cc < KeywordProcessor.r) {

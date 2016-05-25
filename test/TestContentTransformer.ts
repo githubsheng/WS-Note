@@ -1,6 +1,7 @@
 ///<reference path="../ContentTransformer.ts"/>
 ///<reference path="TestUtil.ts"/>
 ///<reference path="TestStorage.ts"/>
+///<reference path="../CodeEditor.ts"/>
 
 namespace TestContentTransformerNamespace {
 
@@ -98,6 +99,7 @@ namespace TestContentTransformerNamespace {
             testContainer.appendChild(right);
 
             parsedContent = document.createElement("div");
+            parsedContent.classList.add("noteViewer");
             right.appendChild(parsedContent);
 
             let footer = document.createElement("div");
@@ -106,7 +108,7 @@ namespace TestContentTransformerNamespace {
 
             document.body.appendChild(testContainer);
 
-            setInterval(parse, 2000);
+            codeEditor.containerEle.addEventListener("keyup", parse);
         })
     }
 
