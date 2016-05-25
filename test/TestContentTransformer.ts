@@ -14,6 +14,8 @@ namespace TestContentTransformerNamespace {
     import normalizeComponents = TestUtilNamespace.normalizeComponents;
     import createDummyDomContent = TestUtilNamespace.createDummyDomContent;
     import createDummyComponents = TestUtilNamespace.createDummyComponents;
+    import convertToStyledDocumentFragment = ContentTransformerNamespace.convertToStyledDocumentFragment;
+    import createCodeEditor = CodeEditorNamespace.createCodeEditor;
 
     function testConvertToComponentFormat() {
         let codeEditorEle = document.createElement("div");
@@ -58,9 +60,60 @@ namespace TestContentTransformerNamespace {
         });
     }
 
+    function testConvertToStyledDocumentFragment(){
+        let codeEditor, parsedContent;
+
+        function parse(){
+            let components = codeEditor.getValue();
+            r(function*(){
+                let parsedDom = yield* convertToStyledDocumentFragment(components);
+                while(parsedContent.firstChild)
+                    parsedContent.removeChild(parsedContent.firstChild);
+                parsedContent.appendChild(parsedDom);
+            });
+        }
+
+        r(function*(){
+            let testContainer = document.createElement("div");
+            testContainer.appendChild(document.createTextNode("parse content test"));
+
+            let left = document.createElement("div");
+            left.style.width = "50%";
+            left.style.cssFloat = "left";
+            testContainer.appendChild(left);
+            let idb = yield getIDB();
+            codeEditor = createCodeEditor(idb);
+            left.appendChild(codeEditor.containerEle);
+
+            var toggleImageInsertButton = document.createElement("button");
+            toggleImageInsertButton.innerText = "Insert Images";
+            toggleImageInsertButton.onclick = function(){
+                codeEditor.startInsertingImg();
+            };
+            left.appendChild(toggleImageInsertButton);
+
+            let right = document.createElement("div");
+            right.style.width = "50%";
+            right.style.cssFloat = "left";
+            testContainer.appendChild(right);
+
+            parsedContent = document.createElement("div");
+            right.appendChild(parsedContent);
+
+            let footer = document.createElement("div");
+            footer.style.clear = "both";
+            testContainer.appendChild(footer);
+
+            document.body.appendChild(testContainer);
+
+            setInterval(parse, 2000);
+        })
+    }
+
     export function runContentTransformerTest(){
         testConvertToComponentFormat();
         testConvertToDocumentFragment();
+        testConvertToStyledDocumentFragment();
     }
 
 }
