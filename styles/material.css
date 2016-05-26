@@ -278,3 +278,15 @@
     font-style: italic;
 }
 
+.noteViewer .codeKeyword {
+    color: cornflowerblue;
+}
+
+.noteViewer .codeSpecialSymbol {
+    color: darkgray;
+}
+
+.noteViewer .codeFunctionName {
+    color: red;
+}
+

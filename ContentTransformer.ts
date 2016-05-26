@@ -2,6 +2,7 @@
 ///<reference path="Storage.ts"/>
 ///<reference path="AsyncUtil.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
+///<reference path="CodeParser.ts"/>
 
 /**
  * Inside the editor is a large dom fragment. While I can store that dom fragment in the indexeddb,
@@ -22,6 +23,7 @@ namespace ContentTransformerNamespace {
     import getIDB = StorageNamespace.getIDB;
     import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
     import createImageFromBlob = Utility.createImageFromBlob;
+    import parseCode = SyntaxHighlightNamespace.parseCode;
 
     const textNodeName = "#text";
     const imgNodeName = "img";
@@ -169,7 +171,12 @@ namespace ContentTransformerNamespace {
                             continue;
                         }
                     }
-                    convertStyledParagraph(getParent(), cp.value);
+
+                    if(isParsingCodeBlock) {
+                        parseCode(getParent(), cp.value);
+                    } else {
+                        convertStyledParagraph(getParent(), cp.value);
+                    }
                     break;
                 case
                 imgNodeName:
