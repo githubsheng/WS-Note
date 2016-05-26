@@ -2,6 +2,9 @@
 ///<reference path="TestUtil.ts"/>
 ///<reference path="TestStorage.ts"/>
 ///<reference path="../CodeEditor.ts"/>
+///<reference path="../typings/chrome/chrome-app.d.ts" />
+
+
 
 namespace TestContentTransformerNamespace {
 
@@ -17,6 +20,7 @@ namespace TestContentTransformerNamespace {
     import createDummyComponents = TestUtilNamespace.createDummyComponents;
     import convertToStyledDocumentFragment = ContentTransformerNamespace.convertToStyledDocumentFragment;
     import createCodeEditor = CodeEditorNamespace.createCodeEditor;
+    import AppWindow = chrome.app.window.AppWindow;
 
     function testConvertToComponentFormat() {
         let codeEditorEle = document.createElement("div");
@@ -62,53 +66,51 @@ namespace TestContentTransformerNamespace {
     }
 
     function testConvertToStyledDocumentFragment(){
-        let codeEditor, parsedContent;
+        let codeEditor, needsUpdate = false;
 
         function parse(){
-            let components = codeEditor.getValue();
-            r(function*(){
-                let parsedDom = yield* convertToStyledDocumentFragment(components);
-                while(parsedContent.firstChild)
-                    parsedContent.removeChild(parsedContent.firstChild);
-                parsedContent.appendChild(parsedDom);
-            });
+            needsUpdate = true;
         }
 
         r(function*(){
             let testContainer = document.createElement("div");
             testContainer.appendChild(document.createTextNode("parse content test"));
 
-            let left = document.createElement("div");
-            left.style.width = "50%";
-            left.style.cssFloat = "left";
-            testContainer.appendChild(left);
             let idb = yield getIDB();
             codeEditor = createCodeEditor(idb);
-            left.appendChild(codeEditor.containerEle);
+            codeEditor.containerEle.addEventListener("keyup", parse);
+            testContainer.appendChild(codeEditor.containerEle);
 
             var toggleImageInsertButton = document.createElement("button");
             toggleImageInsertButton.innerText = "Insert Images";
             toggleImageInsertButton.onclick = function(){
                 codeEditor.startInsertingImg();
             };
-            left.appendChild(toggleImageInsertButton);
+            testContainer.appendChild(toggleImageInsertButton);
 
-            let right = document.createElement("div");
-            right.style.width = "50%";
-            right.style.cssFloat = "left";
-            testContainer.appendChild(right);
+            let openViewerButton = document.createElement("button");
+            openViewerButton.appendChild(document.createTextNode("Open Viewer"));
 
-            parsedContent = document.createElement("div");
-            parsedContent.classList.add("noteViewer");
-            right.appendChild(parsedContent);
-
-            let footer = document.createElement("div");
-            footer.style.clear = "both";
-            testContainer.appendChild(footer);
+            openViewerButton.onclick = function(){
+                chrome.app.window.create('test/viewer.html', {
+                    'bounds': {
+                        'width': 400,
+                        'height': 400
+                    }
+                }, function(appWindow: AppWindow) {
+                    let viewerWindow = appWindow.contentWindow;
+                    setInterval(function(){
+                        if(needsUpdate) {
+                            let components = codeEditor.getValue();
+                            viewerWindow.postMessage(components, "*");
+                            needsUpdate = false;
+                        }
+                    }, 500);
+                });
+            };
+            testContainer.appendChild(openViewerButton);
 
             document.body.appendChild(testContainer);
-
-            codeEditor.containerEle.addEventListener("keyup", parse);
         })
     }
 

@@ -1,7 +1,9 @@
 example to concatenate all output js file into one
 tsc --outFile App.js Demo.ts
 tsc --target es6 --outFile ComponentsDemo.js Demo.ts
-tsc --target es6 --outFile test/ComponentsTest.js test/Test.ts
+
+tsc --target es6 --outFile test/testApp.js test/Test.ts
+tsc --target es6 --outFile test/testViewer.js test/TestViewer.ts
 
 google font
 https://www.google.com/fonts

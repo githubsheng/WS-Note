@@ -250,3 +250,31 @@
     white-space: pre-wrap;
 }
 
+.noteViewer .important {
+    background: lightblue;
+}
+
+.noteViewer .less {
+    background: lightyellow;
+}
+
+.noteViewer .java, .noteViewer .js {
+    background: seashell;
+}
+
+.noteViewer h2 {
+    margin: 0;
+}
+
+.noteViewer .inlineCode {
+    background: pink;
+}
+
+.noteViewer .emphasis {
+    background: lightblue;
+}
+
+.noteViewer .italic {
+    font-style: italic;
+}
+
