@@ -90,10 +90,9 @@ namespace CodeEditorNamespace {
                 let htmlStr = "";
                 for (let line of lines) {
                     //replaces all potential html markup.
-                    let newLine = line === "" ? "<br>" : line.replace('<', "&lt;").replace('>', "&gt;");
-                    htmlStr += newLine + "<br>";
+                    if(line !== "") htmlStr += line.replace('<', "&lt;").replace('>', "&gt;");
+                    htmlStr += "<br>"
                 }
-                console.log(htmlStr);
                 document.execCommand("insertHTML", false, htmlStr);
                 if(valueChangeListener) valueChangeListener();
             }
