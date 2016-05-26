@@ -28,10 +28,7 @@ namespace SyntaxHighlightNamespace {
                     if(isKeyWord(keywordCandidate)) {
                         let previous = text.substring(segmentStartIndex, keywordCandidateStartIndex);
                         parent.appendChild(document.createTextNode(previous));
-                        let keywordSpan = document.createElement("span");
-                        keywordSpan.classList.add("codeKeyword");
-                        keywordSpan.appendChild(document.createTextNode(keywordCandidate));
-                        parent.appendChild(keywordSpan);
+                        createKeywordSpan(parent, keywordCandidate);
                         keywordCandidateStartIndex = -1;
                         segmentStartIndex = i;
 
@@ -67,6 +64,13 @@ namespace SyntaxHighlightNamespace {
         if(segmentStartIndex < text.length) {
             parent.appendChild(document.createTextNode(text.substring(segmentStartIndex)));
         }
+    }
+
+    function createKeywordSpan(parent: Node, keyword: string) {
+        let keywordSpan = document.createElement("span");
+        keywordSpan.classList.add("codeKeyword");
+        keywordSpan.appendChild(document.createTextNode(keyword));
+        parent.appendChild(keywordSpan);
     }
 
     function createSpecialCodeSymbolSpan(parent: Node, symbol: string) {
