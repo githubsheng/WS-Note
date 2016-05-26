@@ -66,10 +66,11 @@ namespace TestContentTransformerNamespace {
     }
 
     function testConvertToStyledDocumentFragment(){
-        let codeEditor, needsUpdate = false;
+        let codeEditor, viewerWindow;
 
         function parse(){
-            needsUpdate = true;
+            let components = codeEditor.getValue();
+            viewerWindow.postMessage(components, "*");
         }
 
         r(function*(){
@@ -98,14 +99,7 @@ namespace TestContentTransformerNamespace {
                         'height': 400
                     }
                 }, function(appWindow: AppWindow) {
-                    let viewerWindow = appWindow.contentWindow;
-                    setInterval(function(){
-                        if(needsUpdate) {
-                            let components = codeEditor.getValue();
-                            viewerWindow.postMessage(components, "*");
-                            needsUpdate = false;
-                        }
-                    }, 500);
+                    viewerWindow = appWindow.contentWindow;
                 });
             };
             testContainer.appendChild(openViewerButton);
