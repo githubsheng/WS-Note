@@ -61,7 +61,7 @@ namespace CodeEditorNamespace {
                 //so far in practice i can do just fine without this empty text node.
                 if(br.nextSibling && br.nextSibling.nodeName === "#text" && br.nextSibling.nodeValue === "")
                     codeEditorEle.removeChild(br.nextSibling);
-                if(!br.nextSibling) {
+                if(!br.nextSibling && (br.previousSibling && br.previousSibling.nodeName.toLowerCase() !== "br")) {
                     br = document.createElement("br");
                     codeEditorEle.insertBefore(br, br.nextSibling);
                 }
