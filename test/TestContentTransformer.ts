@@ -78,7 +78,7 @@ namespace TestContentTransformerNamespace {
 
             let idb = yield getIDB();
             codeEditor = createCodeEditor(idb);
-            codeEditor.containerEle.addEventListener("keyup", parse);
+            codeEditor.setValueChangeListener(parse);
             testContainer.appendChild(codeEditor.containerEle);
 
             var toggleImageInsertButton = document.createElement("button");

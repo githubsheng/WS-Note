@@ -33,9 +33,18 @@ namespace TestCodeEditorNamespace {
                 if(components) codeEditor.setValue(components);
             };
 
+            let span = document.createElement("span");
+            span.innerText = "0";
+            let valueChangeCount = 0;
+            codeEditor.setValueChangeListener(function(){
+                valueChangeCount++;
+                span.innerText = valueChangeCount.toString();
+            });
+
             document.body.appendChild(toggleImageInsertButton);
             document.body.appendChild(getValueAndClearButton);
             document.body.appendChild(setValueButton);
+            document.body.appendChild(span);
         });
     }
 }

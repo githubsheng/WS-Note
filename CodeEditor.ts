@@ -17,9 +17,11 @@ namespace CodeEditorNamespace {
         startInsertingImg:() => void;
         getValue:() => Component[];
         setValue:(components:Component[]) => void;
+        setValueChangeListener: (listener:() => void) => void;
     }
 
     export function createCodeEditor(idb:IDBDatabase):CodeEditor {
+
         let containerEle = document.createElement("div");
         containerEle.classList.add("codeEditorContainer");
 
@@ -33,13 +35,18 @@ namespace CodeEditorNamespace {
         containerEle.appendChild(codeEditorEle);
         containerEle.appendChild(dropContainerEle);
 
-        //when user press tab key, it should insert a 4 whitespace indent, rather than changing element focus
+        let valueChangeListener: () => void;
+        function setValueChangeListener(listener: () => void){
+            valueChangeListener = listener;
+        }
+
         codeEditorEle.addEventListener('keydown', keyHandler);
         function keyHandler(e:KeyboardEvent) {
             const TAB_KEY = 9;
             const TAB_SPACE = "    ";
             const ENTER_KEY = 13;
             if (e.keyCode == TAB_KEY) {
+                //when user press tab key, it should insert a 4 whitespace indent, rather than changing element focus
                 document.execCommand("insertText", false, TAB_SPACE);
                 e.preventDefault();
                 return false;
@@ -68,6 +75,11 @@ namespace CodeEditorNamespace {
             }
         }
 
+        //key down event may be fired many times, only notify a value change when key up.
+        codeEditorEle.addEventListener("keyup", function(){
+            if(valueChangeListener) valueChangeListener();
+        });
+
         //only allow user to paste in plain text, if the pasted text is not plain text, transfer it to plain text.
         codeEditorEle.addEventListener("paste", pastePlainText);
         function pastePlainText(evt:ClipboardEvent) {
@@ -83,6 +95,7 @@ namespace CodeEditorNamespace {
                 }
                 console.log(htmlStr);
                 document.execCommand("insertHTML", false, htmlStr);
+                if(valueChangeListener) valueChangeListener();
             }
         }
 
@@ -141,6 +154,8 @@ namespace CodeEditorNamespace {
                 dropContainerEle.classList.remove("active");
                 dropContainerEle.style.zIndex = "1";
                 codeEditorEle.focus();
+                //once the images are ready, notify listeners that values have changed.
+                if(valueChangeListener) valueChangeListener();
             });
             //I've handled the drop
             return false;
@@ -168,7 +183,8 @@ namespace CodeEditorNamespace {
             containerEle: containerEle,
             startInsertingImg: startInsertingImg,
             getValue: getValue,
-            setValue: setValue
+            setValue: setValue,
+            setValueChangeListener: setValueChangeListener
         }
 
     }
