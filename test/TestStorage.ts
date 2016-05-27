@@ -26,7 +26,7 @@ namespace TestStorageNamespace {
     import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
 
     export function* storeTestImage(idb: IDBDatabase): IterableIterator<any> {
-        let img = yield createImageFromRegularURL("test.jpeg");
+        let img = yield createImageFromRegularURL("../resources/test.jpeg");
         let canvas = createCanvasBasedOnImage(img);
         let blob = yield getBlobFromCanvas(canvas);
         let id = yield storeImageBlob(idb, blob);
@@ -118,7 +118,7 @@ namespace TestStorageNamespace {
             div.appendChild(document.createTextNode("original image:"));
             div.appendChild(document.createElement("br"));
             img = document.createElement("img");
-            img.src = "test.jpeg";
+            img.src = "../resources/test.jpeg";
             div.appendChild(img);
             div.style.marginTop = "10px";
             document.body.appendChild(div);
