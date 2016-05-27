@@ -41,7 +41,8 @@ namespace ContentTransformerNamespace {
     }
 
     /**
-     * convert the code editor to component tree. the code editor itself is transformed into a document fragment.
+     * convert the code editor to component tree. the code editor itself is transformed into a document fragment. Here I convert
+     * the children of code editor to a list of components. If there are adjacent text nodes, they are normalized (merged).
      */
     export function convertToComponentFormat(codeEditor:Node):Component[] {
         let result = [];
@@ -55,6 +56,9 @@ namespace ContentTransformerNamespace {
         return result;
     }
 
+    /**
+     * add component to the component list. if there are adjacent text nodes, normalize them (merge them) when adding in.
+     */
     export function addChildAndNormalize(result:Component[], child:Component) {
         if (result.length === 0) {
             result.push(child);
@@ -97,12 +101,25 @@ namespace ContentTransformerNamespace {
     }
 
     let markupsForBlock = ["@js", "@java", "@important", "@less"];
+
+    /**
+     * converts the component list to a styled document fragment.
+     */
     export function* convertToStyledDocumentFragment(components:Component[]):IterableIterator<any> {
+
+        //create a document fragment, this will be parent of all other converted components.
         let frag = document.createDocumentFragment();
+        /**
+         * if i encounter @js, @java, @important, or @less, then create a div and temporarily append the converted components
+         * to this div. this div is used to style the background color. that is, if you have an @important block, the entire
+         * block needs to have light blue background, and i need a div to achieve that. inspect the dom elements in the browser
+         * to have a better understanding.
+         */
         let styledContainer:HTMLDivElement;
         let isParsingCodeBlock = false;
 
-        function getParent(): Node{
+        //if styled container is available, append converted components to the styled container, otherwise append to document fragment.
+        function getParent():Node {
             return styledContainer ? styledContainer : frag;
         }
 
@@ -110,37 +127,60 @@ namespace ContentTransformerNamespace {
             let cp = components[i];
             switch (cp.nodeName) {
                 case textNodeName:
+                    //needs to start with @ symbol. but if its exactly @, then it means end of a block, this case is covered later.
+                    //the following logic either start a styledContainer (such as @js, @important), or cannot be inside a styledContainer, such
+                    //as @header and @line. and thats why i need to make sure styledContainer is undefined first.
                     if (cp.value.startsWith("@") && cp.value !== "@" && styledContainer === undefined) {
+                        //if the line has previous sibling or next sibling, they need to br. otherwise the text node may not be a new line, it could
+                        //be a next node following an image node or something.
                         if ((components[i - 1] === undefined || components[i - 1].nodeName === "br")
                             && (components[i + 1] === undefined || components[i + 1].nodeName === "br")) {
+                            //the above if conditions basically says:
+                            //if i have a line, and the line either starts with @header, or is exactly @line, @java, @js, @important or @less.
                             if (cp.value.startsWith("@header ")) {
+                                /**
+                                 * previous line text <br>
+                                 * @header headerText <br>  <-- this br makes sure @header is on its own line in the source code.
+                                 */
                                 let header = document.createElement("h2");
-                                let headerText = cp.value.substring(8);
+                                let headerText = cp.value.substring(8); //header text is the portion that starts from index 8
                                 header.appendChild(document.createTextNode(headerText));
                                 frag.appendChild(header);
-                                i++;
+                                i++; //the br after @header is no longer necessary because h2 element automatically ends the line.
                                 continue;
                             } else if (cp.value === "@line") {
+                                /**
+                                 * previous line text <br>
+                                 * @line <br>  <-- this br makes sure @line is on its own line in the source code.
+                                 */
                                 let horizontalLine = document.createElement("hr");
                                 frag.appendChild(horizontalLine);
-                                i++;
+                                i++; //<hr> terminates the line itself and therefore the br next to @line is no longer necessary.
                                 continue;
                             } else {
+                                /**
+                                 * sample:
+                                 * previous line text <br>
+                                 * @js <br> <-- this br makes sure @js is on its own line in the source code
+                                 */
                                 let ii = markupsForBlock.indexOf(cp.value);
                                 if (ii > -1) {
                                     styledContainer = document.createElement("div");
+                                    //if markup is @js, then class name is js. if @java, then class name is java.
+                                    //@important -> important. @less -> less.
                                     styledContainer.classList.add(cp.value.substring(1));
-                                    if (ii < 2) isParsingCodeBlock = true;
+                                    if (ii < 2) isParsingCodeBlock = true; //if @js, or @java, then i need to start to parse code blocks.
                                     frag.appendChild(styledContainer);
-                                    i++;
+                                    i++; //skip the br
                                     continue;
                                 }
                             }
                         }
-                    }
-                    else if (cp.value === "@" && styledContainer) {
+                    } else if (cp.value === "@" && styledContainer) {
+                        //if we have a styledContainer in place then a single line with only a @ symbol means end of the styledContainer.
                         if ((components[i - 1] === undefined || components[i - 1].nodeName === "br")
                             && (components[i + 1] === undefined || components[i + 1].nodeName === "br")) {
+                            //the previous if condition checks whether @ is on its own line.
                             /**
                              * two cases
                              * case one:
@@ -162,8 +202,8 @@ namespace ContentTransformerNamespace {
                              * happens to be next sibling of @js and it is already skipped. in this case, the styledContainer
                              * is empty and has no child. therefore i can test `styledContainer.lastChild` to find this out.
                              */
-                            if(styledContainer.lastChild)
-                                //in case one, remove the br. this br is the last child of styledContainer now.
+                            if (styledContainer.lastChild)
+                            //in case one, remove the br. this br is the last child of styledContainer now.
                                 styledContainer.removeChild(styledContainer.lastChild);
                             i++; //skip next br
                             styledContainer = undefined;
@@ -172,14 +212,15 @@ namespace ContentTransformerNamespace {
                         }
                     }
 
-                    if(isParsingCodeBlock) {
+                    if (isParsingCodeBlock) {
                         parseCode(getParent(), cp.value);
                     } else {
                         convertStyledParagraph(getParent(), cp.value);
                     }
                     break;
-                case
-                imgNodeName:
+                case imgNodeName:
+                    //read the image data from database, and set it as the src of a new image element. when the image data is
+                    //loaded, append the image to parent node.
                     let idb = yield getIDB();
                     let imageDataId = cp.imageDataId;
                     let imageData = yield getImageBlob(idb, imageDataId);
@@ -196,32 +237,44 @@ namespace ContentTransformerNamespace {
         return frag;
     }
 
-    function convertStyledParagraph(parent: Node, text: string) {
+    /**
+     * convert components to styled paragraph.
+     */
+    function convertStyledParagraph(parent:Node, text:string) {
 
         let si = 0; //starting or continue processing from this point
-        let cmi = -1; //code markup index
-        let bmi = -1; //bold markup index
-        let imi = -1; //italic markup index
+        let cmi = -1; //code markup index, sample: abc`some code`abc
+        let bmi = -1; //bold markup index, sample: abc~bold text~abc
+        let imi = -1; //italic markup index, sample: abc_italic text_abc
 
-        for(let i = 0; i < text.length; i++) {
+        for (let i = 0; i < text.length; i++) {
             let c = text[i];
-            if(c === '`') {
-                if(cmi == - 1) {
+            if (c === '`') {
+                if (cmi == -1) {
+                    //if this is the first ` encountered, remember its place
                     cmi = i;
                 } else {
+                    //i have already found one ` before, so with the current one i can a complete abc`some code` form.
+                    //create a text node for text before the code snippet. in abc`some code` it would be abc.
                     let tn = document.createTextNode(text.substring(si, cmi));
                     parent.appendChild(tn);
+                    //create a text node for the code span.
                     let sp = document.createElement("span");
                     sp.classList.add("inlineCode");
                     sp.appendChild(document.createTextNode(text.substring(cmi + 1, i)));
                     parent.appendChild(sp);
+                    //if i have encountered other markups before, ignore them now. for instance, _aaa`some~code`, the _ and ~
+                    //can now be ignored, cos they didn't manage to form their own complete form in time.
                     cmi = -1;
                     bmi = -1;
                     imi = -1;
+                    //if subsequently another code/bold/italic span is found, then the normal unstyled substring
+                    //before that span should start from i+1. that is, it should start from the next character after
+                    //the current span.
                     si = i + 1;
                 }
-            } else if(c === '~') {
-                if(bmi == - 1) {
+            } else if (c === '~') {
+                if (bmi == -1) {
                     bmi = i;
                 } else {
                     let tn = document.createTextNode(text.substring(si, bmi));
@@ -235,8 +288,8 @@ namespace ContentTransformerNamespace {
                     imi = -1;
                     si = i + 1;
                 }
-            } else if(c === '_') {
-                if(imi == - 1) {
+            } else if (c === '_') {
+                if (imi == -1) {
                     imi = i;
                 } else {
                     let tn = document.createTextNode(text.substring(si, imi));
@@ -253,9 +306,11 @@ namespace ContentTransformerNamespace {
             }
         }
 
-        if(si === 0) {
+        if (si === 0) {
+            //if no pattern has been observed. create a text node for the entire text.
             parent.appendChild(document.createTextNode(text))
         } else {
+            //create a text node for the substring after the last code/bold/italic span.
             parent.appendChild(document.createTextNode(text.substring(si)));
         }
     }

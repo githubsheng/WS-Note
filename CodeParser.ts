@@ -12,8 +12,21 @@ namespace SyntaxHighlightNamespace {
 
     export function parseCode(parent: Node, text: string) {
 
+        /**
+         * delimiters include whitespace, and special code symbols such as ; { } ( ) and so on. this variable indicates
+         * whether the cursor in the following for-loop is on a normal character, or on a delimiter.
+         */
         let isOnNoneDelimiter = false;
-        let keywordCandidateStartIndex = isOnNoneDelimiter ? 0 : -1;
+        /**
+         *  _means whitespace
+         *  segmentStartIndex
+         *  |
+         *  |
+         *  _______function foo() {};
+         *         |
+         *      keywordCandidateStartIndex
+         */
+        let keywordCandidateStartIndex = -1;
         let segmentStartIndex = 0;
 
         for(let i = 0; i < text.length; i++) {
@@ -23,17 +36,30 @@ namespace SyntaxHighlightNamespace {
             let isDelimiter = isWhitespace || isSpecialSymbol;
 
             if(isOnNoneDelimiter) {
-                if(isDelimiter || (i === text.length - 1 && !isDelimiter)) {
+                //if previously I am looking at normal characters, and now for the first time I am looking at delimiters,
+                //then I have found a word.
+                /**
+                 * keywordCandidateStartIndex
+                 * |
+                 * function   <---before cursor is on delimiter it was `isOnNoneDelimiter`
+                 *         |
+                 *      white space delimiter / cursor position
+                 */
+                if(isDelimiter) {
+                    //from the above comments you can see the founded word is text.substring(keywordCandidateStartIndex, i)
                     let keywordCandidate = text.substring(keywordCandidateStartIndex, i);
                     if(isKeyWord(keywordCandidate)) {
+                        //if this candidate turns out to be a keyword, then i need to give it a different styles.
                         let previous = text.substring(segmentStartIndex, keywordCandidateStartIndex);
                         parent.appendChild(document.createTextNode(previous));
                         createKeywordSpan(parent, keywordCandidate);
                         keywordCandidateStartIndex = -1;
                         segmentStartIndex = i;
 
+                        //further more, if this delimiter is a special symbol, such as }, ;, I need to give a different color as well.
                         if(isSpecialSymbol) {
                             createSpecialCodeSymbolSpan(parent, char);
+                            //since this symbol has been converted to a span and appended to fragment, increase segmentStartIndex by 1.
                             segmentStartIndex = i + 1;
                         }
 
@@ -46,23 +72,46 @@ namespace SyntaxHighlightNamespace {
                             segmentStartIndex = i + 1;
                         }
                     }
+                    //since the cursor has moved on to a delimiter, change this flag to false.
                     isOnNoneDelimiter = false;
                 }
             } else {
+                //previously cursor was on delimiters
                 if(!isDelimiter){
+                    //if current one is on normal character, this is the first normal character after delimiters, and it will be the start of
+                    //of the next word.
                     isOnNoneDelimiter = true;
                     keywordCandidateStartIndex = i;
                 } else if(isSpecialSymbol) {
+                    //if cursor currently also points to a delimiter, but other than whitespace it is a special character, then give the symbol
+                    //a different color.
                     let previous = text.substring(segmentStartIndex, i);
                     parent.appendChild(document.createTextNode(previous));
                     createSpecialCodeSymbolSpan(parent, char);
+                    //since all characters before i has been converted to either text node or span, set segmentStartIndex to i+1.
                     segmentStartIndex = i + 1;
                 }
             }
         }
 
+        //I only try to find words when I encounter a delimiter. say, in the above logic, "function ", when the last whitespace appears,
+        //I know that may be the end of a word, and then i will find "function", but what if the entire text does not contains delimiter?
+        //for instance, the entire text can be "   function". To overcome this issue, always add remaining characters and check for keyword
+        //when the end of the text is reached.
         if(segmentStartIndex < text.length) {
-            parent.appendChild(document.createTextNode(text.substring(segmentStartIndex)));
+            if(keywordCandidateStartIndex > -1) {
+                let keywordCandidate = text.substring(keywordCandidateStartIndex, text.length);
+                if(isKeyWord(keywordCandidate)) {
+                    //if this candidate turns out to be a keyword, then i need to give it a different styles.
+                    let previous = text.substring(segmentStartIndex, keywordCandidateStartIndex);
+                    parent.appendChild(document.createTextNode(previous));
+                    createKeywordSpan(parent, keywordCandidate);
+                } else {
+                    parent.appendChild(document.createTextNode(text.substring(segmentStartIndex)));
+                }
+            } else {
+                parent.appendChild(document.createTextNode(text.substring(segmentStartIndex)));
+            }
         }
     }
 
@@ -102,14 +151,6 @@ namespace SyntaxHighlightNamespace {
             }
         }
     }
-
-    // let code = "var myFunc = function() { return 1; } document.body.appendChild(a); myFunc(a, b); ";
-    // code += "for(let i = 0; i < 10; i++) { console.log(1); }";
-    // let div = document.createElement("div");
-    // div.style.border = "1px solid black";
-    // document.body.appendChild(div);
-    // wangsheng = div;
-    // parse(div, code);
 }
 
 
