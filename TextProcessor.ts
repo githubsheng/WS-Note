@@ -139,8 +139,6 @@ namespace IndexNamespace {
                 return undefined;
             } else {
                 let result = this.text.substring(wordStartIndex, wordEndIndex);
-                if(result === "wang")
-                    console.log(result);
                 if (IndexNamespace.getIndex().isIgnorable(result)) return undefined;
                 return result;
             }
