@@ -1,5 +1,5 @@
 /// <reference path="Note.ts" />
-/// <reference path="StopWords.ts" />
+/// <reference path="SpecialWords.ts" />
 
 namespace IndexNamespace {
 
@@ -19,13 +19,17 @@ namespace IndexNamespace {
         }
     }
 
+    export enum WordType {
+        searchKeyword, normalStopWords, markup, jsKeyword, javaKeyword
+    }
+
     class Node {
         naturalOrderCount = 0;
         reversedOrderCount = 0;
         next: Node[] = new Array(r);
         numberOfRelatedNotes = 0;
         relatedNotes: number[];
-        isStopWord = false;
+        wordType: WordType;
     }
 
     class KeywordIndex {
@@ -33,34 +37,24 @@ namespace IndexNamespace {
         private root: Node;
         constructor(){};
 
-        /**
-         * get the related notes linked to a key.
-         * if the key does not exists, it will return undefined.
-         * if the key happens to be a stop word, it will return false.
-         * if the key exists and is linked to some notes, the notes will be returned.
-         */
-        public get(key: string): number[] | boolean {
+        public get(key: string): {wordType: WordType, relatedNotes: number[]} {
             key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
-            if( x === undefined ) return undefined;
-            if(x.isStopWord) {
-                return false;
-            } else {
-                return x.relatedNotes;
-            }
+            if(x === undefined || x.wordType === undefined) return undefined;
+            return {wordType: x.wordType, relatedNotes: x.relatedNotes};
         }
 
         /**
-         * checks if a key is a stop word.
+         * checks if a key should be ignored when building search key index.
          * if the key is not found, undefined is returned.
-         * if the key is a stop word, true is returned.
-         * if the key is not a stop word, false is returned.
+         * if the key is a ignorable word, true is returned.
+         * if the key is not a ignorable word, false is returned.
          */
-        public isStopWord(key: string): boolean {
+        public isIgnorable(key: string): boolean {
             key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
-            if( x === undefined ) return undefined;
-            return x.isStopWord;
+            if( x === undefined || x.wordType === undefined ) return undefined;
+            return x.wordType !== WordType.searchKeyword; //all other types, should be ignored when building search key index.
         }
 
         private getHelper(x: Node, key: string, d: number) {
@@ -70,23 +64,34 @@ namespace IndexNamespace {
             return this.getHelper(x.next[c], key, d+1);
         }
 
-        public put(key:string, reversed: boolean, noteIndex: number): void {
+        public putAsSearchKeyword(key:string, reversed: boolean, noteIndex: number): void {
             key = key.toLowerCase();
-            this.root = this.putHelper(this.root, key, reversed, noteIndex, 0);
+            this.root = this.putHelper(this.root, key, reversed, WordType.searchKeyword, noteIndex, 0);
         }
 
-        public putAsStopWords(key: string): void {
+        private putAsNoneSearchKeyword(key: string, wordType: WordType) {
             key = key.toLowerCase();
-            this.root = this.putHelper(this.root, key, false, -1, 0);
+            this.root = this.putHelper(this.root, key, false, wordType, -1, 0);
+        }
+
+        public putAsNormalStopWord(key: string): void {
+            this.putAsNoneSearchKeyword(key, WordType.normalStopWords);
+        }
+
+        public putAsMarkup(key: string): void {
+            this.putAsNoneSearchKeyword(key, WordType.markup);
+        }
+
+        public putAsJsKeyword(key: string): void {
+            this.putAsNoneSearchKeyword(key, WordType.jsKeyword);
         }
 
         //if note index is -1 then this key is regarded as a stop word
-        private putHelper(x: Node, key: string, reversed: boolean,  noteIndex: number, d: number): Node {
+        private putHelper(x: Node, key: string, reversed: boolean, wordType: WordType, noteIndex: number, d: number): Node {
             if(x === undefined) x = new Node();
             if(d === key.length) {
-                if(noteIndex === -1) {
-                    x.isStopWord = true;
-                } else {
+                x.wordType = wordType;
+                if(wordType === WordType.searchKeyword) {
                     if(x.relatedNotes === undefined) {
                         //if the array is not there, create it.
                         x.relatedNotes = [];
@@ -118,7 +123,7 @@ namespace IndexNamespace {
             let c: number = key.charCodeAt(d);
             //only index english for now, if a character is not in ascii extended, do not continue.
             if(c < r)
-                x.next[c] = this.putHelper(x.next[c], key, reversed, noteIndex, d+1);
+                x.next[c] = this.putHelper(x.next[c], key, reversed, wordType, noteIndex, d+1);
             return x;
         }
 
@@ -205,8 +210,12 @@ namespace IndexNamespace {
     export function getIndex():KeywordIndex{
         if(!keywordIndex) {
             keywordIndex = new KeywordIndex();
-            for(var stopWord of StopWordsNamespace.stopWords)
-                keywordIndex.putAsStopWords(stopWord);
+            for(let normalStopWord of SpecialWordsNamespace.normalStopWords)
+                keywordIndex.putAsNormalStopWord(normalStopWord);
+            for(let markup of SpecialWordsNamespace.markups)
+                keywordIndex.putAsMarkup(markup);
+            for(let jsKeyword of SpecialWordsNamespace.jsKeywords)
+                keywordIndex.putAsJsKeyword(jsKeyword);
             return keywordIndex;
         } else {
             return keywordIndex;

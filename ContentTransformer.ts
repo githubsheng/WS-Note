@@ -116,7 +116,7 @@ namespace ContentTransformerNamespace {
          * to have a better understanding.
          */
         let styledContainer:HTMLDivElement;
-        let isParsingCodeBlock = false;
+        let codeBlockLanguage: SyntaxHighlightNamespace.Language;
 
         //if styled container is available, append converted components to the styled container, otherwise append to document fragment.
         function getParent():Node {
@@ -169,7 +169,13 @@ namespace ContentTransformerNamespace {
                                     //if markup is @js, then class name is js. if @java, then class name is java.
                                     //@important -> important. @less -> less.
                                     styledContainer.classList.add(cp.value.substring(1));
-                                    if (ii < 2) isParsingCodeBlock = true; //if @js, or @java, then i need to start to parse code blocks.
+
+                                    //if @js, or @java, then i need to start to parse code blocks.
+                                    if (ii === 0) {
+                                        codeBlockLanguage = SyntaxHighlightNamespace.Language.js;
+                                    } else if (ii === 1) {
+                                        codeBlockLanguage = SyntaxHighlightNamespace.Language.java;
+                                    }
                                     frag.appendChild(styledContainer);
                                     i++; //skip the br
                                     continue;
@@ -207,13 +213,13 @@ namespace ContentTransformerNamespace {
                                 styledContainer.removeChild(styledContainer.lastChild);
                             i++; //skip next br
                             styledContainer = undefined;
-                            isParsingCodeBlock = false; //in case that previous block is a code block
+                            codeBlockLanguage = undefined; //in case that previous block is a code block
                             continue;
                         }
                     }
 
-                    if (isParsingCodeBlock) {
-                        parseCode(getParent(), cp.value);
+                    if (codeBlockLanguage !== undefined) {
+                        parseCode(getParent(), cp.value, codeBlockLanguage);
                     } else {
                         convertStyledParagraph(getParent(), cp.value);
                     }

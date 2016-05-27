@@ -2,9 +2,9 @@
  * Created by wangsheng on 15/5/16.
  */
 
-namespace StopWordsNamespace {
+namespace SpecialWordsNamespace {
 
-    export let stopWords: string[] = ["a’s", "able", "about", "above", "according", "accordingly",
+    export let normalStopWords:string[] = ["a’s", "able", "about", "above", "according", "accordingly",
         "across", "actually", "after", "afterwards", "again", "against", "ain’t",
         "all", "allow", "allows", "almost", "alone", "along", "already", "also",
         "although", "always", "am", "among", "amongst", "an", "and", "another",
@@ -67,12 +67,14 @@ namespace StopWordsNamespace {
         "you’ll", "you’re", "you’ve", "your", "yours", "yourself", "yourselves", "zero"];
 
     //special ones that serve as my mark up.
-    stopWords.push("@");
-    stopWords.push("@header");
-    stopWords.push("@line");
-    stopWords.push("@js");
-    stopWords.push("@java");
-    stopWords.push("@important");
-    stopWords.push("@less");
+    export let markups = ["@", "@header", "@line", "@js", "@java", "@important", "@less"];
 
+    //javascript keywords
+    export let jsKeywords = ["abstract", "arguments", "boolean", "break", "byte",
+        "case", "catch", "char", "class", "const", "continue", "debugger", "default", "delete", "do",
+        "double", "else", "enum", "eval", "export", "extends", "false", "final", "finally", "float",
+        "for", "function", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface",
+        "let", "long", "native", "new", "null", "package", "private", "protected", "public", "return",
+        "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true",
+        "try", "typeof", "var", "void", "volatile", "while", "with", "yield"];
 }

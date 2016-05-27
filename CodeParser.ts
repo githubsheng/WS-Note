@@ -1,16 +1,24 @@
-var wangsheng: HTMLDivElement;
+///<reference path="Index.ts"/>
 
 namespace SyntaxHighlightNamespace {
 
-    let keywords = ["function", "var", "let", "return", "if", "for", "while", "else"];
-
-    function isKeyWord(text: string): boolean {
-        return keywords.indexOf(text) !== -1;
-    }
-
+    import WordType = IndexNamespace.WordType;
     let specialSymbol = ['{', '}', '.', '=', ';', '(', ')', "+", "-", "%", "/", "!"];
 
-    export function parseCode(parent: Node, text: string) {
+    let index = IndexNamespace.getIndex();
+
+    export enum Language {
+        js, java
+    }
+
+    function isCodeKeyword(word:string, language:Language):boolean {
+        let r = index.get(word);
+        if (r === undefined) return false;
+        if (language === Language.js) return r.wordType === WordType.jsKeyword;
+        if (language === Language.java) return r.wordType === WordType.javaKeyword;
+    }
+
+    export function parseCode(parent:Node, text:string, language:Language) {
 
         /**
          * delimiters include whitespace, and special code symbols such as ; { } ( ) and so on. this variable indicates
@@ -29,13 +37,13 @@ namespace SyntaxHighlightNamespace {
         let keywordCandidateStartIndex = -1;
         let segmentStartIndex = 0;
 
-        for(let i = 0; i < text.length; i++) {
+        for (let i = 0; i < text.length; i++) {
             let char = text[i];
-            let isSpecialSymbol = specialSymbol.indexOf(char) > -1 ;
+            let isSpecialSymbol = specialSymbol.indexOf(char) > -1;
             let isWhitespace = char === ' ';
             let isDelimiter = isWhitespace || isSpecialSymbol;
 
-            if(isOnNoneDelimiter) {
+            if (isOnNoneDelimiter) {
                 //if previously I am looking at normal characters, and now for the first time I am looking at delimiters,
                 //then I have found a word.
                 /**
@@ -45,10 +53,10 @@ namespace SyntaxHighlightNamespace {
                  *         |
                  *      white space delimiter / cursor position
                  */
-                if(isDelimiter) {
+                if (isDelimiter) {
                     //from the above comments you can see the founded word is text.substring(keywordCandidateStartIndex, i)
                     let keywordCandidate = text.substring(keywordCandidateStartIndex, i);
-                    if(isKeyWord(keywordCandidate)) {
+                    if (isCodeKeyword(keywordCandidate, language)) {
                         //if this candidate turns out to be a keyword, then i need to give it a different styles.
                         let previous = text.substring(segmentStartIndex, keywordCandidateStartIndex);
                         parent.appendChild(document.createTextNode(previous));
@@ -57,7 +65,7 @@ namespace SyntaxHighlightNamespace {
                         segmentStartIndex = i;
 
                         //further more, if this delimiter is a special symbol, such as }, ;, I need to give a different color as well.
-                        if(isSpecialSymbol) {
+                        if (isSpecialSymbol) {
                             createSpecialCodeSymbolSpan(parent, char);
                             //since this symbol has been converted to a span and appended to fragment, increase segmentStartIndex by 1.
                             segmentStartIndex = i + 1;
@@ -65,7 +73,7 @@ namespace SyntaxHighlightNamespace {
 
                     } else {
                         keywordCandidateStartIndex = -1;
-                        if(isSpecialSymbol) {
+                        if (isSpecialSymbol) {
                             let previous = text.substring(segmentStartIndex, i);
                             parent.appendChild(document.createTextNode(previous));
                             createSpecialCodeSymbolSpan(parent, char);
@@ -77,12 +85,12 @@ namespace SyntaxHighlightNamespace {
                 }
             } else {
                 //previously cursor was on delimiters
-                if(!isDelimiter){
+                if (!isDelimiter) {
                     //if current one is on normal character, this is the first normal character after delimiters, and it will be the start of
                     //of the next word.
                     isOnNoneDelimiter = true;
                     keywordCandidateStartIndex = i;
-                } else if(isSpecialSymbol) {
+                } else if (isSpecialSymbol) {
                     //if cursor currently also points to a delimiter, but other than whitespace it is a special character, then give the symbol
                     //a different color.
                     let previous = text.substring(segmentStartIndex, i);
@@ -98,10 +106,10 @@ namespace SyntaxHighlightNamespace {
         //I know that may be the end of a word, and then i will find "function", but what if the entire text does not contains delimiter?
         //for instance, the entire text can be "   function". To overcome this issue, always add remaining characters and check for keyword
         //when the end of the text is reached.
-        if(segmentStartIndex < text.length) {
-            if(keywordCandidateStartIndex > -1) {
+        if (segmentStartIndex < text.length) {
+            if (keywordCandidateStartIndex > -1) {
                 let keywordCandidate = text.substring(keywordCandidateStartIndex, text.length);
-                if(isKeyWord(keywordCandidate)) {
+                if (isCodeKeyword(keywordCandidate, language)) {
                     //if this candidate turns out to be a keyword, then i need to give it a different styles.
                     let previous = text.substring(segmentStartIndex, keywordCandidateStartIndex);
                     parent.appendChild(document.createTextNode(previous));
@@ -115,27 +123,27 @@ namespace SyntaxHighlightNamespace {
         }
     }
 
-    function createKeywordSpan(parent: Node, keyword: string) {
+    function createKeywordSpan(parent:Node, keyword:string) {
         let keywordSpan = document.createElement("span");
         keywordSpan.classList.add("codeKeyword");
         keywordSpan.appendChild(document.createTextNode(keyword));
         parent.appendChild(keywordSpan);
     }
 
-    function createSpecialCodeSymbolSpan(parent: Node, symbol: string) {
+    function createSpecialCodeSymbolSpan(parent:Node, symbol:string) {
         let specialSymbolSpan = document.createElement("span");
         specialSymbolSpan.appendChild(document.createTextNode(symbol));
         specialSymbolSpan.classList.add("codeSpecialSymbol");
         parent.appendChild(specialSymbolSpan);
-        if(symbol === '(') {
+        if (symbol === '(') {
             //previous one may be a method name or a function name
             let prev = specialSymbolSpan.previousSibling;
-            while(prev) {
+            while (prev) {
                 //previous word is a keyword, like `while(` or `for(`, or `if(`
                 //only keyword or other special symbols are wrapped in span.
-                if(prev.nodeName.toLowerCase() === "span") break;
-                if(prev.nodeName.toLowerCase() === "#text") {
-                    if(prev.nodeValue.trim() === "") {
+                if (prev.nodeName.toLowerCase() === "span") break;
+                if (prev.nodeName.toLowerCase() === "#text") {
+                    if (prev.nodeValue.trim() === "") {
                         //white space, skip it.
                         prev = prev.previousSibling;
                     } else {

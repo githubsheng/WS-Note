@@ -13,6 +13,7 @@ namespace TestIndexNamespace {
     import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
     import shouldBeTrue = TestUtilNamespace.shouldBeTrue;
     import shouldBeFalse = TestUtilNamespace.shouldBeFalse;
+    import WordType = IndexNamespace.WordType;
     export function runIndexTest(){
 
         let index = IndexNamespace.getIndex();
@@ -21,25 +22,25 @@ namespace TestIndexNamespace {
             let searchResult = index.get("javascript");
             shouldBeUndefined(searchResult);
 
-            index.put("javascript", false, 1);
-            let relatedNotes = index.get("JavaScript");
+            index.putAsSearchKeyword("javascript", false, 1);
+            let relatedNotes: number[] = index.get("JavaScript").relatedNotes;
             shouldBeEqual(relatedNotes[1], 1);
 
-            index.put("JavaScript", false, 1);
-            relatedNotes = index.get("javascript");
+            index.putAsSearchKeyword("JavaScript", false, 1);
+            relatedNotes = index.get("javascript").relatedNotes;
             shouldBeEqual(relatedNotes[1], 2);
 
-            index.put("javascript", false, 2);
-            relatedNotes = index.get("javascript");
+            index.putAsSearchKeyword("javascript", false, 2);
+            relatedNotes = index.get("javascript").relatedNotes;
             shouldBeEqual(relatedNotes[2], 1);
 
             shouldBeUndefined(relatedNotes[5]);
-            index.put("java", false, 5);
-            relatedNotes = index.get("java");
+            index.putAsSearchKeyword("java", false, 5);
+            relatedNotes = index.get("java").relatedNotes;
             shouldBeEqual(relatedNotes[5], 1);
 
-            index.put("javascript generated", true, 3);
-            index.put("javascript generated", true, 3);
+            index.putAsSearchKeyword("javascript generated", true, 3);
+            index.putAsSearchKeyword("javascript generated", true, 3);
 
             let keySuggestions = index.keysWithPrefix("javascript");
             shouldInclude(keySuggestions, "javascript", "generated javascript");
@@ -48,32 +49,32 @@ namespace TestIndexNamespace {
         //need to be called after `testLinkKeyWithNoteIndex`
         function testUnlinkKeyFromNoteIndex(){
             index.remove("javaScript", false, 1);
-            let relatedNotes = index.get("JavaScript");
+            let relatedNotes: number[] = index.get("JavaScript").relatedNotes;
             shouldBeEqual(relatedNotes[1], 1);
 
             //`javascript` is not linked to note index 100 and therefore it should take no effect.
             index.remove("javascript", false, 100);
-            let unAffectedResults = index.get("JavaScript");
-            arrayShouldBeIdentical(<number[]>relatedNotes, <number[]>unAffectedResults);
+            let unAffectedResults: number[] = index.get("JavaScript").relatedNotes;
+            arrayShouldBeIdentical(relatedNotes, unAffectedResults);
 
             index.remove("javascript", false, 1);
-            shouldBeUndefined(index.get("javascript")[1]);
+            shouldBeUndefined(index.get("javascript").relatedNotes[1]);
 
             index.remove("java", false, 5);
-            let searchResult = index.get("java");
+            let searchResult = index.get("java").relatedNotes;
             shouldBeUndefined(searchResult);
         }
 
-        function testStopWord(){
-            shouldBeUndefined(index.isStopWord("wang sheng"));
-            index.putAsStopWords("wang sheng");
-            shouldBeTrue(index.isStopWord("wang sheng"));
-            shouldBeFalse(index.get("wang sheng"));
+        function testIgnorable(){
+            shouldBeUndefined(index.isIgnorable("wang sheng"));
+            index.putAsNormalStopWord("wang sheng");
+            shouldBeTrue(index.isIgnorable("wang sheng"));
+            shouldBeEqual(WordType.normalStopWords, index.get("wang sheng").wordType);
         }
 
         testLinkKeyWithNoteIndex();
         testUnlinkKeyFromNoteIndex();
-        testStopWord();
+        testIgnorable();
 
     }
 

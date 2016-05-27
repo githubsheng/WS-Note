@@ -93,14 +93,18 @@ namespace TestContentTransformerNamespace {
             openViewerButton.appendChild(document.createTextNode("Open Viewer"));
 
             openViewerButton.onclick = function(){
-                chrome.app.window.create('test/viewer.html', {
-                    'bounds': {
-                        'width': 400,
-                        'height': 400
-                    }
-                }, function(appWindow: AppWindow) {
-                    viewerWindow = appWindow.contentWindow;
-                });
+                if(chrome && chrome.app && chrome.app.window) {
+                    chrome.app.window.create('test/viewer.html', {
+                        'bounds': {
+                            'width': 400,
+                            'height': 400
+                        }
+                    }, function(appWindow: AppWindow) {
+                        viewerWindow = appWindow.contentWindow;
+                    });
+                } else {
+                    viewerWindow = window.open("viewer.html");
+                }
             };
             testContainer.appendChild(openViewerButton);
 
