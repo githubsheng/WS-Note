@@ -3,7 +3,7 @@
 namespace SyntaxHighlightNamespace {
 
     import WordType = IndexNamespace.WordType;
-    let specialSymbol = ['{', '}', '.', '=', ';', '(', ')', "+", "-", "%", "/", "!"];
+    let specialSymbol = ['{', '}', '.', ',', '=', ';', '(', ')', "+", "-", "%", "/", "!"];
 
     let index = IndexNamespace.getIndex();
 
@@ -27,7 +27,7 @@ namespace SyntaxHighlightNamespace {
         let isOnNoneDelimiter = false;
         /**
          *  _means whitespace
-         *  segmentStartIndex
+         *  segmentStartIndex: mark the first index of character that has not been converted to a text node or a span.
          *  |
          *  |
          *  _______function foo() {};
@@ -37,11 +37,32 @@ namespace SyntaxHighlightNamespace {
         let keywordCandidateStartIndex = -1;
         let segmentStartIndex = 0;
 
+        let isOnDoubleQuoteStringMode = false;
+        let isOnSingleQuoteStringMode = false;
+        let stringSpan:HTMLSpanElement;
+
         for (let i = 0; i < text.length; i++) {
             let char = text[i];
             let isSpecialSymbol = specialSymbol.indexOf(char) > -1;
             let isWhitespace = char === ' ';
-            let isDelimiter = isWhitespace || isSpecialSymbol;
+            let isDoubleQuote = char === '\"';
+            let isSingleQuote = char === '\'';
+            let isDelimiter = isWhitespace || isSpecialSymbol || isDoubleQuote || isSingleQuote;
+
+            if(isOnDoubleQuoteStringMode || isOnSingleQuoteStringMode) {
+                //here if isOnDoubleQuoteStringMode is true then stringSpan cannot be undefined. I am adding the if condition to make
+                //my ide and compiler happy.
+                if(stringSpan) stringSpan.firstChild.nodeValue += char;
+                if(isDoubleQuote && isOnDoubleQuoteStringMode) {
+                    isOnDoubleQuoteStringMode = false;
+                    isOnNoneDelimiter = false;
+                } else if(isSingleQuote && isOnSingleQuoteStringMode) {
+                    isOnSingleQuoteStringMode = false;
+                    isOnNoneDelimiter = false;
+                }
+                segmentStartIndex = i + 1;
+                continue;
+            }
 
             if (isOnNoneDelimiter) {
                 //if previously I am looking at normal characters, and now for the first time I am looking at delimiters,
@@ -63,41 +84,51 @@ namespace SyntaxHighlightNamespace {
                         createKeywordSpan(parent, keywordCandidate);
                         keywordCandidateStartIndex = -1;
                         segmentStartIndex = i;
-
-                        //further more, if this delimiter is a special symbol, such as }, ;, I need to give a different color as well.
-                        if (isSpecialSymbol) {
-                            createSpecialCodeSymbolSpan(parent, char);
-                            //since this symbol has been converted to a span and appended to fragment, increase segmentStartIndex by 1.
-                            segmentStartIndex = i + 1;
-                        }
-
                     } else {
                         keywordCandidateStartIndex = -1;
-                        if (isSpecialSymbol) {
-                            let previous = text.substring(segmentStartIndex, i);
-                            parent.appendChild(document.createTextNode(previous));
-                            createSpecialCodeSymbolSpan(parent, char);
-                            segmentStartIndex = i + 1;
-                        }
+                        let previous = text.substring(segmentStartIndex, i);
+                        parent.appendChild(document.createTextNode(previous));
+                        segmentStartIndex = i;
+                    }
+
+                    //further more, if this delimiter is a special symbol, such as }, ;, I need to give a different color as well.
+                    if (isSpecialSymbol) {
+                        createSpecialCodeSymbolSpan(parent, char);
+                        //since this symbol has been converted to a span and appended to fragment, increase segmentStartIndex by 1.
+                        segmentStartIndex = i + 1;
+                    } else if(isDoubleQuote || isSingleQuote) {
+                        if(isDoubleQuote) isOnDoubleQuoteStringMode = true;
+                        if(isSingleQuote) isOnSingleQuoteStringMode = true;
+                        stringSpan = createStringSpan(parent, char);
+                        segmentStartIndex = i + 1;
                     }
                     //since the cursor has moved on to a delimiter, change this flag to false.
                     isOnNoneDelimiter = false;
                 }
             } else {
                 //previously cursor was on delimiters
-                if (!isDelimiter) {
+                if (isSpecialSymbol || isDoubleQuote || isSingleQuote) {
+                    let previous = text.substring(segmentStartIndex, i);
+                    parent.appendChild(document.createTextNode(previous));
+
+                    if (isSpecialSymbol) {
+                        //if cursor currently also points to a delimiter, but other than whitespace it is a special character, then give the symbol
+                        //a different color.
+                        createSpecialCodeSymbolSpan(parent, char);
+                    } else if (isDoubleQuote || isSingleQuote) {
+                        if(isDoubleQuote) isOnDoubleQuoteStringMode = true;
+                        if(isSingleQuote) isOnSingleQuoteStringMode = true;
+                        stringSpan = createStringSpan(parent, char);
+                    }
+
+                    //since all characters before i has been converted to text node and character at i itself is converted to a span,
+                    //set segmentStartIndex to i+1.
+                    segmentStartIndex = i + 1;
+                } else if (!isDelimiter) {
                     //if current one is on normal character, this is the first normal character after delimiters, and it will be the start of
                     //of the next word.
                     isOnNoneDelimiter = true;
                     keywordCandidateStartIndex = i;
-                } else if (isSpecialSymbol) {
-                    //if cursor currently also points to a delimiter, but other than whitespace it is a special character, then give the symbol
-                    //a different color.
-                    let previous = text.substring(segmentStartIndex, i);
-                    parent.appendChild(document.createTextNode(previous));
-                    createSpecialCodeSymbolSpan(parent, char);
-                    //since all characters before i has been converted to either text node or span, set segmentStartIndex to i+1.
-                    segmentStartIndex = i + 1;
                 }
             }
         }
@@ -158,6 +189,14 @@ namespace SyntaxHighlightNamespace {
                 }
             }
         }
+    }
+
+    function createStringSpan(parent: Node, quote: string) {
+        let stringSpan = document.createElement("span");
+        stringSpan.classList.add("codeString");
+        parent.appendChild(stringSpan);
+        stringSpan.appendChild(document.createTextNode(quote));
+        return stringSpan;
     }
 }
 

@@ -290,3 +290,6 @@
     color: red;
 }
 
+.noteViewer .codeString {
+    color: green;
+}
