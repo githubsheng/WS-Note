@@ -21,13 +21,13 @@ namespace SyntaxHighlightNamespace {
     export function parseCode(parent:Node, text:string, language:Language) {
 
         /**
-         * delimiters include whitespace, and special code symbols such as ; { } ( ) and so on. this variable indicates
-         * whether the cursor in the following for-loop is on a normal character, or on a delimiter.
+         * delimiters include whitespace, and special code symbols such as ; { } ( ) and so on.
+         * isOnNormalCharacter indicates whether the cursor in the following for-loop is on a normal character, or on a delimiter.
          */
-        let isOnNoneDelimiter = false;
+        let isOnNormalCharacter = false;
         /**
          *  _means whitespace
-         *  segmentStartIndex: mark the first index of character that has not been converted to a text node or a span.
+         *  segmentStartIndex: index of first character that has not been converted to a text node or a span.
          *  |
          *  |
          *  _______function foo() {};
@@ -39,7 +39,7 @@ namespace SyntaxHighlightNamespace {
 
         let isOnDoubleQuoteStringMode = false;
         let isOnSingleQuoteStringMode = false;
-        let stringSpan:HTMLSpanElement;
+        let stringSpan:HTMLSpanElement; //all characters inside a code string will be added into this span.
 
         for (let i = 0; i < text.length; i++) {
             let char = text[i];
@@ -49,28 +49,39 @@ namespace SyntaxHighlightNamespace {
             let isSingleQuote = char === '\'';
             let isDelimiter = isWhitespace || isSpecialSymbol || isDoubleQuote || isSingleQuote;
 
+            /*
+             * char is part of a code string.
+             * for example:
+             * console.log("hello world");
+             *                  |
+             *              current char is part of the code string "hello world"
+             */
             if(isOnDoubleQuoteStringMode || isOnSingleQuoteStringMode) {
-                //here if isOnDoubleQuoteStringMode is true then stringSpan cannot be undefined. I am adding the if condition to make
-                //my ide and compiler happy.
+                //here if isOnDoubleQuoteStringMode or isOnSingleQuoteStringMode is true then stringSpan cannot be undefined.
+                //I am adding the if condition to make my ide and compiler happy.
                 if(stringSpan) stringSpan.firstChild.nodeValue += char;
                 if(isDoubleQuote && isOnDoubleQuoteStringMode) {
+                    //if we are seeing a double quote string and the current character is a double quote, it means the end of the
+                    //code string.
                     isOnDoubleQuoteStringMode = false;
-                    isOnNoneDelimiter = false;
+                    isOnNormalCharacter = false;
                 } else if(isSingleQuote && isOnSingleQuoteStringMode) {
                     isOnSingleQuoteStringMode = false;
-                    isOnNoneDelimiter = false;
+                    isOnNormalCharacter = false;
                 }
+                //since char at index i has been converted to a text node / span by `stringSpan.firstChild.nodeValue += char` above,
+                //the index of first unconverted character would be i + 1
                 segmentStartIndex = i + 1;
                 continue;
             }
 
-            if (isOnNoneDelimiter) {
+            if (isOnNormalCharacter) {
                 //if previously I am looking at normal characters, and now for the first time I am looking at delimiters,
                 //then I have found a word.
                 /**
                  * keywordCandidateStartIndex
                  * |
-                 * function   <---before cursor is on delimiter it was `isOnNoneDelimiter`
+                 * function   <---before cursor is on delimiter it was `isOnNormalCharacter`
                  *         |
                  *      white space delimiter / cursor position
                  */
@@ -94,7 +105,7 @@ namespace SyntaxHighlightNamespace {
                     //further more, if this delimiter is a special symbol, such as }, ;, I need to give a different color as well.
                     if (isSpecialSymbol) {
                         createSpecialCodeSymbolSpan(parent, char);
-                        //since this symbol has been converted to a span and appended to fragment, increase segmentStartIndex by 1.
+                        //since this symbol has been converted to a span and appended to fragment, segmentStartIndex should be i + 1
                         segmentStartIndex = i + 1;
                     } else if(isDoubleQuote || isSingleQuote) {
                         if(isDoubleQuote) isOnDoubleQuoteStringMode = true;
@@ -103,17 +114,19 @@ namespace SyntaxHighlightNamespace {
                         segmentStartIndex = i + 1;
                     }
                     //since the cursor has moved on to a delimiter, change this flag to false.
-                    isOnNoneDelimiter = false;
+                    isOnNormalCharacter = false;
                 }
             } else {
-                //previously cursor was on delimiters
+
                 if (isSpecialSymbol || isDoubleQuote || isSingleQuote) {
+                    //if current character is of the three types above, I need to give the current character a different color
+                    //first convert the previous delimiters to a normal text node and append the text node to parent.
                     let previous = text.substring(segmentStartIndex, i);
                     parent.appendChild(document.createTextNode(previous));
 
+                    //then create a span for the current delimiter and then append the span to parent as well.
+                    //I will also give a class name to the span so that it gets a different color.
                     if (isSpecialSymbol) {
-                        //if cursor currently also points to a delimiter, but other than whitespace it is a special character, then give the symbol
-                        //a different color.
                         createSpecialCodeSymbolSpan(parent, char);
                     } else if (isDoubleQuote || isSingleQuote) {
                         if(isDoubleQuote) isOnDoubleQuoteStringMode = true;
@@ -127,7 +140,8 @@ namespace SyntaxHighlightNamespace {
                 } else if (!isDelimiter) {
                     //if current one is on normal character, this is the first normal character after delimiters, and it will be the start of
                     //of the next word.
-                    isOnNoneDelimiter = true;
+                    isOnNormalCharacter = true;
+                    //if later there would be a word, the word will definitely start from current character.
                     keywordCandidateStartIndex = i;
                 }
             }
