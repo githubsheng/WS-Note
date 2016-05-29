@@ -49,6 +49,14 @@ namespace TestUtilNamespace {
             if(a[i] !== b[i]) throw new Error('the two arrays are not identical');
     }
 
+    export function mapShouldBeIdentical(a: Map<any, any>, b: Map<any, any>) {
+        if(a.size !== b.size) throw new Error('the two maps are not identical');
+        let aKeys = a.keys();
+        for(let key of aKeys) {
+            if(a.get(key) !== b.get(key)) throw new Error('the two maps are not identical');
+        }
+    }
+
     export function shouldBeInstanceOf(i: any, t: any) {
         if(!(i instanceof t)) throw new Error("not expected type");
     }

@@ -14,6 +14,7 @@ namespace TestIndexNamespace {
     import shouldBeTrue = TestUtilNamespace.shouldBeTrue;
     import shouldBeFalse = TestUtilNamespace.shouldBeFalse;
     import WordType = IndexNamespace.WordType;
+    import mapShouldBeIdentical = TestUtilNamespace.mapShouldBeIdentical;
     export function runIndexTest(){
 
         let index = IndexNamespace.getIndex();
@@ -23,21 +24,21 @@ namespace TestIndexNamespace {
             shouldBeUndefined(searchResult);
 
             index.putAsSearchKeyword("javascript", false, 1);
-            let relatedNotes: number[] = index.get("JavaScript").relatedNotes;
-            shouldBeEqual(relatedNotes[1], 1);
+            let relatedNotes: Map<number, number> = index.get("JavaScript").relatedNotes;
+            shouldBeEqual(relatedNotes.get(1), 1);
 
             index.putAsSearchKeyword("JavaScript", false, 1);
             relatedNotes = index.get("javascript").relatedNotes;
-            shouldBeEqual(relatedNotes[1], 2);
+            shouldBeEqual(relatedNotes.get(1), 2);
 
             index.putAsSearchKeyword("javascript", false, 2);
             relatedNotes = index.get("javascript").relatedNotes;
-            shouldBeEqual(relatedNotes[2], 1);
+            shouldBeEqual(relatedNotes.get(2), 1);
 
-            shouldBeUndefined(relatedNotes[5]);
+            shouldBeUndefined(relatedNotes.get(5));
             index.putAsSearchKeyword("java", false, 5);
             relatedNotes = index.get("java").relatedNotes;
-            shouldBeEqual(relatedNotes[5], 1);
+            shouldBeEqual(relatedNotes.get(5), 1);
 
             index.putAsSearchKeyword("javascript generated", true, 3);
             index.putAsSearchKeyword("javascript generated", true, 3);
@@ -49,16 +50,16 @@ namespace TestIndexNamespace {
         //need to be called after `testLinkKeyWithNoteIndex`
         function testUnlinkKeyFromNoteIndex(){
             index.remove("javaScript", false, 1);
-            let relatedNotes: number[] = index.get("JavaScript").relatedNotes;
-            shouldBeEqual(relatedNotes[1], 1);
+            let relatedNotes: Map<number, number> = index.get("JavaScript").relatedNotes;
+            shouldBeEqual(relatedNotes.get(1), 1);
 
             //`javascript` is not linked to note index 100 and therefore it should take no effect.
             index.remove("javascript", false, 100);
-            let unAffectedResults: number[] = index.get("JavaScript").relatedNotes;
-            arrayShouldBeIdentical(relatedNotes, unAffectedResults);
+            let unAffectedResults: Map<number, number> = index.get("JavaScript").relatedNotes;
+            mapShouldBeIdentical(relatedNotes, unAffectedResults);
 
             index.remove("javascript", false, 1);
-            shouldBeUndefined(index.get("javascript").relatedNotes[1]);
+            shouldBeUndefined(index.get("javascript").relatedNotes.get(1));
 
             index.remove("java", false, 5);
             let searchResult = index.get("java").relatedNotes;

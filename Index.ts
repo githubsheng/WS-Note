@@ -27,8 +27,7 @@ namespace IndexNamespace {
         naturalOrderCount = 0;
         reversedOrderCount = 0;
         next: Node[] = new Array(r);
-        numberOfRelatedNotes = 0;
-        relatedNotes: number[];
+        relatedNotes: Map<number, number>;
         wordType: WordType;
     }
 
@@ -37,7 +36,7 @@ namespace IndexNamespace {
         private root: Node;
         constructor(){};
 
-        public get(key: string): {wordType: WordType, relatedNotes: number[]} {
+        public get(key: string): {wordType: WordType, relatedNotes: Map<number, number>} {
             key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
             if(x === undefined || x.wordType === undefined) return undefined;
@@ -92,26 +91,10 @@ namespace IndexNamespace {
             if(d === key.length) {
                 x.wordType = wordType;
                 if(wordType === WordType.searchKeyword) {
-                    if(x.relatedNotes === undefined) {
-                        //if the array is not there, create it.
-                        x.relatedNotes = [];
-                        //set the corresponding frequency to 1.
-                        x.relatedNotes[noteIndex] = 1;
-                        //here i relate one note to this key word.
-                        x.numberOfRelatedNotes++;
-                    } else {
-                        //the array exists, but many of its slots could be undefined, rather than a number
-                        if(x.relatedNotes[noteIndex] === undefined) {
-                            //if the corresponding frequency is undefined, initialize it to 1.
-                            x.relatedNotes[noteIndex] = 1;
-                            //one more note is related to this keyword
-                            x.numberOfRelatedNotes++;
-                        } else {
-                            //well, its already a number, increment it then.
-                            x.relatedNotes[noteIndex] += 1;
-                        }
-                    }
-
+                    if(x.relatedNotes === undefined) x.relatedNotes = new Map();
+                    let frequency = x.relatedNotes.get(noteIndex);
+                    let newFrequency = frequency === undefined ? 1 : frequency + 1;
+                    x.relatedNotes.set(noteIndex, newFrequency);
                     if(reversed) {
                         x.reversedOrderCount++;
                     } else {
@@ -132,28 +115,22 @@ namespace IndexNamespace {
             this.root = this.deleteHelper(this.root, key, reversed, noteIndex, 0);
         }
 
-        private deleteHelper(x: Node, key: string, reversed: boolean,  noteIndex: number, d: number) {
+        private deleteHelper(x: Node, key: string, reversed: boolean, noteIndex: number, d: number) {
             if( x === undefined) return undefined;
             if( d === key.length) {
                 if(x.relatedNotes !== undefined) {
-                    if(x.relatedNotes[noteIndex] > 0) {
-                        //if frequency is a number and it is greater than 0, decrement it
-                        x.relatedNotes[noteIndex] -= 1;
+                    let frequency = x.relatedNotes.get(noteIndex);
+                    if(frequency !== undefined) {
+                        if(frequency === 1) x.relatedNotes.delete(noteIndex);
+                        if(frequency > 1) x.relatedNotes.set(noteIndex, frequency - 1);
+                        if(reversed) {
+                            x.reversedOrderCount--;
+                        } else {
+                            x.naturalOrderCount--;
+                        }
                     }
-                    if(x.relatedNotes[noteIndex] === 0) {
-                        //if the frequency is reduced to 0, then the note is no longer related to the key
-                        x.relatedNotes[noteIndex] = undefined;
-                        x.numberOfRelatedNotes--;
-                    }
-                    if(reversed) {
-                        x.reversedOrderCount--;
-                    } else {
-                        x.naturalOrderCount--;
-                    }
-                    if(x.numberOfRelatedNotes === 0) {
-                        //if no notes are related to this keyword, remove the array to save memory
-                        x.relatedNotes = undefined;
-                    }
+
+                    if(x.relatedNotes.size === 0) x.relatedNotes = undefined;
                 }
             } else {
                 let c: number = key.charCodeAt(d);
@@ -201,7 +178,6 @@ namespace IndexNamespace {
                 prefix.pop();
             }
         }
-
 
     }
 
