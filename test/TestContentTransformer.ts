@@ -4,6 +4,7 @@
 ///<reference path="../CodeEditor.ts"/>
 ///<reference path="../typings/chrome/chrome-app.d.ts" />
 
+var globalViewerWindow;
 
 
 namespace TestContentTransformerNamespace {
@@ -94,7 +95,8 @@ namespace TestContentTransformerNamespace {
 
             openViewerButton.onclick = function(){
                 if(chrome && chrome.app && chrome.app.window) {
-                    chrome.app.window.create('test/viewer.html', {
+                    if(viewerWindow) viewerWindow.close();
+                    chrome.app.window.create('test/html/viewer.html', {
                         'bounds': {
                             'width': 400,
                             'height': 400
@@ -105,10 +107,6 @@ namespace TestContentTransformerNamespace {
                 } else {
                     viewerWindow = window.open("viewer.html");
                 }
-
-                window.addEventListener("message", function(event: MessageEvent){
-                    console.log(event.data);
-                });
             };
             testContainer.appendChild(openViewerButton);
 

@@ -107,9 +107,6 @@ namespace ContentTransformerNamespace {
      */
     export function* convertToStyledDocumentFragment(components:Component[]):IterableIterator<any> {
 
-        let tags: Set<string> = new Set();
-        let references: Set<number> = new Set();
-
         //create a document fragment, this will be parent of all other converted components.
         let frag = document.createDocumentFragment();
         /**
@@ -224,12 +221,7 @@ namespace ContentTransformerNamespace {
                     if (codeBlockLanguage !== undefined) {
                         parseCode(getParent(), cp.value, codeBlockLanguage);
                     } else {
-                        let tagsAndReferences = convertStyledParagraph(getParent(), cp.value);
-                        //collect the tags and references found in this paragraph to tags and references.
-                        for(let tag of tagsAndReferences.tags)
-                            tags.add(tag);
-                        for(let reference of tagsAndReferences.references)
-                            references.add(reference);
+                        convertStyledParagraph(getParent(), cp.value);
                     }
                     break;
                 case imgNodeName:
@@ -248,26 +240,19 @@ namespace ContentTransformerNamespace {
 
         }
 
-        return {
-            frag: frag,
-            tags: tags,
-            references: references
-        };
+        return frag;
     }
 
     /**
      * convert components to styled paragraph.
      */
-    function convertStyledParagraph(parent:Node, text:string): {tags: Set<string>, references: Set<number>} {
+    function convertStyledParagraph(parent:Node, text:string) {
 
         let si = 0; //starting or continue processing from this point
         let cmi = -1; //code markup index, sample: abc`some code`abc
         let bmi = -1; //bold markup index, sample: abc~bold text~abc
         let imi = -1; //italic markup index, sample: abc_italic text_abc
         let tmi = -1; //tag markup index, sample: abc#tag#abc
-
-        let tags: Set<string> = new Set();
-        let references: Set<number> = new Set();
 
         for (let i = 0; i < text.length; i++) {
             let c = text[i];
@@ -337,7 +322,6 @@ namespace ContentTransformerNamespace {
                     let sp = document.createElement("span");
                     sp.classList.add("tag");
                     let tagText = text.substring(tmi + 1, i);
-                    tags.add(tagText);
                     sp.appendChild(document.createTextNode("#" + tagText + "#"));
                     parent.appendChild(sp);
                     cmi = -1;
@@ -356,10 +340,5 @@ namespace ContentTransformerNamespace {
             //create a text node for the substring after the last code/bold/italic span.
             parent.appendChild(document.createTextNode(text.substring(si)));
         }
-
-        return {
-            tags: tags,
-            references: references
-        };
     }
 }
