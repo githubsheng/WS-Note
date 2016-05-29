@@ -1,9 +1,5 @@
-/**
- * Created by wangsheng on 7/5/16.
- */
+///<reference path="test/TestViewer.ts"/>
 
-    
-    
 class Note {
 
     public id:number;
@@ -12,6 +8,8 @@ class Note {
     public createdWhen: number;
     public modifiedWhen: number;
     public tags: string[] = [];
+    public references: number[] = [];
+    public components: Component[] = [];
 
     constructor(createdWhen: number, modifiedWhen: number) {
         this.createdWhen = createdWhen;
