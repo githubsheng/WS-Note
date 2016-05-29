@@ -107,6 +107,9 @@ namespace ContentTransformerNamespace {
      */
     export function* convertToStyledDocumentFragment(components:Component[]):IterableIterator<any> {
 
+        let tags: Set<string> = new Set();
+        let references: Set<number> = new Set();
+
         //create a document fragment, this will be parent of all other converted components.
         let frag = document.createDocumentFragment();
         /**
@@ -221,7 +224,12 @@ namespace ContentTransformerNamespace {
                     if (codeBlockLanguage !== undefined) {
                         parseCode(getParent(), cp.value, codeBlockLanguage);
                     } else {
-                        convertStyledParagraph(getParent(), cp.value);
+                        let tagsAndReferences = convertStyledParagraph(getParent(), cp.value);
+                        //collect the tags and references found in this paragraph to tags and references.
+                        for(let tag of tagsAndReferences.tags)
+                            tags.add(tag);
+                        for(let reference of tagsAndReferences.references)
+                            references.add(reference);
                     }
                     break;
                 case imgNodeName:
@@ -240,18 +248,26 @@ namespace ContentTransformerNamespace {
 
         }
 
-        return frag;
+        return {
+            frag: frag,
+            tags: tags,
+            references: references
+        };
     }
 
     /**
      * convert components to styled paragraph.
      */
-    function convertStyledParagraph(parent:Node, text:string) {
+    function convertStyledParagraph(parent:Node, text:string): {tags: Set<string>, references: Set<number>} {
 
         let si = 0; //starting or continue processing from this point
         let cmi = -1; //code markup index, sample: abc`some code`abc
         let bmi = -1; //bold markup index, sample: abc~bold text~abc
         let imi = -1; //italic markup index, sample: abc_italic text_abc
+        let tmi = -1; //tag markup index, sample: abc#tag#abc
+
+        let tags: Set<string> = new Set();
+        let references: Set<number> = new Set();
 
         for (let i = 0; i < text.length; i++) {
             let c = text[i];
@@ -274,6 +290,7 @@ namespace ContentTransformerNamespace {
                     cmi = -1;
                     bmi = -1;
                     imi = -1;
+                    tmi = -1;
                     //if subsequently another code/bold/italic span is found, then the normal unstyled substring
                     //before that span should start from i+1. that is, it should start from the next character after
                     //the current span.
@@ -292,6 +309,7 @@ namespace ContentTransformerNamespace {
                     cmi = -1;
                     bmi = -1;
                     imi = -1;
+                    tmi = -1;
                     si = i + 1;
                 }
             } else if (c === '_') {
@@ -307,6 +325,25 @@ namespace ContentTransformerNamespace {
                     cmi = -1;
                     bmi = -1;
                     imi = -1;
+                    tmi = -1;
+                    si = i + 1;
+                }
+            } else if (c === '#') {
+                if (tmi == -1) {
+                    tmi = i;
+                } else {
+                    let tn = document.createTextNode(text.substring(si, tmi));
+                    parent.appendChild(tn);
+                    let sp = document.createElement("span");
+                    sp.classList.add("tag");
+                    let tagText = text.substring(tmi + 1, i);
+                    tags.add(tagText);
+                    sp.appendChild(document.createTextNode("#" + tagText + "#"));
+                    parent.appendChild(sp);
+                    cmi = -1;
+                    bmi = -1;
+                    imi = -1;
+                    tmi = -1;
                     si = i + 1;
                 }
             }
@@ -319,5 +356,10 @@ namespace ContentTransformerNamespace {
             //create a text node for the substring after the last code/bold/italic span.
             parent.appendChild(document.createTextNode(text.substring(si)));
         }
+
+        return {
+            tags: tags,
+            references: references
+        };
     }
 }

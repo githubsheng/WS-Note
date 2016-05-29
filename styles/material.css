@@ -278,6 +278,11 @@
     font-style: italic;
 }
 
+.noteViewer .tag {
+    background: darkcyan;
+    color: white;
+}
+
 .noteViewer .codeKeyword {
     color: cornflowerblue;
 }

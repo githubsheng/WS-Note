@@ -105,6 +105,10 @@ namespace TestContentTransformerNamespace {
                 } else {
                     viewerWindow = window.open("viewer.html");
                 }
+
+                window.addEventListener("message", function(event: MessageEvent){
+                    console.log(event.data);
+                });
             };
             testContainer.appendChild(openViewerButton);
 
