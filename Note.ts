@@ -9,16 +9,15 @@ class Note {
     public id:number;
     public title: string;
     public content: string;
-    public url: string;
+    public url: number;
     public createdWhen: number;
     public modifiedWhen: number;
-
-    public referencedBy: Set<number> = new Set();
-    public referenceTo: Set<number> = new Set();
+    public tags: string[] = [];
 
     constructor(createdWhen: number, modifiedWhen: number) {
         this.createdWhen = createdWhen;
         this.modifiedWhen = modifiedWhen;
+        this.url = Date.now();
     }
 
 }
