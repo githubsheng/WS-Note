@@ -11,6 +11,7 @@ namespace CodeEditorNamespace {
     import convertToDocumentFragment = ContentTransformerNamespace.convertToDocumentFragment;
     import createImageFromBlob = Utility.createImageFromBlob;
     import storeImageBlob = StorageNamespace.storeImageBlob;
+    import createCanvasBasedOnImage = Utility.createCanvasBasedOnImage;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
@@ -35,6 +36,7 @@ namespace CodeEditorNamespace {
         containerEle.appendChild(codeEditorEle);
         containerEle.appendChild(dropContainerEle);
 
+        //this value change listener will be called whenever the content of code editor changes.
         let valueChangeListener: () => void;
         function setValueChangeListener(listener: () => void){
             valueChangeListener = listener;
