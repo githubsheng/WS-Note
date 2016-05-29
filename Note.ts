@@ -9,7 +9,6 @@ class Note {
     public id:number;
     public title: string;
     public content: string;
-    public url: number;
     public createdWhen: number;
     public modifiedWhen: number;
     public tags: string[] = [];
@@ -17,7 +16,6 @@ class Note {
     constructor(createdWhen: number, modifiedWhen: number) {
         this.createdWhen = createdWhen;
         this.modifiedWhen = modifiedWhen;
-        this.url = Date.now();
     }
 
 }

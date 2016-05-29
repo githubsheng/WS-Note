@@ -55,7 +55,6 @@ namespace TestStorageNamespace {
             note = new Note(Date.now(), Date.now());
             note.content = "My first note here!";
             note.title = "Note Number One!";
-            note.url = "xxx";
 
             note = yield storeNote(idb, note);
             //check an id is properly generated for the note just stored.
