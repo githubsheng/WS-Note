@@ -29,18 +29,6 @@ namespace ContentTransformerNamespace {
     const imgNodeName = "img";
 
     /**
-     * if the component represents a text node, then the text is value.
-     * if the component represents a canvas, then the imageDataId is the id of the corresponding image blob stored in db.
-     * if the component represents a div, or other types that may have children, then the components that represents the
-     * children are stored in children property.
-     */
-    export interface Component {
-        nodeName:string;
-        value?:string;
-        imageDataId?:number;
-    }
-
-    /**
      * convert the code editor to component tree. the code editor itself is transformed into a document fragment. Here I convert
      * the children of code editor to a list of components. If there are adjacent text nodes, they are normalized (merged).
      */
