@@ -1,220 +1,117 @@
-* {
+body {
+    margin: 0;
+    font-size: 16px;
     font-family: 'Roboto', sans-serif;
 }
 
-.material {
-    position: relative; /*set the position of the container to be relative because one or more of its children needs to be absolutely positioned.*/
-    margin: 1.2em 0; /*adds a top/bottom margin*/
-}
-
-.mInput label {
-    position: absolute; /*set position to absolute for z-index to work and to position label on top of input (before transform)*/
-    z-index: 1; /*set label's z-index to 1 and set input's z-index to 2 label does not blocks the input*/
-    bottom: 100%; /*place label on top of the input*/
-    left: 0;
-
-    /*
-    transform the label and move it 28 px towards bottom so that the label (originally placed on top of the input) now appears to be positioned
-    as if its placeholder. in browsers where transform does not work, the label remains on top of the input.
-    */
-    -webkit-transform: translate3d(0, 28px, 0) scale(1);
-    transform: translate3d(0, 28px, 0) scale(1);
-
-    transition: transform 0.4s, color 0.4s;
-    -webkit-transform-origin: left top;
-    transform-origin: left top;
-
-    max-width: 100%;
-    margin: 0; /*remove default styling added by browser*/
-
-    /*font related.*/
-    color: #9E9E9E; /*simulate placeholder and hence gray*/
-    font-weight: normal;
-    font-size: 1.2em;
-}
-
-.mInput label.focus {
-    color: #77AA43;
-}
-
-.mInput label.focus, .mInput label.hasValue{
-    /*
-    transform into the look of normal label from the look of placeholder, if transform does not work, the label remains on top of the input,
-    rather than staying at the placeholder position.
-    */
-    -webkit-transform: translate3d(0, 6px, 0) scale(.75);
-    transform: translate3d(0, 6px, 0) scale(.75);
-}
-
-.mInput label.focus.error, .mInput label.hasValue.error {
-    color: #dd2c00;
-}
-
-.mInput input {
-    position: relative; /*set position to relative so that z-index can work*/
-    z-index: 2; /*make sure that input is not blocked by label*/
-
-    width: 100%;
-    padding: 0.15em 0;
-    background: transparent;
-    outline: none;
+button {
+    background: none;
     border: none;
-
-    border-bottom: 1px solid #9E9E9E;
-
-    /*font related;*/
-    font-weight: normal;
-    font-size: 1.2em;
-}
-
-.mInput input:focus {
-    border-color: #77aa43;
-}
-
-.roundButton .positionRef {
-    position: relative;
-    width: 30px;
-    height: 30px;
-}
-
-.roundButton .positionRef .button {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    line-height: 30px;
+    color: #2196F3;
+    padding: 5px 10px;
     text-align: center;
-    color: white;
-    background: #77AA43;
-    box-shadow: 0 0 0 1px lightgray;
-    transition: box-shadow 0.2s, transform 0.2s; /*for box shadow transition when hovered*/
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    transition: 0.3s;
 }
 
-.roundButton .positionRef .button:hover {
+button:hover {
+    background: #EAEAEA;
     cursor: pointer;
-    box-shadow: 0 0 3px 1px darkgray;
 }
 
-.roundButton .positionRef .button.rotate {
-    transform: rotate(45deg);
-}
-
-.roundButton .positionRef .ripple {
+#appLogo {
     position: absolute;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    transition: 0.5s;
-    background: lightgray;
-    opacity: 0.7;
-    transform: scale(0.9, 0.9);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
-.roundButton .positionRef .ripple.mousedown {
-    opacity: 0.9;
-    transform: scale(1.5, 1.5);
-}
-
-.roundButton .positionRef .ripple.mouseup {
-    opacity: 0;
-    transform: scale(1.7, 1.7);
-}
-
-.optionsSection {
+#header {
+    height: 40px;
+    line-height: 40px;
+    border-bottom: 1px solid lightgray;
     position: relative;
 }
 
-.optionsSection .roundButton {
+#headerLeft, #headerRight {
     position: absolute;
+    width: 50%;
+    top: 0;
+    bottom: 0;
+    line-height: 40px;
 }
 
-.optionsSection .optionsButton {
-    z-index: 2;
+#headerLeft {
+    padding-left: 5px;
 }
 
-.optionsSection .actionButton {
-    z-index: 1;
-    transition: transform 0.5s;
+#headerLeft input {
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #2196F3;
+    color: #2196F3;
 }
 
-.optionsSection.expand .editButton {
-    transform: translateY(3em);
+#headerRight {
+    padding-right: 5px;
+    right: 0;
+    text-align: right;
 }
 
-.optionsSection.expand .imageButton {
-    transform: translateY(6em);
+#body {
+    margin: 40px 0 20px 0;
 }
 
-.optionsSection.expand .paintButton {
-    transform: translateY(9em);
+#footer {
+    position: absolute;
+    bottom: 0;
+    height: 20px;
+    left: 0;
+    right: 0;
+    border-top: 1px solid lightgray;
 }
 
-.optionsSection.expand .trashButton {
-    transform: translateY(12em);
+#autoCompletionList {
+    position: fixed;
+    left: 5px;
+    top: 40px;
+    min-width: 200px;
 }
 
-.autoCompletion {
-    width: 350px;
-    position: relative;
+#autoCompletionList .item {
+    padding: 8px 10px;
+    border-bottom: 1px solid lightgray;
+    border-left: 1px solid lightgray;
+    border-right: 1px solid lightgray;
 }
 
-.autoCompletion .searchAndSuggestionContainer {
-    background: #4B4B4B;
-    border-radius: 4px;
-    margin-top: 2em;
-    position: relative;
-    box-shadow: 0 5px 10px 2px #969696;
-    overflow: hidden;
-}
-
-.autoCompletion .search {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px;
-    border: none;
-    outline: none;
-    background: #676767;
+#autoCompletionList .item.selected {
+    background: #2196F3;
     color: white;
-    font-size: 1em;
+    border-color: #2196F3;
 }
 
-.autoCompletion .autoCompletionList {
-    color: white;
-    font-size: 0.8em;
-}
-
-.autoCompletion .item {
-    padding: 10px 20px 10px 10px;
-    position: relative;
-}
-
-.autoCompletion .tag {
-    position: absolute;
-    right: 0.5em;
-}
-
-.autoCompletion .item.selected {
-    background: #77AA43;
-}
-
-.autoCompletion .criteria {
-    position: absolute;
-    top: -2em;
+#searchCriteria {
+    position: fixed;
+    bottom: 45px;
+    left: 5px;
     font-size: 0.8em;
     white-space: nowrap;
 }
 
-.autoCompletion .criteria span {
+#searchCriteria span {
     display: block;
-    background: #476D20;
+    color: #2196F3;
     padding: 0.3em 0.5em;
-    border-radius: 4px;
-    color: white;
     position: absolute;
     transition: transform 0.5s;
 }
 
-.autoCompletion .criteria span:hover {
+#searchCriteria span:hover {
+    background: #EAEAEA;
     cursor: pointer;
 }
 
