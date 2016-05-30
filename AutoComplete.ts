@@ -1,33 +1,20 @@
-/**
- * Created by wangsheng on 7/5/16.
- */
-
 /// <reference path="Index.ts" />
 
 namespace UIComponentNamespace {
 
-    export function createAutoComplete():HTMLDivElement {
+    export function createAutoComplete() {
 
         let index = IndexNamespace.getIndex();
 
-        let autoCompletionEle = document.createElement("div");
-        autoCompletionEle.classList.add("autoCompletion");
+        let addSearchCriterionFunc: (keyWord: string) => void;
 
-        let criteriaEle = document.createElement("div");
-        autoCompletionEle.appendChild(criteriaEle);
-        criteriaEle.classList.add("criteria");
-
-        let searchAndSuggestionsContainer = document.createElement("div");
-        searchAndSuggestionsContainer.classList.add("searchAndSuggestionContainer");
-        autoCompletionEle.appendChild(searchAndSuggestionsContainer);
+        function setSearchCriterionFunc(func) {
+            addSearchCriterionFunc = func;
+        }
 
         let searchEle = document.createElement("input");
-        searchAndSuggestionsContainer.appendChild(searchEle);
-        searchEle.classList.add("search");
-
         let autoCompletionListEle = document.createElement("div");
-        searchAndSuggestionsContainer.appendChild(autoCompletionListEle);
-        autoCompletionListEle.classList.add("autoCompletionList");
+        autoCompletionListEle.id = "autoCompletionList";
 
         let maximumSuggestions = 20;
         let itemEles:HTMLDivElement[] = [];
@@ -63,49 +50,13 @@ namespace UIComponentNamespace {
         }
 
         searchEle.addEventListener("input", function () {
-
-            suggestedKeywords = index.keysWithPrefix(searchEle.value);
-
-            updateItemElesOnSuggestedKeywordsChange();
-
-        });
-
-        const rightShiftProp = Symbol("rightShiftProp");
-
-        function addNewSearchCriterion(keyword:string) {
-
-            let criterionEle = document.createElement("span");
-            criterionEle.appendChild(document.createTextNode(keyword));
-
-            let existingCriterionEles = criteriaEle.children;
-
-            const rightMarginOfCriterionEle = 5;
-            let rightShiftDistance = 0;
-            for (let i = 0; i < existingCriterionEles.length; i++) {
-                rightShiftDistance += existingCriterionEles[i].getBoundingClientRect().width;
-                rightShiftDistance += rightMarginOfCriterionEle;
+            if(searchEle.value.trim() === "") {
+                suggestedKeywords = [];
+            } else {
+                suggestedKeywords = index.keysWithPrefix(searchEle.value);
             }
-
-            criteriaEle.appendChild(criterionEle);
-
-            window.setTimeout(function () {
-                criterionEle.style.transform = "translateX(" + rightShiftDistance + "px)";
-                criterionEle[rightShiftProp] = rightShiftDistance;
-            }, 0);
-
-            criterionEle.addEventListener("click", function(){
-                let width = criterionEle.getBoundingClientRect().width;
-                let i:HTMLSpanElement = criterionEle;
-                while (i.nextSibling) {
-                    let sibling:HTMLSpanElement = <HTMLSpanElement>i.nextSibling;
-                    sibling[rightShiftProp] -= (width + rightMarginOfCriterionEle);
-                    sibling.style.transform = "translateX(" + sibling[rightShiftProp] + "px)";
-                    i = sibling;
-                }
-                criterionEle.remove();
-            });
-
-        }
+            updateItemElesOnSuggestedKeywordsChange();
+        });
 
         const keyCodeForEnter = 13;
         const keyCodeForTab = 9;
@@ -136,7 +87,7 @@ namespace UIComponentNamespace {
                 suggestedKeywords = [];
                 updateItemElesOnSuggestedKeywordsChange();
 
-                addNewSearchCriterion(selectedKeyword);
+                addSearchCriterionFunc(selectedKeyword);
                 searchEle.value = "";
 
             }
@@ -156,7 +107,76 @@ namespace UIComponentNamespace {
         });
 
 
-        return autoCompletionEle;
+
+        return {
+            searchEle: searchEle,
+            autoCompletionListEle: autoCompletionListEle,
+            setSearchCriterionFunc: setSearchCriterionFunc
+        };
+    }
+
+    export function createCriterionSection(){
+        let criteriaEle = document.createElement("div");
+        criteriaEle.classList.add("criteria");
+        criteriaEle.id = "searchCriteria";
+
+        const rightShiftProp = Symbol("rightShiftProp");
+
+        let keyWords: Set<string> = new Set();
+
+        function addNewSearchCriterion(keyword:string) {
+
+            if(keyWords.has(keyword)) return;
+            keyWords.add(keyword);
+
+            let criterionEle = document.createElement("span");
+            criterionEle.appendChild(document.createTextNode(keyword));
+
+            let existingCriterionEles = criteriaEle.children;
+
+            const rightMargin = 5;
+            let rightShiftDistance = 0;
+            for (let i = 0; i < existingCriterionEles.length; i++) {
+                rightShiftDistance += existingCriterionEles[i].getBoundingClientRect().width;
+                rightShiftDistance += rightMargin;
+            }
+
+            criteriaEle.appendChild(criterionEle);
+
+            window.setTimeout(function () {
+                criterionEle.style.transform = "translateX(" + rightShiftDistance + "px)";
+                criterionEle[rightShiftProp] = rightShiftDistance;
+            }, 0);
+
+            criterionEle.addEventListener("click", function(){
+                let width = criterionEle.getBoundingClientRect().width;
+                let i:HTMLSpanElement = criterionEle;
+                while (i.nextSibling) {
+                    let sibling:HTMLSpanElement = <HTMLSpanElement>i.nextSibling;
+                    sibling[rightShiftProp] -= (width + rightMargin);
+                    sibling.style.transform = "translateX(" + sibling[rightShiftProp] + "px)";
+                    i = sibling;
+                }
+                criterionEle.remove();
+            });
+
+        }
+
+        function getAllKeyWords(): Set<string> {
+            return keyWords;
+        }
+
+        function clearAllSearchCriterion(){
+            keyWords.clear();
+            while(criteriaEle.firstChild) criteriaEle.removeChild(criteriaEle.firstChild);
+        }
+
+        return {
+            containerEle: criteriaEle,
+            addNewSearchCriterion: addNewSearchCriterion,
+            getAllKeyWords: getAllKeyWords,
+            clearAllSearchCriterion: clearAllSearchCriterion
+        }
     }
 
 }
