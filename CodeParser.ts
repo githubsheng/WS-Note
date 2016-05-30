@@ -1,8 +1,8 @@
 ///<reference path="Index.ts"/>
+///<reference path="CommonModels.ts" />
 
 namespace SyntaxHighlightNamespace {
 
-    import WordType = IndexNamespace.WordType;
     let specialSymbol = ['{', '}', '.', ',', '=', ';', '(', ')', "+", "-", "%", "/", "!"];
 
     let index = IndexNamespace.getIndex();

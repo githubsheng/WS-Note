@@ -1,4 +1,4 @@
-/// <reference path="Note.ts" />
+/// <reference path="CommonModels.ts" />
 /// <reference path="SpecialWords.ts" />
 
 namespace IndexNamespace {
@@ -17,10 +17,6 @@ namespace IndexNamespace {
             s++;
             e--;
         }
-    }
-
-    export enum WordType {
-        searchKeyword, normalStopWords, markup, jsKeyword, javaKeyword
     }
 
     class Node {

@@ -1,9 +1,7 @@
-///<reference path="Index.ts" />
-///<reference path="ContentTransformer.ts"/>
+///<reference path="CommonModels.ts" />
+///<reference path="Index.ts"/>
 
 namespace IndexNamespace {
-
-    import Component = ContentTransformerNamespace.Component;
     /**
      * This keyword processor processes the text of a note and returns keywords, and keyword combination that needs to be indexed.
      * Text is split into words by delimiters. Most commonly seen delimiter is whitespace. For instance, "wang sheng" is split into
