@@ -1,7 +1,3 @@
-/**
- * Created by wangsheng on 15/5/16.
- */
-
 namespace SpecialWordsNamespace {
 
     export let normalStopWords:string[] = ["a’s", "able", "about", "above", "according", "accordingly",
