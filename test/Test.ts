@@ -7,6 +7,5 @@
 TestIndexNamespace.runIndexTest();
 TestTextProcessorNamespace.runTextProcessorTest();
 TestStorageNamespace.runStorageTest();
-TestCodeEditorNamespace.runCodeEditorTest();
 TestContentTransformerNamespace.runContentTransformerTest();
 
