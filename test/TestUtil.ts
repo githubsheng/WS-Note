@@ -1,10 +1,10 @@
-///<reference path="../ContentTransformer.ts"/>
+///<reference path="../CommonModels.ts"/>
 ///<reference path="../typings/extended.d.ts"/>
+///<reference path="../ContentTransformer.ts"/>
 
 namespace TestUtilNamespace {
 
     import addChildAndNormalize = ContentTransformerNamespace.addChildAndNormalize;
-    import Component = ContentTransformerNamespace.Component;
 
     export function shouldBeEqual(left: any, right: any, compareFunc?: (a: any, b: any) => boolean) {
         if(compareFunc) {
