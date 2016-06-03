@@ -3,7 +3,7 @@
 ///<reference path="AsyncUtil.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
 ///<reference path="CodeParser.ts"/>
-///<reference path="TextProcessorTwo.ts"/>
+///<reference path="Tokenizor.ts"/>
 
 /**
  * Inside the editor is a large dom fragment. While I can store that dom fragment in the indexeddb,
@@ -26,6 +26,7 @@ namespace ContentTransformerNamespace {
     import createImageFromBlob = Utility.createImageFromBlob;
     import parseCode = SyntaxHighlightNamespace.parseCode;
     import getIndex = IndexNamespace.getIndex;
+    import tokenize = TokenizorNamespace.tokenize;
 
     const textNodeName = "#text";
     const imgNodeName = "img";
