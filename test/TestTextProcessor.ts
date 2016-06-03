@@ -11,21 +11,11 @@ namespace TestTextProcessorNamespace {
     export function runTextProcessorTest(){
         let components = normalizeComponents(createDummyComponents());
         var tpc = new KeywordProcessor(components);
-        let results = [];
-        while(tpc.hasNext()) {
-            let c = tpc.nextWordCombination();
-            if(c.prevComb !== undefined)
-                results.push(c.prevComb);
-            if(c.cur !== undefined)
-                results.push(c.cur);
-            if(c.nextComb !== undefined)
-                results.push(c.nextComb);
-        }
+        let results = tpc.getKeyWords().map(function(e) {
+            return e[0];
+        });
 
-        let expectedResults = ["WSNote", "amazing", "Data", "Data structure", "structure Data", "structure", "structure 101", "101 structure",
-            "101", "一些中文乱入", "types", "lists", "singly", "singly linked", "linked singly", "linked", "linked list",
-            "list linked", "list", "doubly", "doubly linked", "linked doubly", "linked", "linked list", "list linked",
-            "list", "array", "array list", "list array", "list", "wang", "wang sheng", "sheng wang", "sheng", "zeng", "zeng ying", "ying zeng", "ying"];
+        let expectedResults = ["WSNote", "amazing", "singly", "linked", "singly linked", "linked singly", "list", "linked list", "list linked"];
 
         arrayShouldBeIdentical(results, expectedResults);
     }

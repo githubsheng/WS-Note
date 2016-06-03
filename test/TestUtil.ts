@@ -76,9 +76,8 @@ namespace TestUtilNamespace {
     }
 
     export function createDummyDomContent(root: Node, imgId?: number){
-        root.appendChild(tn("WSNote is amazing"));root.appendChild(br());
-        root.appendChild(tn(" Data structure 101: there are 一些中文乱入 many types"));root.appendChild(tn(" of lists, singly linked list, doubly linked list, and array list. ,"));root.appendChild(br());
-        root.appendChild(tn("this line has some inline `code` and some ~bold text~. another inline `code_fragment`"));root.appendChild(br());
+        root.appendChild(tn("WSNote is `amazing`"));root.appendChild(br());
+        root.appendChild(tn("singly linked list "));root.appendChild(br());
         root.appendChild(tn("@js"));root.appendChild(br());
         root.appendChild(tn("function foo(){"));root.appendChild(br());
         root.appendChild(tn("    console.log(1);"));root.appendChild(br());
@@ -90,17 +89,43 @@ namespace TestUtilNamespace {
     }
 
     export function createDummyComponents(imgId?: number) {
+        let tokensOne = {
+            tokenTypes: [WordType.word, WordType.whitespace, WordType.stopWord, WordType.whitespace, WordType.inlineLevelMarkup, WordType.word, WordType.inlineLevelMarkup],
+            tokenValues: ["WSNote", " ", "is", " ", "`", "amazing", "`"]
+        };
+        let tokenTwo = {
+            tokenTypes: [WordType.word, WordType.whitespace, WordType.word, WordType.whitespace, WordType.word, WordType.whitespace],
+            tokenValues: ["singly", " ", "linked", " ", "list", " "]
+        };
+        let tokensThree = {
+            tokenTypes: [WordType.jsKeyword, WordType.whitespace, WordType.functionName, WordType.specialCodeSymbol, WordType.specialCodeSymbol, WordType.specialCodeSymbol],
+            tokenValues: ["function", " ", "foo", "(", ")", "{"]
+        };
+        let tokensFour = {
+            tokenTypes: [WordType.whitespace, WordType.unknownCodeWord, WordType.specialCodeSymbol, WordType.functionName, WordType.specialCodeSymbol, WordType.unknownCodeWord, WordType.specialCodeSymbol, WordType.specialCodeSymbol],
+            tokenValues: ["    ", "console", ".", "log", "(", "1", ")", ";"]
+        };
+        let tokensFive = {
+            tokenTypes: [WordType.specialCodeSymbol],
+            tokenValues: ["}"]
+        };
         let components: Component[] = [];
-        components.push({nodeName: "#text", value: "WSNote is amazing"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: " Data structure 101: there are 一些中文乱入 many types"});
-        components.push({nodeName: "#text", value: " of lists, singly linked list, doubly linked list, and array list. ,"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "this line has some inline `code` and some ~bold text~. another inline `code_fragment`"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "@js", isBlockLevelMarkup: true});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "function foo(){", codeLanguage: CodeLanguage.js});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "    console.log(1);", codeLanguage: CodeLanguage.js});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "}", codeLanguage: CodeLanguage.js});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "@", isBlockLevelMarkup: true});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "@line", isBlockLevelMarkup: true});components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "WSNote is `amazing`", tokens: tokensOne});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "singly linked list ", tokens: tokenTwo});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "@js", isBlockLevelMarkup: true});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "function foo(){", codeLanguage: CodeLanguage.js, tokens: tokensThree});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "    console.log(1);", codeLanguage: CodeLanguage.js, tokens: tokensFour});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "}", codeLanguage: CodeLanguage.js, tokens: tokensFive});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "@", isBlockLevelMarkup: true});
+        components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "@line", isBlockLevelMarkup: true});
+        components.push({nodeName: "br"});
         components.push({nodeName: "img", imageDataId: imgId || 1});components.push({nodeName: "br"});
         components.push({nodeName: "br"});
         return components;
