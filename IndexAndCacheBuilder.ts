@@ -17,7 +17,7 @@ namespace IndexAndCacheBuilderNamespace {
     let index = getIndex();
 
     function buildIndexForNote(note: Note) {
-        var tpc = new KeywordProcessor( note.components);
+        var tpc = new KeywordProcessor(note.components);
         while(tpc.hasNext()) {
             let c = tpc.nextWordCombination();
             if(c.prevComb !== undefined)
