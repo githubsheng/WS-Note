@@ -1,7 +1,3 @@
-/**
- * Created by wangsheng on 16/5/16.
- */
-
 /// <reference path="../Index.ts" />
 /// <reference path="TestUtil.ts" />
 
@@ -13,7 +9,6 @@ namespace TestIndexNamespace {
     import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
     import shouldBeTrue = TestUtilNamespace.shouldBeTrue;
     import shouldBeFalse = TestUtilNamespace.shouldBeFalse;
-    import WordType = IndexNamespace.WordType;
     import mapShouldBeIdentical = TestUtilNamespace.mapShouldBeIdentical;
     export function runIndexTest(){
 
@@ -68,9 +63,9 @@ namespace TestIndexNamespace {
 
         function testIgnorable(){
             shouldBeUndefined(index.isIgnorable("wang sheng"));
-            index.putAsNormalStopWord("wang sheng");
+            index.putAsNoneSearchKeyword("wang sheng", WordType.stopWord);
             shouldBeTrue(index.isIgnorable("wang sheng"));
-            shouldBeEqual(WordType.normalStopWords, index.get("wang sheng").wordType);
+            shouldBeEqual(WordType.stopWord, index.get("wang sheng").wordType);
         }
 
         testLinkKeyWithNoteIndex();
