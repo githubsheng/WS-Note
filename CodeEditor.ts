@@ -1,10 +1,8 @@
-///<reference path="test/TestStorage.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
 ///<reference path="ContentTransformer.ts"/>
 
 namespace CodeEditorNamespace {
 
-    import Component = ContentTransformerNamespace.Component;
     import convertToStorageFormat = ContentTransformerNamespace.convertToComponentFormat;
     import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
     import r = Utility.r;
@@ -12,6 +10,7 @@ namespace CodeEditorNamespace {
     import createImageFromBlob = Utility.createImageFromBlob;
     import storeImageBlob = StorageNamespace.storeImageBlob;
     import createCanvasBasedOnImage = Utility.createCanvasBasedOnImage;
+    import getIDB = StorageNamespace.getIDB;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
@@ -21,7 +20,7 @@ namespace CodeEditorNamespace {
         setValueChangeListener: (listener:() => void) => void;
     }
 
-    export function createCodeEditor(idb:IDBDatabase):CodeEditor {
+    export function createCodeEditor():CodeEditor {
 
         let containerEle = document.createElement("div");
         containerEle.classList.add("codeEditorContainer");
@@ -130,6 +129,7 @@ namespace CodeEditorNamespace {
         //When the user drops files, store the file if the files are images, and insert the images in editor
         dropContainerEle.ondrop = function (e) {
             r(function*() {
+                let idb = yield getIDB();
                 let files = e.dataTransfer.files; // The dropped files
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
