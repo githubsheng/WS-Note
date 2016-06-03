@@ -32,6 +32,9 @@ namespace IndexNamespace {
         private root: Node;
         constructor(){};
 
+        /**
+         * if key word cannot be found, return undefined, otherwise return the wordType, and (if there is any) its related notes.
+         */
         public get(key: string): {wordType: WordType, relatedNotes: Map<number, number>} {
             key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
@@ -49,7 +52,7 @@ namespace IndexNamespace {
             key = key.toLowerCase();
             let x: Node = this.getHelper(this.root, key, 0);
             if( x === undefined || x.wordType === undefined ) return undefined;
-            return x.wordType !== WordType.searchKeyword; //all other types, should be ignored when building search key index.
+            return x.wordType !== WordType.word; //all other types, should be ignored when building search key index.
         }
 
         private getHelper(x: Node, key: string, d: number) {
@@ -61,24 +64,12 @@ namespace IndexNamespace {
 
         public putAsSearchKeyword(key:string, reversed: boolean, noteIndex: number): void {
             key = key.toLowerCase();
-            this.root = this.putHelper(this.root, key, reversed, WordType.searchKeyword, noteIndex, 0);
+            this.root = this.putHelper(this.root, key, reversed, WordType.word, noteIndex, 0);
         }
 
-        private putAsNoneSearchKeyword(key: string, wordType: WordType) {
+        public putAsNoneSearchKeyword(key: string, wordType: WordType) {
             key = key.toLowerCase();
             this.root = this.putHelper(this.root, key, false, wordType, -1, 0);
-        }
-
-        public putAsNormalStopWord(key: string): void {
-            this.putAsNoneSearchKeyword(key, WordType.normalStopWords);
-        }
-
-        public putAsMarkup(key: string): void {
-            this.putAsNoneSearchKeyword(key, WordType.markup);
-        }
-
-        public putAsJsKeyword(key: string): void {
-            this.putAsNoneSearchKeyword(key, WordType.jsKeyword);
         }
 
         //if note index is -1 then this key is regarded as a stop word
@@ -86,7 +77,7 @@ namespace IndexNamespace {
             if(x === undefined) x = new Node();
             if(d === key.length) {
                 x.wordType = wordType;
-                if(wordType === WordType.searchKeyword) {
+                if(wordType === WordType.word) {
                     if(x.relatedNotes === undefined) x.relatedNotes = new Map();
                     let frequency = x.relatedNotes.get(noteIndex);
                     let newFrequency = frequency === undefined ? 1 : frequency + 1;
@@ -182,12 +173,21 @@ namespace IndexNamespace {
     export function getIndex():KeywordIndex{
         if(!keywordIndex) {
             keywordIndex = new KeywordIndex();
-            for(let normalStopWord of SpecialWordsNamespace.normalStopWords)
-                keywordIndex.putAsNormalStopWord(normalStopWord);
-            for(let markup of SpecialWordsNamespace.markups)
-                keywordIndex.putAsMarkup(markup);
+
+            for(let normalStopWord of SpecialWordsNamespace.stopWords)
+                keywordIndex.putAsNoneSearchKeyword(normalStopWord, WordType.stopWord);
+
+            for(let blockLevelMarkup of SpecialWordsNamespace.blockLevelMarkup)
+                keywordIndex.putAsNoneSearchKeyword(blockLevelMarkup, WordType.blockLevelMarkup);
+
+            for(let inLineMarkup of SpecialWordsNamespace.inlineLevelMarkup)
+                keywordIndex.putAsNoneSearchKeyword(inLineMarkup, WordType.inlineLevelMarkup);
+
             for(let jsKeyword of SpecialWordsNamespace.jsKeywords)
-                keywordIndex.putAsJsKeyword(jsKeyword);
+                keywordIndex.putAsNoneSearchKeyword(jsKeyword, WordType.jsKeyword);
+
+            for(let jsSpecialCodeSymbol of SpecialWordsNamespace.jsSpecialCodeSymbols)
+                keywordIndex.putAsNoneSearchKeyword(jsSpecialCodeSymbol, WordType.jsSpecialCodeSymbol);
             return keywordIndex;
         } else {
             return keywordIndex;
