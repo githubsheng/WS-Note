@@ -43,7 +43,7 @@ namespace RankNamespace {
 
         for(let keyWord of searchKeyWords) {
             let result = index.get(keyWord);
-            if(result.wordType === WordType.searchKeyword) {
+            if(result.wordType === WordType.word) {
                 let notesRelatedToKeyWord = result.relatedNotes;
 
                 for(let noteId of notesRelatedToKeyWord.keys()) {
@@ -72,7 +72,7 @@ namespace RankNamespace {
 
             for(let keyWord of searchKeyWords) {
                 let result = index.get(keyWord);
-                if(result.wordType === WordType.searchKeyword) {
+                if(result.wordType === WordType.word) {
                     let notesRelatedToKeyWord = result.relatedNotes;
                     let numberOfAppearanceOfKeyWordInNote = notesRelatedToKeyWord.get(noteId);
                     if(numberOfAppearanceOfKeyWordInNote !== undefined) {
