@@ -54,8 +54,8 @@ namespace ContentTransformerNamespace {
             addChildAndNormalize(normalizedComponents, cp);
         }
 
-        let isInCodeBlock = false;
-        let isInNoticeBlock = false;
+        let isInCodeBlock: CodeLanguage;
+        let isInNoticeBlock: NoticeLevel;
 
         for (let i = 0; i < normalizedComponents.length; i++) {
             let cp = normalizedComponents[i];
@@ -67,15 +67,23 @@ namespace ContentTransformerNamespace {
                     //then now I am sure this is a block level markup.
                     if(isBlockLevelMarkup(cp.value)) {
                         cp.isBlockLevelMarkup = true;
-                        if(cp.value === "@js" || cp.value === "@java") {
-                            isInCodeBlock = true;
-                            isInNoticeBlock = false;
-                        } else if(cp.value === "@important" || cp.value === "@less") {
-                            isInCodeBlock = false;
-                            isInNoticeBlock = true;
-                        } else {
-                            isInCodeBlock = false;
-                            isInNoticeBlock = false;
+                        switch (cp.value) {
+                            case "@js":
+                                isInCodeBlock = CodeLanguage.js;
+                                isInNoticeBlock = undefined;
+                                break;
+                            case "@java":
+                                isInCodeBlock = CodeLanguage.java;
+                                isInNoticeBlock = undefined;
+                                break;
+                            case "@important":
+                                isInCodeBlock = undefined;
+                                isInNoticeBlock = NoticeLevel.important;
+                                break;
+                            case "@less":
+                                isInCodeBlock = undefined;
+                                isInNoticeBlock = NoticeLevel.less;
+                                break;
                         }
                         continue;
                     }
@@ -88,16 +96,16 @@ namespace ContentTransformerNamespace {
                     //...and it is on its own line
                     //now Im sure it is a @ markup. and it ends code block or notice block anyway.
                     cp.isBlockLevelMarkup = true;
-                    isInCodeBlock = false;
-                    isInNoticeBlock = false;
+                    isInCodeBlock = undefined;
+                    isInNoticeBlock = undefined;
                     continue;
                 }
             }
 
             //if not block level markup, I will go down here
             cp.isBlockLevelMarkup = false;
-            if(isInCodeBlock) cp.isInCodeBlock = true;
-            if(isInNoticeBlock) cp.isInNoticeBlock = true;
+            if(isInCodeBlock) cp.codeLanguage = isInCodeBlock;
+            if(isInNoticeBlock) cp.noticeLevel = isInNoticeBlock;
         }
 
         return normalizedComponents;
@@ -147,8 +155,6 @@ namespace ContentTransformerNamespace {
         return frag;
     }
 
-    let markupsForBlock = ["@js", "@java", "@important", "@less"];
-
     /**
      * converts the component list to a styled document fragment.
      */
@@ -163,7 +169,6 @@ namespace ContentTransformerNamespace {
          * to have a better understanding.
          */
         let styledContainer:HTMLDivElement;
-        let codeBlockLanguage: SyntaxHighlightNamespace.Language;
 
         //if styled container is available, append converted components to the styled container, otherwise append to document fragment.
         function getParent():Node {
@@ -174,66 +179,30 @@ namespace ContentTransformerNamespace {
             let cp = components[i];
             switch (cp.nodeName) {
                 case textNodeName:
-                    //needs to start with @ symbol. but if its exactly @, then it means end of a block, this case is covered later.
-                    //the following logic either start a styledContainer (such as @js, @important), or cannot be inside a styledContainer, such
-                    //as @header and @line. and thats why i need to make sure styledContainer is undefined first.
-                    if (cp.value.startsWith("@") && cp.value !== "@" && styledContainer === undefined) {
-                        //if the line has previous sibling or next sibling, they need to br. otherwise the text node may not be a new line, it could
-                        //be a next node following an image node or something.
-                        if ((components[i - 1] === undefined || components[i - 1].nodeName === "br")
-                            && (components[i + 1] === undefined || components[i + 1].nodeName === "br")) {
-                            //the above if conditions basically says:
-                            //if i have a line, and the line either starts with @header, or is exactly @line, @java, @js, @important or @less.
-                            if (cp.value.startsWith("@header ")) {
-                                /**
-                                 * previous line text <br>
-                                 * @header headerText <br>  <-- this br makes sure @header is on its own line in the source code.
-                                 */
-                                let header = document.createElement("h2");
-                                let headerText = cp.value.substring(8); //header text is the portion that starts from index 8
-                                header.appendChild(document.createTextNode(headerText));
-                                frag.appendChild(header);
-                                i++; //the br after @header is no longer necessary because h2 element automatically ends the line.
-                                continue;
-                            } else if (cp.value === "@line") {
-                                /**
-                                 * previous line text <br>
-                                 * @line <br>  <-- this br makes sure @line is on its own line in the source code.
-                                 */
-                                let horizontalLine = document.createElement("hr");
-                                frag.appendChild(horizontalLine);
-                                i++; //<hr> terminates the line itself and therefore the br next to @line is no longer necessary.
-                                continue;
-                            } else {
-                                /**
-                                 * sample:
-                                 * previous line text <br>
-                                 * @js <br> <-- this br makes sure @js is on its own line in the source code
-                                 */
-                                let ii = markupsForBlock.indexOf(cp.value);
-                                if (ii > -1) {
-                                    styledContainer = document.createElement("div");
-                                    //if markup is @js, then class name is js. if @java, then class name is java.
-                                    //@important -> important. @less -> less.
-                                    styledContainer.classList.add(cp.value.substring(1));
-
-                                    //if @js, or @java, then i need to start to parse code blocks.
-                                    if (ii === 0) {
-                                        codeBlockLanguage = SyntaxHighlightNamespace.Language.js;
-                                    } else if (ii === 1) {
-                                        codeBlockLanguage = SyntaxHighlightNamespace.Language.java;
-                                    }
-                                    frag.appendChild(styledContainer);
-                                    i++; //skip the br
-                                    continue;
-                                }
-                            }
-                        }
-                    } else if (cp.value === "@" && styledContainer) {
-                        //if we have a styledContainer in place then a single line with only a @ symbol means end of the styledContainer.
-                        if ((components[i - 1] === undefined || components[i - 1].nodeName === "br")
-                            && (components[i + 1] === undefined || components[i + 1].nodeName === "br")) {
-                            //the previous if condition checks whether @ is on its own line.
+                    if(cp.isBlockLevelMarkup) {
+                        if (cp.value.startsWith("@header ")) {
+                            /**
+                             * previous line text <br>
+                             * @header headerText <br>  <-- this br makes sure @header is on its own line in the source code.
+                             */
+                            let header = document.createElement("h2");
+                            let headerText = cp.value.substring(8); //header text is the portion that starts from index 8
+                            header.appendChild(document.createTextNode(headerText));
+                            frag.appendChild(header);
+                            i++; //the br after @header is no longer necessary because h2 element automatically ends the line.
+                            continue;
+                        } else if (cp.value === "@line") {
+                            /**
+                             * previous line text <br>
+                             * @line <br>  <-- this br makes sure @line is on its own line in the source code.
+                             */
+                            let horizontalLine = document.createElement("hr");
+                            frag.appendChild(horizontalLine);
+                            i++; //<hr> terminates the line itself and therefore the br next to @line is no longer necessary.
+                            continue;
+                        } else {
+                            //the following will terminate a block: @js, @java, @important, @less and @
+                            //I will use @ as an example here
                             /**
                              * two cases
                              * case one:
@@ -255,20 +224,44 @@ namespace ContentTransformerNamespace {
                              * happens to be next sibling of @js and it is already skipped. in this case, the styledContainer
                              * is empty and has no child. therefore i can test `styledContainer.lastChild` to find this out.
                              */
-                            if (styledContainer.lastChild)
+                            if (styledContainer && styledContainer.lastChild)
                             //in case one, remove the br. this br is the last child of styledContainer now.
                                 styledContainer.removeChild(styledContainer.lastChild);
                             i++; //skip next br
                             styledContainer = undefined;
-                            codeBlockLanguage = undefined; //in case that previous block is a code block
                             continue;
                         }
-                    }
-
-                    if (codeBlockLanguage !== undefined) {
-                        parseCode(getParent(), cp.value, codeBlockLanguage);
                     } else {
-                        convertStyledParagraph(getParent(), cp.value);
+                        if(cp.codeLanguage) {
+                            if(styledContainer === undefined) {
+                                styledContainer = document.createElement("div");
+                                switch(cp.codeLanguage) {
+                                    case CodeLanguage.java:
+                                        styledContainer.classList.add("java");
+                                        break;
+                                    case CodeLanguage.js:
+                                        styledContainer.classList.add("js");
+                                        break;
+                                }
+                            }
+                            parseCode(getParent(), cp.value, cp.codeLanguage);
+
+                        } else if (cp.noticeLevel) {
+                            if(styledContainer === undefined) {
+                                styledContainer = document.createElement("div");
+                                switch(cp.noticeLevel) {
+                                    case NoticeLevel.important:
+                                        styledContainer.classList.add("important");
+                                        break;
+                                    case NoticeLevel.less:
+                                        styledContainer.classList.add("less");
+                                        break;
+                                }
+                            }
+                            convertStyledParagraph(getParent(), cp.value);
+                        } else {
+                            convertStyledParagraph(getParent(), cp.value);
+                        }
                     }
                     break;
                 case imgNodeName:
