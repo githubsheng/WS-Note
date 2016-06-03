@@ -95,12 +95,12 @@ namespace TestUtilNamespace {
         components.push({nodeName: "#text", value: " Data structure 101: there are 一些中文乱入 many types"});
         components.push({nodeName: "#text", value: " of lists, singly linked list, doubly linked list, and array list. ,"});components.push({nodeName: "br"});
         components.push({nodeName: "#text", value: "this line has some inline `code` and some ~bold text~. another inline `code_fragment`"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "@js"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "function foo(){"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "    console.log(1);"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "}"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "@"});components.push({nodeName: "br"});
-        components.push({nodeName: "#text", value: "@line"});components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "@js", isBlockLevelMarkup: true});components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "function foo(){", codeLanguage: CodeLanguage.js});components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "    console.log(1);", codeLanguage: CodeLanguage.js});components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "}", codeLanguage: CodeLanguage.js});components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "@", isBlockLevelMarkup: true});components.push({nodeName: "br"});
+        components.push({nodeName: "#text", value: "@line", isBlockLevelMarkup: true});components.push({nodeName: "br"});
         components.push({nodeName: "img", imageDataId: imgId || 1});components.push({nodeName: "br"});
         components.push({nodeName: "br"});
         return components;
