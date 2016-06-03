@@ -4,13 +4,10 @@
 ///<reference path="../CodeEditor.ts"/>
 ///<reference path="../typings/chrome/chrome-app.d.ts" />
 
-var globalViewerWindow;
-
 
 namespace TestContentTransformerNamespace {
 
     import convertToComponentFormat = ContentTransformerNamespace.convertToComponentFormat;
-    import Component = ContentTransformerNamespace.Component;
     import convertToDocumentFragment = ContentTransformerNamespace.convertToDocumentFragment;
     import r = Utility.r;
     import storeTestImage = TestStorageNamespace.storeTestImage;
@@ -30,12 +27,21 @@ namespace TestContentTransformerNamespace {
 
         let result = convertToComponentFormat(codeEditorEle);
         for(let i = 0; i < expected.length; i++)
-            shouldBeEqual(result[i], expected[i], function(a: Component, b: Component):boolean {
-                let r = true;
-                if(a.nodeName !== b.nodeName) r = false;
-                if(a.value !== b.value) r = false;
-                if(a.imageDataId !== b.imageDataId) r = false;
-                return r;
+            shouldBeEqual(result[i], expected[i], function(resultComponent: Component, expectedComponent: Component):boolean {
+                if(resultComponent.nodeName !== expectedComponent.nodeName) return false;
+                if(resultComponent.value !== expectedComponent.value) return false;
+                if(resultComponent.imageDataId !== expectedComponent.imageDataId) return false;
+                if(resultComponent.isBlockLevelMarkup !== expectedComponent.isBlockLevelMarkup) return false;
+                if(resultComponent.codeLanguage !== expectedComponent.codeLanguage) return false;
+                if(resultComponent.noticeLevel !== expectedComponent.noticeLevel) return false;
+                if(expectedComponent.tokens && expectedComponent.tokens.tokenTypes) {
+                    if(expectedComponent.tokens.tokenTypes.length !== resultComponent.tokens.tokenTypes.length) return false;
+                    for(let ii = 0; ii < resultComponent.tokens.tokenTypes.length; ii++) {
+                        if(resultComponent.tokens.tokenTypes[ii] !== expectedComponent.tokens.tokenTypes[ii]) return false;
+                        if(resultComponent.tokens.tokenValues[ii] !== expectedComponent.tokens.tokenValues[ii]) return false;
+                    }
+                }
+                return true;
             });
 
         return result;
@@ -66,58 +72,58 @@ namespace TestContentTransformerNamespace {
         });
     }
 
-    function testConvertToStyledDocumentFragment(){
-        let codeEditor, viewerWindow;
-
-        function parse(){
-            let components = codeEditor.getValue();
-            viewerWindow.postMessage(components, "*");
-        }
-
-        r(function*(){
-            let testContainer = document.createElement("div");
-            testContainer.appendChild(document.createTextNode("parse content test"));
-
-            let idb = yield getIDB();
-            codeEditor = createCodeEditor(idb);
-            codeEditor.setValueChangeListener(parse);
-            testContainer.appendChild(codeEditor.containerEle);
-
-            var toggleImageInsertButton = document.createElement("button");
-            toggleImageInsertButton.innerText = "Insert Images";
-            toggleImageInsertButton.onclick = function(){
-                codeEditor.startInsertingImg();
-            };
-            testContainer.appendChild(toggleImageInsertButton);
-
-            let openViewerButton = document.createElement("button");
-            openViewerButton.appendChild(document.createTextNode("Open Viewer"));
-
-            openViewerButton.onclick = function(){
-                if(chrome && chrome.app && chrome.app.window) {
-                    if(viewerWindow) viewerWindow.close();
-                    chrome.app.window.create('test/html/viewer.html', {
-                        'bounds': {
-                            'width': 400,
-                            'height': 400
-                        }
-                    }, function(appWindow: AppWindow) {
-                        viewerWindow = appWindow.contentWindow;
-                    });
-                } else {
-                    viewerWindow = window.open("viewer.html");
-                }
-            };
-            testContainer.appendChild(openViewerButton);
-
-            document.body.appendChild(testContainer);
-        })
-    }
+    // function testConvertToStyledDocumentFragment(){
+    //     let codeEditor, viewerWindow;
+    //
+    //     function parse(){
+    //         let components = codeEditor.getValue();
+    //         viewerWindow.postMessage(components, "*");
+    //     }
+    //
+    //     r(function*(){
+    //         let testContainer = document.createElement("div");
+    //         testContainer.appendChild(document.createTextNode("parse content test"));
+    //
+    //         let idb = yield getIDB();
+    //         codeEditor = createCodeEditor(idb);
+    //         codeEditor.setValueChangeListener(parse);
+    //         testContainer.appendChild(codeEditor.containerEle);
+    //
+    //         var toggleImageInsertButton = document.createElement("button");
+    //         toggleImageInsertButton.innerText = "Insert Images";
+    //         toggleImageInsertButton.onclick = function(){
+    //             codeEditor.startInsertingImg();
+    //         };
+    //         testContainer.appendChild(toggleImageInsertButton);
+    //
+    //         let openViewerButton = document.createElement("button");
+    //         openViewerButton.appendChild(document.createTextNode("Open Viewer"));
+    //
+    //         openViewerButton.onclick = function(){
+    //             if(chrome && chrome.app && chrome.app.window) {
+    //                 if(viewerWindow) viewerWindow.close();
+    //                 chrome.app.window.create('test/html/viewer.html', {
+    //                     'bounds': {
+    //                         'width': 400,
+    //                         'height': 400
+    //                     }
+    //                 }, function(appWindow: AppWindow) {
+    //                     viewerWindow = appWindow.contentWindow;
+    //                 });
+    //             } else {
+    //                 viewerWindow = window.open("viewer.html");
+    //             }
+    //         };
+    //         testContainer.appendChild(openViewerButton);
+    //
+    //         document.body.appendChild(testContainer);
+    //     })
+    // }
 
     export function runContentTransformerTest(){
         testConvertToComponentFormat();
         testConvertToDocumentFragment();
-        testConvertToStyledDocumentFragment();
+        // testConvertToStyledDocumentFragment();
     }
 
 }
