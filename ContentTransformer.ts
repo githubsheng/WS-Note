@@ -24,24 +24,83 @@ namespace ContentTransformerNamespace {
     import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
     import createImageFromBlob = Utility.createImageFromBlob;
     import parseCode = SyntaxHighlightNamespace.parseCode;
+    import getIndex = IndexNamespace.getIndex;
 
     const textNodeName = "#text";
     const imgNodeName = "img";
+
+    let index = getIndex();
+
+    function isBlockLevelMarkup(text: string) {
+        //in case we are looking at @header myHeader
+        if(text.startsWith("@header ")) return true;
+        //except for the above special case, use index.
+        let r = index.get(text);
+        if(r === undefined) return false;
+        return r.wordType === WordType.blockLevelMarkup;
+    }
 
     /**
      * convert the code editor to component tree. the code editor itself is transformed into a document fragment. Here I convert
      * the children of code editor to a list of components. If there are adjacent text nodes, they are normalized (merged).
      */
     export function convertToComponentFormat(codeEditor:Node):Component[] {
-        let result = [];
+        let normalizedComponents: Component[] = [];
         for (let i = 0; i < codeEditor.childNodes.length; i++) {
             let node = codeEditor.childNodes[i];
             let cp:Component = {nodeName: node.nodeName.toLowerCase()};
-            if (cp.nodeName === textNodeName) cp.value = node.nodeValue;
+            if (cp.nodeName === textNodeName) cp.value = node.nodeValue.trim();
             if (cp.nodeName === imgNodeName) cp.imageDataId = (<HTMLImageElement>node).imageDataId;
-            addChildAndNormalize(result, cp);
+            addChildAndNormalize(normalizedComponents, cp);
         }
-        return result;
+
+        let isInCodeBlock = false;
+        let isInNoticeBlock = false;
+
+        for (let i = 0; i < normalizedComponents.length; i++) {
+            let cp = normalizedComponents[i];
+            if (cp.value.startsWith("@") && cp.value !== "@") {
+                //if the component may be a block level markup because it starts with @
+                if ((normalizedComponents[i - 1] === undefined || normalizedComponents[i - 1].nodeName === "br")
+                    && (normalizedComponents[i + 1] === undefined || normalizedComponents[i + 1].nodeName === "br")) {
+                    //...and it is on its own line
+                    //then now I am sure this is a block level markup.
+                    if(isBlockLevelMarkup(cp.value)) {
+                        cp.isBlockLevelMarkup = true;
+                        if(cp.value === "@js" || cp.value === "@java") {
+                            isInCodeBlock = true;
+                            isInNoticeBlock = false;
+                        } else if(cp.value === "@important" || cp.value === "@less") {
+                            isInCodeBlock = false;
+                            isInNoticeBlock = true;
+                        } else {
+                            isInCodeBlock = false;
+                            isInNoticeBlock = false;
+                        }
+                        continue;
+                    }
+
+                }
+            } else if (cp.value === "@") {
+                //value is '@'
+                if ((normalizedComponents[i - 1] === undefined || normalizedComponents[i - 1].nodeName === "br")
+                    && (normalizedComponents[i + 1] === undefined || normalizedComponents[i + 1].nodeName === "br")) {
+                    //...and it is on its own line
+                    //now Im sure it is a @ markup. and it ends code block or notice block anyway.
+                    cp.isBlockLevelMarkup = true;
+                    isInCodeBlock = false;
+                    isInNoticeBlock = false;
+                    continue;
+                }
+            }
+
+            //if not block level markup, I will go down here
+            cp.isBlockLevelMarkup = false;
+            if(isInCodeBlock) cp.isInCodeBlock = true;
+            if(isInNoticeBlock) cp.isInNoticeBlock = true;
+        }
+
+        return normalizedComponents;
     }
 
     /**
