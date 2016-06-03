@@ -24,9 +24,9 @@ enum NoticeLevel {
 
 enum WordType {
     word, stopWord, whitespace, noneWhitespaceDelimiter,
-    blockLevelMarkup, inlineLevelMarkup,
-    jsKeyword, jsSpecialCodeSymbol, jsFunctionName,
-    javaKeyword, javaSpecialCodeSymbol, javaFunctionName
+    unknownCodeWord, specialCodeSymbol, functionName, codeSingleQuoteString, codeDoubleQuoteString,
+    jsKeyword, javaKeyword,
+    blockLevelMarkup, inlineLevelMarkup
 }
 
 class Note {
