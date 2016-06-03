@@ -1,9 +1,18 @@
 ///<reference path="AutoComplete.ts"/>
+///<reference path="AsyncUtil.ts"/>
+///<reference path="IndexAndCacheBuilder.ts"/>
+///<reference path="AppEvents.ts"/>
+///<reference path="SearchResultSection.ts"/>
+///<reference path="EVNoteSection.ts"/>
 
 namespace AppNamespace {
 
     import createAutoComplete = UIComponentNamespace.createAutoComplete;
     import createCriterionSection = UIComponentNamespace.createCriterionSection;
+    import buildIndexAndCache = IndexAndCacheBuilderNamespace.buildIndexAndCache;
+    import r = Utility.r;
+    import broadcast = AppEventsNamespace.broadcast;
+    import AppEvent = AppEventsNamespace.AppEvent;
 
     let auto = createAutoComplete();
     let headerLeft = document.querySelector("#headerLeft");
@@ -13,6 +22,15 @@ namespace AppNamespace {
     let criteriaSection = createCriterionSection();
     document.body.appendChild(criteriaSection.containerEle);
     auto.setSearchCriterionFunc(criteriaSection.addNewSearchCriterion);
+
+    SearchResultSectionNamespace.init();
+    EVNoteSectionNamespace.init();
+
+    r(function*(){
+        yield* buildIndexAndCache();
+        document.body.removeChild(document.querySelector("#appLogo"));
+        broadcast(AppEvent.setBlankResultsPage);
+    });
 
     var index = IndexNamespace.getIndex();
     index.putAsSearchKeyword("apple", false, 1);
