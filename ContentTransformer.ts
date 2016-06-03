@@ -3,6 +3,7 @@
 ///<reference path="AsyncUtil.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
 ///<reference path="CodeParser.ts"/>
+///<reference path="TextProcessorTwo.ts"/>
 
 /**
  * Inside the editor is a large dom fragment. While I can store that dom fragment in the indexeddb,
@@ -49,16 +50,17 @@ namespace ContentTransformerNamespace {
         for (let i = 0; i < codeEditor.childNodes.length; i++) {
             let node = codeEditor.childNodes[i];
             let cp:Component = {nodeName: node.nodeName.toLowerCase()};
-            if (cp.nodeName === textNodeName) cp.value = node.nodeValue.trim();
+            if (cp.nodeName === textNodeName) cp.value = node.nodeValue;
             if (cp.nodeName === imgNodeName) cp.imageDataId = (<HTMLImageElement>node).imageDataId;
             addChildAndNormalize(normalizedComponents, cp);
         }
 
-        let isInCodeBlock: CodeLanguage;
-        let isInNoticeBlock: NoticeLevel;
+        let codeLanguage: CodeLanguage;
+        let noticeLevel: NoticeLevel;
 
         for (let i = 0; i < normalizedComponents.length; i++) {
             let cp = normalizedComponents[i];
+            if(cp.nodeName !== "#text") continue;
             if (cp.value.startsWith("@") && cp.value !== "@") {
                 //if the component may be a block level markup because it starts with @
                 if ((normalizedComponents[i - 1] === undefined || normalizedComponents[i - 1].nodeName === "br")
@@ -69,20 +71,20 @@ namespace ContentTransformerNamespace {
                         cp.isBlockLevelMarkup = true;
                         switch (cp.value) {
                             case "@js":
-                                isInCodeBlock = CodeLanguage.js;
-                                isInNoticeBlock = undefined;
+                                codeLanguage = CodeLanguage.js;
+                                noticeLevel = undefined;
                                 break;
                             case "@java":
-                                isInCodeBlock = CodeLanguage.java;
-                                isInNoticeBlock = undefined;
+                                codeLanguage = CodeLanguage.java;
+                                noticeLevel = undefined;
                                 break;
                             case "@important":
-                                isInCodeBlock = undefined;
-                                isInNoticeBlock = NoticeLevel.important;
+                                codeLanguage = undefined;
+                                noticeLevel = NoticeLevel.important;
                                 break;
                             case "@less":
-                                isInCodeBlock = undefined;
-                                isInNoticeBlock = NoticeLevel.less;
+                                codeLanguage = undefined;
+                                noticeLevel = NoticeLevel.less;
                                 break;
                         }
                         continue;
@@ -96,16 +98,17 @@ namespace ContentTransformerNamespace {
                     //...and it is on its own line
                     //now Im sure it is a @ markup. and it ends code block or notice block anyway.
                     cp.isBlockLevelMarkup = true;
-                    isInCodeBlock = undefined;
-                    isInNoticeBlock = undefined;
+                    codeLanguage = undefined;
+                    noticeLevel = undefined;
                     continue;
                 }
             }
 
             //if not block level markup, I will go down here
-            cp.isBlockLevelMarkup = false;
-            if(isInCodeBlock) cp.codeLanguage = isInCodeBlock;
-            if(isInNoticeBlock) cp.noticeLevel = isInNoticeBlock;
+            if(codeLanguage !== undefined) cp.codeLanguage = codeLanguage;
+            if(noticeLevel !== undefined) cp.noticeLevel = noticeLevel;
+
+            cp.tokens = tokenize(cp);
         }
 
         return normalizedComponents;
