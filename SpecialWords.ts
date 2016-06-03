@@ -63,7 +63,9 @@ namespace SpecialWordsNamespace {
         "you’ll", "you’re", "you’ve", "your", "yours", "yourself", "yourselves", "zero"];
 
     //special ones that serve as my mark up.
-    export let markups = ["@", "@header", "@line", "@js", "@java", "@important", "@less"];
+    export let blockLevelMarkup = ["@", "@header", "@line", "@js", "@java", "@important", "@less"];
+
+    export let inlineLevelMarkup = ['`', '~', '_', '#'];
 
     //javascript keywords
     export let jsKeywords = ["abstract", "arguments", "boolean", "break", "byte",
@@ -73,4 +75,8 @@ namespace SpecialWordsNamespace {
         "let", "long", "native", "new", "null", "package", "private", "protected", "public", "return",
         "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true",
         "try", "typeof", "var", "void", "volatile", "while", "with", "yield"];
+
+    export let jsSpecialCodeSymbols = ['{', '}', '.', ',', '=', ';', '(', ')', "+", "-", "%", "/", "!"];
+    
+    //todo: add java related
 }

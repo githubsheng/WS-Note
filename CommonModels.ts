@@ -8,10 +8,17 @@ interface Component {
     nodeName:string;
     value?:string;
     imageDataId?:number;
+    isMarkup?:boolean;
+    isCode?:boolean;
+    isNotice?:boolean;
+    tokens?: {tokenValues: string[], tokenTypes: WordType[]};
 }
 
 enum WordType {
-    searchKeyword, normalStopWords, markup, jsKeyword, javaKeyword
+    searchKeyword, normalStopWords,
+    blockLevelMarkup, inlineLevelMarkup,
+    jsKeyword, jsSpecialCodeSymbol, jsFunctionName,
+    javaKeyword, javaSpecialCodeSymbol, javaFunctionName
 }
 
 class Note {
