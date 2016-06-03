@@ -183,11 +183,12 @@ namespace IndexNamespace {
             for(let inLineMarkup of SpecialWordsNamespace.inlineLevelMarkup)
                 keywordIndex.putAsNoneSearchKeyword(inLineMarkup, WordType.inlineLevelMarkup);
 
+            for(let specialCodeSymbol of SpecialWordsNamespace.specialCodeSymbols)
+                keywordIndex.putAsNoneSearchKeyword(specialCodeSymbol, WordType.specialCodeSymbol);
+
             for(let jsKeyword of SpecialWordsNamespace.jsKeywords)
                 keywordIndex.putAsNoneSearchKeyword(jsKeyword, WordType.jsKeyword);
 
-            for(let jsSpecialCodeSymbol of SpecialWordsNamespace.jsSpecialCodeSymbols)
-                keywordIndex.putAsNoneSearchKeyword(jsSpecialCodeSymbol, WordType.jsSpecialCodeSymbol);
             return keywordIndex;
         } else {
             return keywordIndex;

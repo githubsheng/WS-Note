@@ -1,6 +1,6 @@
 namespace SpecialWordsNamespace {
 
-    export let normalStopWords:string[] = ["a’s", "able", "about", "above", "according", "accordingly",
+    export let stopWords:string[] = ["a’s", "able", "about", "above", "according", "accordingly",
         "across", "actually", "after", "afterwards", "again", "against", "ain’t",
         "all", "allow", "allows", "almost", "alone", "along", "already", "also",
         "although", "always", "am", "among", "amongst", "an", "and", "another",
@@ -76,7 +76,7 @@ namespace SpecialWordsNamespace {
         "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true",
         "try", "typeof", "var", "void", "volatile", "while", "with", "yield"];
 
-    export let jsSpecialCodeSymbols = ['{', '}', '.', ',', '=', ';', '(', ')', "+", "-", "%", "/", "!"];
+    export let specialCodeSymbols = ['{', '}', '.', ',', '=', ';', '(', ')', "+", "-", "%", "/", "!", "&", "|"];
     
     //todo: add java related
 }
