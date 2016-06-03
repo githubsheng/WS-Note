@@ -8,10 +8,18 @@ interface Component {
     nodeName:string;
     value?:string;
     imageDataId?:number;
-    isMarkup?:boolean;
-    isCode?:boolean;
-    isNotice?:boolean;
+    isBlockLevelMarkup?:boolean;
+    codeLanguage?:CodeLanguage;
+    noticeLevel?:NoticeLevel;
     tokens?: {tokenValues: string[], tokenTypes: WordType[]};
+}
+
+enum CodeLanguage {
+    js, java
+}
+
+enum NoticeLevel {
+    important, less
 }
 
 enum WordType {
