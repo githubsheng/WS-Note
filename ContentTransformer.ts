@@ -2,7 +2,6 @@
 ///<reference path="Storage.ts"/>
 ///<reference path="AsyncUtil.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
-///<reference path="CodeParser.ts"/>
 ///<reference path="Tokenizor.ts"/>
 
 /**
@@ -24,7 +23,6 @@ namespace ContentTransformerNamespace {
     import getIDB = StorageNamespace.getIDB;
     import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
     import createImageFromBlob = Utility.createImageFromBlob;
-    import parseCode = SyntaxHighlightNamespace.parseCode;
     import getIndex = IndexNamespace.getIndex;
     import tokenize = TokenizorNamespace.tokenize;
 
@@ -248,7 +246,7 @@ namespace ContentTransformerNamespace {
                                         break;
                                 }
                             }
-                            parseCode(getParent(), cp.value, cp.codeLanguage);
+                            parseCode(getParent(), cp.tokens);
 
                         } else if (cp.noticeLevel) {
                             if(styledContainer === undefined) {
@@ -317,5 +315,45 @@ namespace ContentTransformerNamespace {
             }
         }
 
+    }
+
+    function parseCode(parent:Node, tokens: {tokenTypes: WordType[], tokenValues: string[]}) {
+        let tokenTypes: WordType[] = tokens.tokenTypes;
+        let tokenValues: string[] = tokens.tokenValues;
+        let span: HTMLSpanElement;
+        for (let i = 0; i < tokenTypes.length; i++) {
+            switch (tokenTypes[i]) {
+                case WordType.unknownCodeWord:
+                case WordType.whitespace:
+                    parent.appendChild(document.createTextNode(tokenValues[i]));
+                    break;
+                case WordType.specialCodeSymbol:
+                    span = document.createElement("span");
+                    span.appendChild(document.createTextNode(tokenValues[i]));
+                    span.classList.add("codeSpecialSymbol");
+                    parent.appendChild(span);
+                    break;
+                case WordType.javaKeyword:
+                case WordType.jsKeyword:
+                    span = document.createElement("span");
+                    span.appendChild(document.createTextNode(tokenValues[i]));
+                    span.classList.add("codeKeyword");
+                    parent.appendChild(span);
+                    break;
+                case WordType.functionName:
+                    span = document.createElement("span");
+                    span.appendChild(document.createTextNode(tokenValues[i]));
+                    span.classList.add("codeFunctionName");
+                    parent.appendChild(span);
+                    break;
+                case WordType.codeDoubleQuoteString:
+                case WordType.codeSingleQuoteString:
+                    span = document.createElement("span");
+                    span.appendChild(document.createTextNode(tokenValues[i]));
+                    span.classList.add("codeString");
+                    parent.appendChild(span);
+                    break;
+            }
+        }
     }
 }
