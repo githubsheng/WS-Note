@@ -262,9 +262,9 @@ namespace ContentTransformerNamespace {
                                         break;
                                 }
                             }
-                            convertStyledParagraph(getParent(), cp.value);
+                            convertStyledParagraph(getParent(), cp.tokens);
                         } else {
-                            convertStyledParagraph(getParent(), cp.value);
+                            convertStyledParagraph(getParent(), cp.tokens);
                         }
                     }
                     break;
@@ -290,99 +290,32 @@ namespace ContentTransformerNamespace {
     /**
      * convert components to styled paragraph.
      */
-    function convertStyledParagraph(parent:Node, text:string) {
+    function convertStyledParagraph(parent:Node, tokens: {tokenTypes: WordType[], tokenValues: string[]}) {
 
-        let si = 0; //starting or continue processing from this point
-        let cmi = -1; //code markup index, sample: abc`some code`abc
-        let bmi = -1; //bold markup index, sample: abc~bold text~abc
-        let imi = -1; //italic markup index, sample: abc_italic text_abc
-        let tmi = -1; //tag markup index, sample: abc#tag#abc
+        let targetMarkup: string = undefined;
+        let tokenTypes: WordType[] = tokens.tokenTypes;
+        let tokenValues: string[] = tokens.tokenValues;
+        let buffer: string[] = [];
 
-        for (let i = 0; i < text.length; i++) {
-            let c = text[i];
-            if (c === '`') {
-                if (cmi == -1) {
-                    //if this is the first ` encountered, remember its place
-                    cmi = i;
+        for (let i = 0; i < tokenValues.length; i++) {
+            let c = tokenValues[i];
+            if(tokenTypes[i] === WordType.inlineLevelMarkup) {
+                if(c === targetMarkup) {
+                    let span = document.createElement("span");
+                    parent.appendChild(span);
+                    buffer.shift();
+                    span.appendChild(document.createTextNode(buffer.join("")));
+                    buffer = [];
+                    targetMarkup = undefined;
                 } else {
-                    //i have already found one ` before, so with the current one i can a complete abc`some code` form.
-                    //create a text node for text before the code snippet. in abc`some code` it would be abc.
-                    let tn = document.createTextNode(text.substring(si, cmi));
-                    parent.appendChild(tn);
-                    //create a text node for the code span.
-                    let sp = document.createElement("span");
-                    sp.classList.add("inlineCode");
-                    sp.appendChild(document.createTextNode(text.substring(cmi + 1, i)));
-                    parent.appendChild(sp);
-                    //if i have encountered other markups before, ignore them now. for instance, _aaa`some~code`, the _ and ~
-                    //can now be ignored, cos they didn't manage to form their own complete form in time.
-                    cmi = -1;
-                    bmi = -1;
-                    imi = -1;
-                    tmi = -1;
-                    //if subsequently another code/bold/italic span is found, then the normal unstyled substring
-                    //before that span should start from i+1. that is, it should start from the next character after
-                    //the current span.
-                    si = i + 1;
+                    parent.appendChild(document.createTextNode(buffer.join("")));
+                    targetMarkup = c;
+                    buffer = [c];
                 }
-            } else if (c === '~') {
-                if (bmi == -1) {
-                    bmi = i;
-                } else {
-                    let tn = document.createTextNode(text.substring(si, bmi));
-                    parent.appendChild(tn);
-                    let sp = document.createElement("span");
-                    sp.classList.add("emphasis");
-                    sp.appendChild(document.createTextNode(text.substring(bmi + 1, i)));
-                    parent.appendChild(sp);
-                    cmi = -1;
-                    bmi = -1;
-                    imi = -1;
-                    tmi = -1;
-                    si = i + 1;
-                }
-            } else if (c === '_') {
-                if (imi == -1) {
-                    imi = i;
-                } else {
-                    let tn = document.createTextNode(text.substring(si, imi));
-                    parent.appendChild(tn);
-                    let sp = document.createElement("span");
-                    sp.classList.add("italic");
-                    sp.appendChild(document.createTextNode(text.substring(imi + 1, i)));
-                    parent.appendChild(sp);
-                    cmi = -1;
-                    bmi = -1;
-                    imi = -1;
-                    tmi = -1;
-                    si = i + 1;
-                }
-            } else if (c === '#') {
-                if (tmi == -1) {
-                    tmi = i;
-                } else {
-                    let tn = document.createTextNode(text.substring(si, tmi));
-                    parent.appendChild(tn);
-                    let sp = document.createElement("span");
-                    sp.classList.add("tag");
-                    let tagText = text.substring(tmi + 1, i);
-                    sp.appendChild(document.createTextNode("#" + tagText + "#"));
-                    parent.appendChild(sp);
-                    cmi = -1;
-                    bmi = -1;
-                    imi = -1;
-                    tmi = -1;
-                    si = i + 1;
-                }
+            } else {
+                buffer.push(tokenValues[i]);
             }
         }
 
-        if (si === 0) {
-            //if no pattern has been observed. create a text node for the entire text.
-            parent.appendChild(document.createTextNode(text))
-        } else {
-            //create a text node for the substring after the last code/bold/italic span.
-            parent.appendChild(document.createTextNode(text.substring(si)));
-        }
     }
 }
