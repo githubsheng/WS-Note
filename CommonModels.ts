@@ -23,7 +23,7 @@ enum NoticeLevel {
 }
 
 enum WordType {
-    searchKeyword, normalStopWords,
+    word, stopWord, whitespace, noneWhitespaceDelimiter,
     blockLevelMarkup, inlineLevelMarkup,
     jsKeyword, jsSpecialCodeSymbol, jsFunctionName,
     javaKeyword, javaSpecialCodeSymbol, javaFunctionName
