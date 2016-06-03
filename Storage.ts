@@ -1,4 +1,4 @@
-/// <reference path="Note.ts" />
+/// <reference path="CommonModels.ts" />
 
 namespace StorageNamespace {
 
