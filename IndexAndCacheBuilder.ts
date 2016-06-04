@@ -17,16 +17,22 @@ namespace IndexAndCacheBuilderNamespace {
     let index = getIndex();
 
     function buildIndexForNote(note: Note) {
+        //index the title, this is a bit ugly because KeywordProcessor only takes in Component[]
+        //it does not take a string directly, but note.title is a string, so here I just simply index every word in
+        //note.title directly. no word combination is indexed here in this case. might need to fix this in the future version.
+        let titleWords = note.title.split(" ");
+        titleWords.forEach(function(e) {
+           index.putAsSearchKeyword(e, false, note.id);
+        });
+
+        //index the content
         var tpc = new KeywordProcessor(note.components);
-        while(tpc.hasNext()) {
-            let c = tpc.nextWordCombination();
-            if(c.prevComb !== undefined)
-                index.putAsSearchKeyword(c.prevComb, true, note.id);
-            if(c.cur !== undefined)
-                index.putAsSearchKeyword(c.cur, false, note.id);
-            if(c.nextComb !== undefined)
-                index.putAsSearchKeyword(c.nextComb, false, note.id);
-        }
+        let keyWords = tpc.getKeyWords();
+        keyWords.forEach(function(e){
+            let keyWord = e[0];
+            let reversed = e[1];
+            index.putAsSearchKeyword(keyWord, reversed, note.id);
+        })
     }
 
     function buildCacheForNote(note: Note) {
