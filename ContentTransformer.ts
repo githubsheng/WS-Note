@@ -374,4 +374,24 @@ namespace ContentTransformerNamespace {
             }
         }
     }
+    
+    export function findTags(components: Component[]) {
+        let tags: string[] = [];
+        for(let ci = 0; ci < components.length; ci++) {
+            let tokenValues = components[ci].tokens.tokenValues;
+            let ii = -1;
+            for(let i = 0; i < tokenValues.length; i++) {
+                if(tokenValues[i] === "#") {
+                    if(ii === -1) {
+                        ii = i;
+                    } else {
+                        let tokensInTag = tokenValues.slice(ii + 1, i);//do not need # symbol
+                        tags.push(tokensInTag.join(""));
+                        ii = -1;
+                    }
+                }
+            }
+        }
+        return tags;
+    }
 }

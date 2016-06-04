@@ -14,6 +14,11 @@ interface Component {
     tokens?: {tokenValues: string[], tokenTypes: WordType[]};
 }
 
+interface Tokens {
+    tokenTypes: WordType[];
+    tokenValues: string[];
+}
+
 enum CodeLanguage {
     js, java
 }

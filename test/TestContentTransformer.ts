@@ -19,6 +19,9 @@ namespace TestContentTransformerNamespace {
     import convertToStyledDocumentFragment = ContentTransformerNamespace.convertToStyledDocumentFragment;
     import createCodeEditor = CodeEditorNamespace.createCodeEditor;
     import AppWindow = chrome.app.window.AppWindow;
+    import findTags = ContentTransformerNamespace.findTags;
+    import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
+    import tokenize = TokenizorNamespace.tokenize;
 
     function testConvertToComponentFormat() {
         let codeEditorEle = document.createElement("div");
@@ -89,10 +92,26 @@ namespace TestContentTransformerNamespace {
         });
     }
 
+    function testFindTags(){
+        let compOne:Component = {
+            nodeName: "#text",
+            value: "Hello Word Here is one #hashTag# and #another hashTag#"
+        };
+        compOne.tokens = tokenize(compOne);
+        let compTwo:Component = {
+            nodeName: "#text",
+            value: "Finally a #final tag#"
+        };
+        compTwo.tokens = tokenize(compTwo);
+        let tags = findTags([compOne, compTwo]);
+        arrayShouldBeIdentical(["hashTag", "another hashTag", "final tag"], tags);
+    }
+
     export function runContentTransformerTest(){
         testConvertToComponentFormat();
         testConvertToDocumentFragment();
         testConvertToStyledDocumentFragment();
+        testFindTags();
     }
 
 }
