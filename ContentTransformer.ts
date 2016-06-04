@@ -31,12 +31,12 @@ namespace ContentTransformerNamespace {
 
     let index = getIndex();
 
-    function isBlockLevelMarkup(text: string) {
+    function isBlockLevelMarkup(text:string) {
         //in case we are looking at @header myHeader
-        if(text.startsWith("@header ")) return true;
+        if (text.startsWith("@header ")) return true;
         //except for the above special case, use index.
         let r = index.get(text);
-        if(r === undefined) return false;
+        if (r === undefined) return false;
         return r.wordType === WordType.blockLevelMarkup;
     }
 
@@ -45,7 +45,7 @@ namespace ContentTransformerNamespace {
      * the children of code editor to a list of components. If there are adjacent text nodes, they are normalized (merged).
      */
     export function convertToComponentFormat(codeEditor:Node):Component[] {
-        let normalizedComponents: Component[] = [];
+        let normalizedComponents:Component[] = [];
         for (let i = 0; i < codeEditor.childNodes.length; i++) {
             let node = codeEditor.childNodes[i];
             let cp:Component = {nodeName: node.nodeName.toLowerCase()};
@@ -54,19 +54,19 @@ namespace ContentTransformerNamespace {
             addChildAndNormalize(normalizedComponents, cp);
         }
 
-        let codeLanguage: CodeLanguage;
-        let noticeLevel: NoticeLevel;
+        let codeLanguage:CodeLanguage;
+        let noticeLevel:NoticeLevel;
 
         for (let i = 0; i < normalizedComponents.length; i++) {
             let cp = normalizedComponents[i];
-            if(cp.nodeName !== "#text") continue;
+            if (cp.nodeName !== "#text") continue;
             if (cp.value.startsWith("@") && cp.value !== "@") {
                 //if the component may be a block level markup because it starts with @
                 if ((normalizedComponents[i - 1] === undefined || normalizedComponents[i - 1].nodeName === "br")
                     && (normalizedComponents[i + 1] === undefined || normalizedComponents[i + 1].nodeName === "br")) {
                     //...and it is on its own line
                     //then now I am sure this is a block level markup.
-                    if(isBlockLevelMarkup(cp.value)) {
+                    if (isBlockLevelMarkup(cp.value)) {
                         cp.isBlockLevelMarkup = true;
                         switch (cp.value) {
                             case "@js":
@@ -104,8 +104,8 @@ namespace ContentTransformerNamespace {
             }
 
             //if not block level markup, I will go down here
-            if(codeLanguage !== undefined) cp.codeLanguage = codeLanguage;
-            if(noticeLevel !== undefined) cp.noticeLevel = noticeLevel;
+            if (codeLanguage !== undefined) cp.codeLanguage = codeLanguage;
+            if (noticeLevel !== undefined) cp.noticeLevel = noticeLevel;
 
             cp.tokens = tokenize(cp);
         }
@@ -181,7 +181,7 @@ namespace ContentTransformerNamespace {
             let cp = components[i];
             switch (cp.nodeName) {
                 case textNodeName:
-                    if(cp.isBlockLevelMarkup) {
+                    if (cp.isBlockLevelMarkup) {
                         if (cp.value.startsWith("@header ")) {
                             /**
                              * previous line text <br>
@@ -234,11 +234,11 @@ namespace ContentTransformerNamespace {
                             continue;
                         }
                     } else {
-                        if(cp.codeLanguage !== undefined) {
-                            if(styledContainer === undefined) {
+                        if (cp.codeLanguage !== undefined) {
+                            if (styledContainer === undefined) {
                                 styledContainer = document.createElement("div");
                                 frag.appendChild(styledContainer);
-                                switch(cp.codeLanguage) {
+                                switch (cp.codeLanguage) {
                                     case CodeLanguage.java:
                                         styledContainer.classList.add("java");
                                         break;
@@ -250,10 +250,10 @@ namespace ContentTransformerNamespace {
                             parseCode(getParent(), cp.tokens);
 
                         } else if (cp.noticeLevel !== undefined) {
-                            if(styledContainer === undefined) {
+                            if (styledContainer === undefined) {
                                 styledContainer = document.createElement("div");
                                 frag.appendChild(styledContainer);
-                                switch(cp.noticeLevel) {
+                                switch (cp.noticeLevel) {
                                     case NoticeLevel.important:
                                         styledContainer.classList.add("important");
                                         break;
@@ -290,17 +290,17 @@ namespace ContentTransformerNamespace {
     /**
      * convert components to styled paragraph.
      */
-    function convertStyledParagraph(parent:Node, tokens: {tokenTypes: WordType[], tokenValues: string[]}) {
+    function convertStyledParagraph(parent:Node, tokens:{tokenTypes:WordType[], tokenValues:string[]}) {
 
-        let targetMarkup: string = undefined;
-        let tokenTypes: WordType[] = tokens.tokenTypes;
-        let tokenValues: string[] = tokens.tokenValues;
-        let buffer: string[] = [];
+        let targetMarkup:string = undefined;
+        let tokenTypes:WordType[] = tokens.tokenTypes;
+        let tokenValues:string[] = tokens.tokenValues;
+        let buffer:string[] = [];
 
         for (let i = 0; i < tokenValues.length; i++) {
             let c = tokenValues[i];
-            if(tokenTypes[i] === WordType.inlineLevelMarkup) {
-                if(c === targetMarkup) {
+            if (tokenTypes[i] === WordType.inlineLevelMarkup) {
+                if (c === targetMarkup) {
                     let span = document.createElement("span");
                     switch (c) {
                         case "`":
@@ -335,10 +335,10 @@ namespace ContentTransformerNamespace {
         parent.appendChild(document.createTextNode(buffer.join("")));
     }
 
-    function parseCode(parent:Node, tokens: {tokenTypes: WordType[], tokenValues: string[]}) {
-        let tokenTypes: WordType[] = tokens.tokenTypes;
-        let tokenValues: string[] = tokens.tokenValues;
-        let span: HTMLSpanElement;
+    function parseCode(parent:Node, tokens:{tokenTypes:WordType[], tokenValues:string[]}) {
+        let tokenTypes:WordType[] = tokens.tokenTypes;
+        let tokenValues:string[] = tokens.tokenValues;
+        let span:HTMLSpanElement;
         for (let i = 0; i < tokenTypes.length; i++) {
             switch (tokenTypes[i]) {
                 case WordType.unknownCodeWord:
@@ -374,24 +374,37 @@ namespace ContentTransformerNamespace {
             }
         }
     }
-    
-    export function findTags(components: Component[]) {
-        let tags: string[] = [];
-        for(let ci = 0; ci < components.length; ci++) {
+
+    function findPairs(components:Component[], pairIdentifier:string) {
+        let pairs:string[] = [];
+        for (let ci = 0; ci < components.length; ci++) {
             let tokenValues = components[ci].tokens.tokenValues;
             let ii = -1;
-            for(let i = 0; i < tokenValues.length; i++) {
-                if(tokenValues[i] === "#") {
-                    if(ii === -1) {
+            for (let i = 0; i < tokenValues.length; i++) {
+                if (tokenValues[i] === pairIdentifier) {
+                    if (ii === -1) {
                         ii = i;
                     } else {
-                        let tokensInTag = tokenValues.slice(ii + 1, i);//do not need # symbol
-                        tags.push(tokensInTag.join(""));
+                        let tokensInTag = tokenValues.slice(ii + 1, i);//do not need identifier
+                        pairs.push(tokensInTag.join(""));
                         ii = -1;
                     }
                 }
             }
         }
-        return tags;
+        return pairs;
+    }
+
+    export function findTags(components:Component[]) {
+        return findPairs(components, "#");
+    }
+
+    export function findReferences(components:Component[]): number[] {
+        return findPairs(components, "`")
+            .filter(function (e:string) {
+                return e.startsWith("note-ref:") && !Number.isNaN(+(e.substring(9)));
+            }).map(function (e:string): number {
+                return +(e.substring(9));
+            })
     }
 }

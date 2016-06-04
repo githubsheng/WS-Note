@@ -22,6 +22,7 @@ namespace TestContentTransformerNamespace {
     import findTags = ContentTransformerNamespace.findTags;
     import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
     import tokenize = TokenizorNamespace.tokenize;
+    import findReferences = ContentTransformerNamespace.findReferences;
 
     function testConvertToComponentFormat() {
         let codeEditorEle = document.createElement("div");
@@ -92,7 +93,7 @@ namespace TestContentTransformerNamespace {
         });
     }
 
-    function testFindTags(){
+    function createComponentsForTagsReferencesTest(): Component[]{
         let compOne:Component = {
             nodeName: "#text",
             value: "Hello Word Here is one #hashTag# and #another hashTag#"
@@ -100,11 +101,20 @@ namespace TestContentTransformerNamespace {
         compOne.tokens = tokenize(compOne);
         let compTwo:Component = {
             nodeName: "#text",
-            value: "Finally a #final tag#"
+            value: "Finally a #final tag#. References: \n `note-ref:2` \n `note-ref:3`"
         };
         compTwo.tokens = tokenize(compTwo);
-        let tags = findTags([compOne, compTwo]);
+        return [compOne, compTwo];
+    }
+
+    function testFindTags(){
+        let tags = findTags(createComponentsForTagsReferencesTest());
         arrayShouldBeIdentical(["hashTag", "another hashTag", "final tag"], tags);
+    }
+    
+    function testFindReferences(){
+        let references = findReferences(createComponentsForTagsReferencesTest());
+        arrayShouldBeIdentical([2, 3], references);
     }
 
     export function runContentTransformerTest(){
@@ -112,6 +122,7 @@ namespace TestContentTransformerNamespace {
         testConvertToDocumentFragment();
         testConvertToStyledDocumentFragment();
         testFindTags();
+        testFindReferences();
     }
 
 }
