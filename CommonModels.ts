@@ -23,10 +23,8 @@ enum NoticeLevel {
 }
 
 enum WordType {
-    word, stopWord, whitespace, noneWhitespaceDelimiter,
-    unknownCodeWord, specialCodeSymbol, functionName, codeSingleQuoteString, codeDoubleQuoteString,
-    jsKeyword, javaKeyword,
-    blockLevelMarkup, inlineLevelMarkup
+    word, stopWord, whitespace, blockLevelMarkup, inlineLevelMarkup, unknownDelimiter,
+    specialCodeSymbol, functionName, codeSingleQuoteString, codeDoubleQuoteString, jsKeyword, javaKeyword, unknownCodeWord
 }
 
 class Note {
