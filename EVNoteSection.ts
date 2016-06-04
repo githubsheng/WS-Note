@@ -23,14 +23,16 @@ namespace EVNoteSectionNamespace {
     import setTagsForNote = TagsCacheNamespace.setTagsForNote;
     import addReference = ReferenceCacheNamespace.addReference;
     import r = Utility.r;
+    import convertToStyledDocumentFragment = ContentTransformerNamespace.convertToStyledDocumentFragment;
 
     let index = getIndex();
 
     let note: Note;
 
     let codeEditor = createCodeEditor();
-    let bodyFrag = document.createDocumentFragment();
-    bodyFrag.appendChild(codeEditor.containerEle);
+
+    let noteViewerEle = document.createElement("div");
+    noteViewerEle.classList.add("noteViewer");
 
     let viewButton = document.createElement("button");
     viewButton.appendChild(document.createTextNode("View"));
@@ -42,7 +44,20 @@ namespace EVNoteSectionNamespace {
         setCommandButtons(commandButtons);
         note = new Note(Date.now(), Date.now());
         codeEditor.setValue([]);
-        setBody(bodyFrag);
+        setBody(codeEditor.containerEle);
+    }
+    
+    function* editNote(){
+        codeEditor.setValue(note.components);
+        setBody(codeEditor.containerEle);
+    }
+
+    function* viewNote() {
+        let domFrag = yield* convertToStyledDocumentFragment(note.components);
+        while(noteViewerEle.firstChild)
+            noteViewerEle.removeChild(noteViewerEle.firstChild);
+        noteViewerEle.appendChild(domFrag);
+        setBody(noteViewerEle);
     }
 
     function removeNoteContentFromIndexAndCache(){
@@ -94,6 +109,8 @@ namespace EVNoteSectionNamespace {
             addReference(referenceId, note.id);
         });
     }
+
+
 
     function* deleteNote(): IterableIterator<any> {
         //remove it from db
