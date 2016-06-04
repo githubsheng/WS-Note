@@ -45,26 +45,28 @@ namespace EVNoteSectionNamespace {
         setBody(bodyFrag);
     }
 
-    function* storeNote(): IterableIterator<any> {
-        if(note.id) {
-            //if not a new note, first remove all search key words from pre-modified content
-            let titleWords = note.title.split(" ");
-            titleWords.forEach(function(e) {
-                index.remove(e, false, note.id);
-            });
-            let tpc = new KeywordProcessor(note.components);
-            let kws = tpc.getKeyWords();
-            for(let i = 0; i < kws.length; i++) {
-                index.remove(kws[i][0], kws[i][1], note.id);
-            }
-            //if not a new note, remove related tags in tag cache
-            //previous related tags are override later when tags from new content gets set
-
-            //if not a new note, remove related references in reference cache
-            note.references.forEach(function(referenceId: number){
-                removeReference(referenceId, note.id);
-            });
+    function removeNoteContentFromIndexAndCache(){
+        //if not a new note, first remove all search key words from pre-modified content
+        let titleWords = note.title.split(" ");
+        titleWords.forEach(function(e) {
+            index.remove(e, false, note.id);
+        });
+        let tpc = new KeywordProcessor(note.components);
+        let kws = tpc.getKeyWords();
+        for(let i = 0; i < kws.length; i++) {
+            index.remove(kws[i][0], kws[i][1], note.id);
         }
+        //if not a new note, remove related tags in tag cache
+        setTagsForNote(note.id, []);
+
+        //if not a new note, remove related references in reference cache
+        note.references.forEach(function(referenceId: number){
+            removeReference(referenceId, note.id);
+        });
+    }
+
+    function* storeNote(): IterableIterator<any> {
+        if(note.id) removeNoteContentFromIndexAndCache();
         //convert the new content to component list and set the components in note
         let components:Component[] = convertToComponentFormat(codeEditor.containerEle);
         note.components = components;
@@ -93,6 +95,14 @@ namespace EVNoteSectionNamespace {
         });
     }
 
+    function* deleteNote(): IterableIterator<any> {
+        //remove it from db
+        let idb: IDBDatabase = yield getIDB();
+        yield StorageNamespace.deleteNote(idb, note.id);
+        removeNoteContentFromIndexAndCache();
+        note = undefined;
+    }
+
     //todo: if performance is ok, auto save the note at an interval
 
     //todo: implement save button
@@ -103,14 +113,7 @@ namespace EVNoteSectionNamespace {
         //todo: show view note section (set command buttons, set body)
     };
 
-    function deleteNote() {
-        //todo: remove it from db
-        //todo: remove all search key words from pre-modified content
-        //todo: remove all related tags in tag cache
-        //todo: remove all reference relationship that come from pre-modified content
-        //todo: set `note` to undefined
-        //todo: set `savedComponents` to undefined
-    }
+
 
     //todo: implement delete button
     deleteButton.onclick = function(){
