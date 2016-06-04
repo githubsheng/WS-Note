@@ -1,6 +1,6 @@
 namespace Utility {
 
-    export function runGenerator(genFunc:() => IterableIterator<any>) {
+    export function runGenerator(genFunc:(param?: any) => IterableIterator<any>, param?: any) {
 
         let iterator = genFunc();
         let result:IteratorResult<any>;
@@ -21,7 +21,7 @@ namespace Utility {
             throw new Error("promise is rejected");
         }
 
-        iterate();
+        iterate(param);
     }
 
     export let r = runGenerator;
