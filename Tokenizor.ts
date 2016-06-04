@@ -38,7 +38,7 @@ namespace TokenizorNamespace {
         if(isazAZ(cc) || isNumber(cc)) return WordType.word;
         if(isWhiteSpace(cc)) return WordType.whitespace;
         if(isInlineLevelMarkup(cc)) return WordType.inlineLevelMarkup;
-        return WordType.noneWhitespaceDelimiter;
+        return WordType.unknownDelimiter;
     }
 
     function detectStopWord(token: string, tokenType: WordType): boolean {
