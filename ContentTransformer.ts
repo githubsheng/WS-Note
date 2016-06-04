@@ -309,8 +309,11 @@ namespace ContentTransformerNamespace {
                         case "~":
                             span.classList.add("emphasis");
                             break;
-                        case "italic":
+                        case "_":
                             span.classList.add("italic");
+                            break;
+                        case "#":
+                            span.classList.add("tag");
                             break;
                         default:
                             break;
