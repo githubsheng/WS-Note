@@ -72,58 +72,27 @@ namespace TestContentTransformerNamespace {
         });
     }
 
-    // function testConvertToStyledDocumentFragment(){
-    //     let codeEditor, viewerWindow;
-    //
-    //     function parse(){
-    //         let components = codeEditor.getValue();
-    //         viewerWindow.postMessage(components, "*");
-    //     }
-    //
-    //     r(function*(){
-    //         let testContainer = document.createElement("div");
-    //         testContainer.appendChild(document.createTextNode("parse content test"));
-    //
-    //         let idb = yield getIDB();
-    //         codeEditor = createCodeEditor(idb);
-    //         codeEditor.setValueChangeListener(parse);
-    //         testContainer.appendChild(codeEditor.containerEle);
-    //
-    //         var toggleImageInsertButton = document.createElement("button");
-    //         toggleImageInsertButton.innerText = "Insert Images";
-    //         toggleImageInsertButton.onclick = function(){
-    //             codeEditor.startInsertingImg();
-    //         };
-    //         testContainer.appendChild(toggleImageInsertButton);
-    //
-    //         let openViewerButton = document.createElement("button");
-    //         openViewerButton.appendChild(document.createTextNode("Open Viewer"));
-    //
-    //         openViewerButton.onclick = function(){
-    //             if(chrome && chrome.app && chrome.app.window) {
-    //                 if(viewerWindow) viewerWindow.close();
-    //                 chrome.app.window.create('test/html/viewer.html', {
-    //                     'bounds': {
-    //                         'width': 400,
-    //                         'height': 400
-    //                     }
-    //                 }, function(appWindow: AppWindow) {
-    //                     viewerWindow = appWindow.contentWindow;
-    //                 });
-    //             } else {
-    //                 viewerWindow = window.open("viewer.html");
-    //             }
-    //         };
-    //         testContainer.appendChild(openViewerButton);
-    //
-    //         document.body.appendChild(testContainer);
-    //     })
-    // }
+    function testConvertToStyledDocumentFragment(){
+        r(function*(){
+            let idb = yield getIDB();
+            let imgId = yield* storeTestImage(idb);
+
+            let components = createDummyComponents(imgId);
+            let domFrag:DocumentFragment = yield* convertToStyledDocumentFragment(components);
+
+            shouldBeEqual(domFrag.querySelectorAll(".codeSpecialSymbol").length, 8);
+            shouldBeEqual(domFrag.querySelectorAll(".codeFunctionName").length, 2);
+            shouldBeEqual(domFrag.querySelectorAll(".codeKeyword").length, 1);
+            shouldBeEqual(domFrag.querySelectorAll(".inlineCode").length, 1);
+            shouldBeEqual(domFrag.querySelectorAll("hr").length, 1);
+            shouldBeEqual(domFrag.querySelectorAll("img").length, 1);
+        });
+    }
 
     export function runContentTransformerTest(){
         testConvertToComponentFormat();
         testConvertToDocumentFragment();
-        // testConvertToStyledDocumentFragment();
+        testConvertToStyledDocumentFragment();
     }
 
 }
