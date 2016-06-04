@@ -234,9 +234,10 @@ namespace ContentTransformerNamespace {
                             continue;
                         }
                     } else {
-                        if(cp.codeLanguage) {
+                        if(cp.codeLanguage !== undefined) {
                             if(styledContainer === undefined) {
                                 styledContainer = document.createElement("div");
+                                frag.appendChild(styledContainer);
                                 switch(cp.codeLanguage) {
                                     case CodeLanguage.java:
                                         styledContainer.classList.add("java");
@@ -248,9 +249,10 @@ namespace ContentTransformerNamespace {
                             }
                             parseCode(getParent(), cp.tokens);
 
-                        } else if (cp.noticeLevel) {
+                        } else if (cp.noticeLevel !== undefined) {
                             if(styledContainer === undefined) {
                                 styledContainer = document.createElement("div");
+                                frag.appendChild(styledContainer);
                                 switch(cp.noticeLevel) {
                                     case NoticeLevel.important:
                                         styledContainer.classList.add("important");
@@ -300,6 +302,19 @@ namespace ContentTransformerNamespace {
             if(tokenTypes[i] === WordType.inlineLevelMarkup) {
                 if(c === targetMarkup) {
                     let span = document.createElement("span");
+                    switch (c) {
+                        case "`":
+                            span.classList.add("inlineCode");
+                            break;
+                        case "~":
+                            span.classList.add("emphasis");
+                            break;
+                        case "italic":
+                            span.classList.add("italic");
+                            break;
+                        default:
+                            break;
+                    }
                     parent.appendChild(span);
                     buffer.shift();
                     span.appendChild(document.createTextNode(buffer.join("")));
@@ -314,7 +329,7 @@ namespace ContentTransformerNamespace {
                 buffer.push(tokenValues[i]);
             }
         }
-
+        parent.appendChild(document.createTextNode(buffer.join("")));
     }
 
     function parseCode(parent:Node, tokens: {tokenTypes: WordType[], tokenValues: string[]}) {
