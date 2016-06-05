@@ -3,7 +3,7 @@
 
 namespace CodeEditorNamespace {
 
-    import convertToStorageFormat = ContentTransformerNamespace.convertToComponentFormat;
+    import convertToComponentFormat = ContentTransformerNamespace.convertToComponentFormat;
     import createCanvasBasedOnImageData = Utility.createCanvasBasedOnImageData;
     import r = Utility.r;
     import convertToDocumentFragment = ContentTransformerNamespace.convertToDocumentFragment;
@@ -163,7 +163,7 @@ namespace CodeEditorNamespace {
         };
 
         function getValue(): Component[] {
-            return convertToStorageFormat(codeEditorEle);
+            return convertToComponentFormat(codeEditorEle);
         }
 
         function setValue(components: Component[]): void {
