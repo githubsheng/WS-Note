@@ -180,7 +180,7 @@ namespace EVNoteSectionNamespace {
         r(function*(){
             let idb: IDBDatabase = yield getIDB();
             note = yield StorageNamespace.getNote(idb, noteId);
-            yield viewNote();
+            yield* viewNote();
         });
     });
 
@@ -201,8 +201,8 @@ namespace EVNoteSectionNamespace {
             closePreviewWindow();
             setCommandButtons(viewNoteCommandButtons);
             r(function*(){
-                yield storeNote();
-                yield viewNote()
+                yield* storeNote();
+                yield* viewNote()
             });
         }
     };
