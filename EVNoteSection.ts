@@ -49,18 +49,21 @@ namespace EVNoteSectionNamespace {
 
     let previewWindow: Window;
     let viewButtonPressedWhen: number = -1;
+    let idOfAutoSaveInterval: number;
 
     function createNewNote(){
         setCommandButtons(editNoteCommandButtons);
         note = new Note(Date.now(), Date.now());
         codeEditor.setValue([]);
         setBody(codeEditor.containerEle);
+        startAutoSaveInterval();
     }
     
     function* editNote(){
         setCommandButtons(editNoteCommandButtons);
         codeEditor.setValue(note.components);
         setBody(codeEditor.containerEle);
+        startAutoSaveInterval();
     }
 
     function* viewNote() {
@@ -155,18 +158,20 @@ namespace EVNoteSectionNamespace {
         isContentChanged = true;
     });
 
-    let ii = window.setInterval(function(){
-        if(isContentChanged) {
-            r(function*(){
-                isContentChanged = false;
-                yield storeNote();
-            });
-        }
-    }, 500);
+    function startAutoSaveInterval(){
+        idOfAutoSaveInterval = window.setInterval(function(){
+            if(isContentChanged) {
+                r(function*(){
+                    isContentChanged = false;
+                    yield* storeNote();
+                });
+            }
+        }, 500);
+    }
 
     register(AppEvent.resultsPage, () => {
         closePreviewWindow();
-        window.clearInterval(ii)
+        window.clearInterval(idOfAutoSaveInterval)
     });
 
     register(AppEvent.createNewNote, createNewNote);
