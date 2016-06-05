@@ -104,7 +104,10 @@ namespace TestContentTransformerNamespace {
             value: "Finally a #final tag#. References: \n `note-ref:2` \n `note-ref:3`"
         };
         compTwo.tokens = tokenize(compTwo);
-        return [compOne, compTwo];
+        let compThree: Component = {
+            nodeName: "br"
+        };
+        return [compOne, compTwo, compThree];
     }
 
     function testFindTags(){
