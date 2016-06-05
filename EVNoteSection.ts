@@ -194,6 +194,7 @@ namespace EVNoteSectionNamespace {
             openPreviewWindow();
         } else {
             closePreviewWindow();
+            setCommandButtons(viewNoteCommandButtons);
             r(function*(){
                 yield storeNote();
                 yield viewNote()
