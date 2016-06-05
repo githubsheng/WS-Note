@@ -34,8 +34,8 @@ namespace StorageNamespace {
                 //when the callback is invoked, database is available as IDBOpenDBRequest.result
                 let idb: IDBDatabase = request.result;
                 if (idb.objectStoreNames.contains(noteStoreName)) idb.deleteObjectStore(noteStoreName);
-                let noteStore:IDBObjectStore = idb.createObjectStore(noteStoreName, {keyPath: 'id', autoIncrement: true});
-                noteStore.createIndex('url', 'url', {unique: true, multiEntry: false});
+                idb.createObjectStore(noteStoreName, {keyPath: 'id', autoIncrement: true});
+                if (idb.objectStoreNames.contains(imageStoreName)) idb.deleteObjectStore(imageStoreName);
                 idb.createObjectStore(imageStoreName, {autoIncrement: true});
             };
         }
