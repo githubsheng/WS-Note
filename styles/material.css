@@ -80,6 +80,8 @@ button:hover {
     left: 5px;
     top: 40px;
     min-width: 200px;
+    z-index: 2;
+    box-shadow: 1px 2px 5px 0 darkgray;
 }
 
 #autoCompletionList .item {
