@@ -43,7 +43,7 @@ namespace EVNoteSectionNamespace {
     let deleteButton = document.createElement("button");
     deleteButton.appendChild(document.createTextNode("Delete"));
     let editButton = document.createElement("button");
-    viewButton.appendChild(document.createTextNode("Edit"));
+    editButton.appendChild(document.createTextNode("Edit"));
     let editNoteCommandButtons = [viewButton, deleteButton];
     let viewNoteCommandButtons = [editButton, deleteButton];
 
@@ -182,7 +182,7 @@ namespace EVNoteSectionNamespace {
     editButton.onclick = function(){
         r(editNote);
     };
-    
+
     viewButton.onmousedown = function(){
         viewButtonPressedWhen = Date.now();
     };
