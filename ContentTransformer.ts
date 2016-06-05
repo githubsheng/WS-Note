@@ -378,6 +378,7 @@ namespace ContentTransformerNamespace {
     function findPairs(components:Component[], pairIdentifier:string) {
         let pairs:string[] = [];
         for (let ci = 0; ci < components.length; ci++) {
+            if(components[ci].nodeName !== "#text") continue;
             let tokenValues = components[ci].tokens.tokenValues;
             let ii = -1;
             for (let i = 0; i < tokenValues.length; i++) {
