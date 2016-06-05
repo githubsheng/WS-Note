@@ -29,7 +29,7 @@ namespace AppNamespace {
     r(function*(){
         yield* buildIndexAndCache();
         document.body.removeChild(document.querySelector("#appLogo"));
-        broadcast(AppEvent.setBlankResultsPage);
+        broadcast(AppEvent.resultsPage);
     });
 
     var index = IndexNamespace.getIndex();
