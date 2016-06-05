@@ -85,6 +85,7 @@ button:hover {
 }
 
 #autoCompletionList .item {
+    background: white;
     padding: 8px 10px;
     border-bottom: 1px solid lightgray;
     border-left: 1px solid lightgray;
