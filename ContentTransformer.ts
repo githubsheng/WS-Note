@@ -378,20 +378,22 @@ namespace ContentTransformerNamespace {
     function findPairs(components:Component[], pairIdentifier:string) {
         let pairs:string[] = [];
         for (let ci = 0; ci < components.length; ci++) {
-            if(components[ci].nodeName !== "#text") continue;
-            let tokenValues = components[ci].tokens.tokenValues;
-            let ii = -1;
-            for (let i = 0; i < tokenValues.length; i++) {
-                if (tokenValues[i] === pairIdentifier) {
-                    if (ii === -1) {
-                        ii = i;
-                    } else {
-                        let tokensInTag = tokenValues.slice(ii + 1, i);//do not need identifier
-                        pairs.push(tokensInTag.join(""));
-                        ii = -1;
+            if(components[ci].tokens){
+                let tokenValues = components[ci].tokens.tokenValues;
+                let ii = -1;
+                for (let i = 0; i < tokenValues.length; i++) {
+                    if (tokenValues[i] === pairIdentifier) {
+                        if (ii === -1) {
+                            ii = i;
+                        } else {
+                            let tokensInTag = tokenValues.slice(ii + 1, i);//do not need identifier
+                            pairs.push(tokensInTag.join(""));
+                            ii = -1;
+                        }
                     }
                 }
             }
+
         }
         return pairs;
     }
