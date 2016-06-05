@@ -5,6 +5,7 @@
 ///<reference path="TextProcessor.ts"/>
 ///<reference path="ReferenceCache.ts"/>
 ///<reference path="TagsCache.ts"/>
+///<reference path="typings/chrome/chrome-app.d.ts"/>
 
 namespace EVNoteSectionNamespace {
     
@@ -24,6 +25,9 @@ namespace EVNoteSectionNamespace {
     import addReference = ReferenceCacheNamespace.addReference;
     import r = Utility.r;
     import convertToStyledDocumentFragment = ContentTransformerNamespace.convertToStyledDocumentFragment;
+    import getNote = StorageNamespace.getNote;
+    import broadcast = AppEventsNamespace.broadcast;
+    import AppWindow = chrome.app.window.AppWindow;
 
     let index = getIndex();
 
@@ -38,21 +42,29 @@ namespace EVNoteSectionNamespace {
     viewButton.appendChild(document.createTextNode("View"));
     let deleteButton = document.createElement("button");
     deleteButton.appendChild(document.createTextNode("Delete"));
-    let commandButtons = [viewButton, deleteButton];
+    let editButton = document.createElement("button");
+    viewButton.appendChild(document.createTextNode("Edit"));
+    let editNoteCommandButtons = [viewButton, deleteButton];
+    let viewNoteCommandButtons = [editButton, deleteButton];
+
+    let previewWindow: Window;
+    let viewButtonPressedWhen: number = -1;
 
     function createNewNote(){
-        setCommandButtons(commandButtons);
+        setCommandButtons(editNoteCommandButtons);
         note = new Note(Date.now(), Date.now());
         codeEditor.setValue([]);
         setBody(codeEditor.containerEle);
     }
     
     function* editNote(){
+        setCommandButtons(editNoteCommandButtons);
         codeEditor.setValue(note.components);
         setBody(codeEditor.containerEle);
     }
 
     function* viewNote() {
+        setCommandButtons(viewNoteCommandButtons);
         let domFrag = yield* convertToStyledDocumentFragment(note.components);
         while(noteViewerEle.firstChild)
             noteViewerEle.removeChild(noteViewerEle.firstChild);
@@ -110,8 +122,6 @@ namespace EVNoteSectionNamespace {
         });
     }
 
-
-
     function* deleteNote(): IterableIterator<any> {
         //remove it from db
         let idb: IDBDatabase = yield getIDB();
@@ -120,28 +130,83 @@ namespace EVNoteSectionNamespace {
         note = undefined;
     }
 
-    //todo: if performance is ok, auto save the note at an interval
+    function closePreviewWindow(){
+        if(previewWindow) previewWindow.close();
+    }
 
-    //todo: implement save button
-    viewButton.onclick = function(){
-        r(storeNote);
-        //todo: close preview window if there is one
-        //todo: convert the component list to styled note
-        //todo: show view note section (set command buttons, set body)
+    function openPreviewWindow(){
+        if(chrome && chrome.app && chrome.app.window) {
+            closePreviewWindow();
+            chrome.app.window.create('test/html/viewer.html', {
+                'bounds': {
+                    'width': 400,
+                    'height': 400
+                }
+            }, function(appWindow: AppWindow) {
+                previewWindow = appWindow.contentWindow;
+            });
+        } else {
+            previewWindow = window.open("viewer.html");
+        }
+    }
+
+    let isContentChanged = false;
+    codeEditor.setValueChangeListener(function(){
+        isContentChanged = true;
+    });
+
+    let ii = window.setInterval(function(){
+        if(isContentChanged) {
+            r(function*(){
+                isContentChanged = false;
+                yield storeNote();
+            });
+        }
+    }, 500);
+
+    register(AppEvent.resultsPage, () => {
+        closePreviewWindow();
+        window.clearInterval(ii)
+    });
+
+    register(AppEvent.createNewNote, createNewNote);
+
+    register(AppEvent.viewNote, function(noteId: number){
+        r(function*(){
+            let idb: IDBDatabase = yield getIDB();
+            note = yield StorageNamespace.getNote(idb, noteId);
+            yield viewNote();
+        });
+    });
+
+    editButton.onclick = function(){
+        r(editNote);
+    };
+    
+    viewButton.onmousedown = function(){
+        viewButtonPressedWhen = Date.now();
     };
 
-
+    viewButton.onmouseup = function(){
+        let viewButtonReleasedWhen = Date.now();
+        if(viewButtonReleasedWhen - viewButtonPressedWhen > 1000) {
+            //this is a long press
+            openPreviewWindow();
+        } else {
+            closePreviewWindow();
+            r(function*(){
+                yield storeNote();
+                yield viewNote()
+            });
+        }
+    };
 
     //todo: implement delete button
     deleteButton.onclick = function(){
         //todo: show confirm dialog
         deleteNote();
-        //todo: go back to blank search result page.
+        broadcast(AppEvent.resultsPage);
     };
-
-
-
-    register(AppEvent.createNewNote, createNewNote);
 
     //this seemly awkward useless function is called by App.ts to ensure that this search results section module is created first
     export function init(){}
