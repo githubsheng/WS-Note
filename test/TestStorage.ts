@@ -6,7 +6,7 @@
 namespace TestStorageNamespace {
 
     import getIDB = StorageNamespace.getIDB;
-    import iterateAllNotes = StorageNamespace.iterateAllNotes;
+    import iterateAllNotes = StorageNamespace.iterateNotes;
     import getNote = StorageNamespace.getNote;
     import storeNote = StorageNamespace.storeNote;
     import deleteNote = StorageNamespace.deleteNote;

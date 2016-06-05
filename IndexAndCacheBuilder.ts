@@ -6,7 +6,7 @@
 
 namespace IndexAndCacheBuilderNamespace {
 
-    import iterateAllNotes = StorageNamespace.iterateAllNotes;
+    import iterateNotes = StorageNamespace.iterateNotes;
     import getIDB = StorageNamespace.getIDB;
     import KeywordProcessor = IndexNamespace.KeywordProcessor;
     import getIndex = IndexNamespace.getIndex;
@@ -50,7 +50,7 @@ namespace IndexAndCacheBuilderNamespace {
 
     export function* buildIndexAndCache(): IterableIterator<any> {
         let idb: IDBDatabase = yield getIDB();
-        yield iterateAllNotes(idb, buildIndexAndCacheForNote);
+        yield iterateNotes(idb, buildIndexAndCacheForNote);
     }
 
 }

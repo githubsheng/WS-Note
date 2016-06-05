@@ -42,14 +42,14 @@ namespace StorageNamespace {
         return idb === undefined ? new Promise<IDBDatabase>(promiseFunc) : Promise.resolve(idb);
     }
 
-    export function iterateAllNotes(idb: IDBDatabase, noteProcessor: (note: Note) => any): Promise<void> {
+    export function iterateNotes(idb: IDBDatabase, noteProcessor: (note: Note) => any, range?: IDBKeyRange): Promise<void> {
         function promiseFunc(resolve){
             //begin a transaction
             let transaction: IDBTransaction = idb.transaction(noteStoreName, "readonly");
             //a transaction's scope can be over multiple object stores, here i need to select one store from the scope.
             let objectStore: IDBObjectStore = transaction.objectStore(noteStoreName);
             //open a cursor to iterate all records in this object store
-            let request: IDBRequest = objectStore.openCursor();
+            let request: IDBRequest = objectStore.openCursor(range);
             //each time the cursor moves this callback is invoked
             request.onsuccess = function() {
                 //the cursor is available as IDBRequest.result
@@ -58,7 +58,6 @@ namespace StorageNamespace {
                     //the data the cursor points to is available as IDBCursorWithValue.value
                     //here i invoke the passed in function to do something with the data.
                     noteProcessor(cursor.value);
-                    //tell the cursor to move on.
                     cursor.continue();
                 } else {
                     //no more records, fulfill the promise.
