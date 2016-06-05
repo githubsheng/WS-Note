@@ -35,7 +35,7 @@ enum WordType {
 class Note {
 
     public id:number;
-    public title: string;
+    public title: string = "";
     public content: string;
     public createdWhen: number;
     public modifiedWhen: number;
