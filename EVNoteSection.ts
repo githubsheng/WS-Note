@@ -14,7 +14,6 @@ namespace EVNoteSectionNamespace {
     import AppEvent = AppEventsNamespace.AppEvent;
     import setCommandButtons = CommandsSectionNamespace.setCommandButtons;
     import setBody = BodySectionNamespace.setBody;
-    import convertToComponentFormat = ContentTransformerNamespace.convertToComponentFormat;
     import findTags = ContentTransformerNamespace.findTags;
     import findReferences = ContentTransformerNamespace.findReferences;
     import getIDB = StorageNamespace.getIDB;
@@ -98,7 +97,7 @@ namespace EVNoteSectionNamespace {
     function* storeNote(): IterableIterator<any> {
         if(note.id) removeNoteContentFromIndexAndCache();
         //convert the new content to component list and set the components in note
-        let components:Component[] = convertToComponentFormat(codeEditor.containerEle);
+        let components:Component[] = codeEditor.getValue();
         note.components = components;
         //find and set new tags in note
         note.tags = findTags(components);
