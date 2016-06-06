@@ -58,8 +58,6 @@ namespace TestDigestNamespace {
         shouldBeEqual(generatedNodes[4].nodeValue, " copy that contains copies of the same ");
         shouldBeEqual(generatedNodes[5].firstChild.nodeValue, "elements");
         shouldBeEqual(generatedNodes[6].nodeValue, " combined from the...");
-
-        document.body.appendChild(frag);
     }
 
 
