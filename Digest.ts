@@ -2,7 +2,7 @@
 
 namespace DigestNamespace {
 
-    function findSmallestPartThatCoveringKeyWordSet(paragraph: string[], keyWords: Set<string>): string[]{
+    function findSmallestPartThatCoveringKeyWordSet(paragraph: string[], keyWords: Set<string>){
         let keywordsToCount: Map<string, number> = new Map();
         let left = 0, right = 0;
         let start= -1, end = -1;
@@ -41,7 +41,7 @@ namespace DigestNamespace {
                 ++left;
             }
         }
-        return paragraph.slice(start, end + 1);
+        return {start: start, end: end};
     }
 
     function findSegmentsBetweenKeyWords(digest: string[], keyWords: Set<string>): string[][] {
@@ -116,16 +116,38 @@ namespace DigestNamespace {
         return tokenSegmentLengths;
     }
 
+    function createContentBeforeSmallestPartCoveringAllKeyWords(para: string[], startOfSmallestPartCoveringAllKeyWords: number){
+        if(startOfSmallestPartCoveringAllKeyWords === 0) return undefined; //smallest part covering all keys happen to be the first word.
+        let start = Math.max(0, startOfSmallestPartCoveringAllKeyWords - 6); //try add 3 words before...
+        let pre = para.slice(start, startOfSmallestPartCoveringAllKeyWords).join("");
+        if(start > 0) pre = "..." + pre;
+        return document.createTextNode(pre);
+    }
+
+    function createContentAfterSmallestPartCoveringAllKeyWords(para: string[], endOfSmallestPartCoveringAllKeyWords: number){
+        if(endOfSmallestPartCoveringAllKeyWords === para.length - 1) return undefined; //smallest part covering all keys happen to be the last word.
+        let end = Math.min(para.length - 1, endOfSmallestPartCoveringAllKeyWords + 6); //try add 3 words after...
+        let after = para.slice(endOfSmallestPartCoveringAllKeyWords + 1, end + 1).join("");
+        if(end < para.length - 1) after = after + "...";
+        return document.createTextNode(after);
+    }
+
     export function findDigestForMultipleKeyWords(components: Component[], keyWords: Set<string>) {
         let componentsWithTokens = components.filter((c: Component) => {return c.tokens !== undefined});
         let listOfTokens = componentsWithTokens.map((c: Component) => {return c.tokens.tokenValues});
         let para: string[] = [].concat(...listOfTokens);
-        let digest = findSmallestPartThatCoveringKeyWordSet(para, keyWords);
+        let smallestPartCoveringAllKeyWords = findSmallestPartThatCoveringKeyWordSet(para, keyWords);
+        let digest = para.slice(smallestPartCoveringAllKeyWords.start, smallestPartCoveringAllKeyWords.end + 1);
         let segmentBetweenKeyWords = findSegmentsBetweenKeyWords(digest, keyWords);
         let keyWordsInDisplayOrder = findKeyWordsInDisplayOrder(digest, keyWords);
         let requiredLengthForSegments = calculateSegmentLengths(segmentBetweenKeyWords.map((s: string[]) => s.length), 40);
         shrinkSegments(segmentBetweenKeyWords, requiredLengthForSegments);
-        return joinSegmentsWithKeyWords(segmentBetweenKeyWords, keyWordsInDisplayOrder);
+        let frag = joinSegmentsWithKeyWords(segmentBetweenKeyWords, keyWordsInDisplayOrder);
+        let pre = createContentBeforeSmallestPartCoveringAllKeyWords(para, smallestPartCoveringAllKeyWords.start);
+        if(pre)frag.insertBefore(pre, frag.firstChild);
+        let after = createContentAfterSmallestPartCoveringAllKeyWords(para, smallestPartCoveringAllKeyWords.end);
+        if(after)frag.appendChild(after);
+        return frag;
     }
 
 }

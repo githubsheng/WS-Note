@@ -41,19 +41,25 @@ namespace TestDigestNamespace {
         let frag = findDigestForMultipleKeyWords(components, keyWords);
         /*
          * the generated nodes should be like this:
+         * ... <- text node
          * <span class="keyWord">array</span>
          * ). concat does not alter this... as arguments but instead returns a_    <- text node
          * <span class="keyWord">shallow</span>
          * _copy that contains copies of the same_     <- text node
          * <span class="keyWord">elements</span>
+         * ... <- text node
          * in the above: _ means whitespace
          */
         let generatedNodes = frag.childNodes;
-        shouldBeEqual(generatedNodes[0].firstChild.nodeValue, "array");
-        shouldBeEqual(generatedNodes[1].nodeValue, "). concat does not alter this... as arguments but instead returns a ");
-        shouldBeEqual(generatedNodes[2].firstChild.nodeValue, "shallow");
-        shouldBeEqual(generatedNodes[3].nodeValue, " copy that contains copies of the same ");
-        shouldBeEqual(generatedNodes[4].firstChild.nodeValue, "elements");
+        shouldBeEqual(generatedNodes[0].nodeValue, "...is not an ");
+        shouldBeEqual(generatedNodes[1].firstChild.nodeValue, "array");
+        shouldBeEqual(generatedNodes[2].nodeValue, "). concat does not alter this... as arguments but instead returns a ");
+        shouldBeEqual(generatedNodes[3].firstChild.nodeValue, "shallow");
+        shouldBeEqual(generatedNodes[4].nodeValue, " copy that contains copies of the same ");
+        shouldBeEqual(generatedNodes[5].firstChild.nodeValue, "elements");
+        shouldBeEqual(generatedNodes[6].nodeValue, " combined from the...");
+
+        document.body.appendChild(frag);
     }
 
 
