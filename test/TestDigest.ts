@@ -7,6 +7,7 @@ namespace TestDigestNamespace {
 
     import tokenize = TokenizorNamespace.tokenize;
     import shouldBeEqual = TestUtilNamespace.shouldBeEqual;
+    import findDigestForMultipleKeyWords = DigestNamespace.findDigestForMultipleKeyWords;
     function createBRComponent(){
         return {nodeName: "br"};
     }
