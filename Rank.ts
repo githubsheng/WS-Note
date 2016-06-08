@@ -20,6 +20,7 @@ namespace RankNamespace {
 
     export interface NoteScoreDetail {
         noteId: number;
+        noteName: string;
         keyWordAppearance: Map<string, number>;
         isAllKeyWordFound: boolean;
         relevantTags: Set<string>;
@@ -57,6 +58,7 @@ namespace RankNamespace {
 
             let noteScoreDetail: NoteScoreDetail = {
                 noteId: noteId,
+                noteName: getNoteName(noteId),
                 keyWordAppearance: new Map(),
                 isAllKeyWordFound: false,
                 relevantTags: new Set(),
