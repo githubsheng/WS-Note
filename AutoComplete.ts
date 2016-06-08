@@ -2,6 +2,8 @@
 
 namespace UIComponentNamespace {
 
+    import broadcast = AppEventsNamespace.broadcast;
+    import AppEvent = AppEventsNamespace.AppEvent;
     export function createAutoComplete() {
 
         let index = IndexNamespace.getIndex();
@@ -160,10 +162,7 @@ namespace UIComponentNamespace {
                 criterionEle.remove();
             });
 
-        }
-
-        function getAllKeyWords(): Set<string> {
-            return keyWords;
+            broadcast(AppEvent.resultsPage, keyWords);
         }
 
         function clearAllSearchCriterion(){
@@ -174,7 +173,6 @@ namespace UIComponentNamespace {
         return {
             containerEle: criteriaEle,
             addNewSearchCriterion: addNewSearchCriterion,
-            getAllKeyWords: getAllKeyWords,
             clearAllSearchCriterion: clearAllSearchCriterion
         }
     }
