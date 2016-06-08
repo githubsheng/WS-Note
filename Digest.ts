@@ -155,7 +155,7 @@ namespace DigestNamespace {
         return frag;
     }
 
-    export function findDigestForMultipleKeyWords(components: Component[], keyWords: Set<string>) {
+    export function digest(components: Component[], keyWords: Set<string>) {
         let componentsWithTokens = components.filter((c: Component) => {return c.codeLanguage === undefined && c.tokens !== undefined});
         let listOfTokens = componentsWithTokens.map((c: Component) => {return c.tokens.tokenValues});
         let para: string[] = [].concat(...listOfTokens);
