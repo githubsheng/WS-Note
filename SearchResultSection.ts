@@ -33,6 +33,7 @@ namespace SearchResultSectionNamespace {
 
     function* createNotePreview(noteScoreDetail:NoteScoreDetail, keyWords:Set<string>):IterableIterator<any> {
         let preview = document.createElement("div");
+        preview.classList("notePreview");
 
         let titleDiv = document.createElement("div");
         titleDiv.appendChild(document.createTextNode(noteScoreDetail.noteName));
@@ -54,6 +55,7 @@ namespace SearchResultSectionNamespace {
         let showedResults = 0;
 
         let resultLists:HTMLDivElement = document.createElement("div");
+        resultLists.classList.add("searchResultList");
         let moreResultsButton = document.createElement("button");
         let moreResultsContainer = document.createElement("div");
         moreResultsContainer.appendChild(moreResultsButton);
