@@ -27,6 +27,9 @@ button:hover {
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 3;
+    background: white;
+    text-align: center;
 }
 
 #header {
@@ -198,4 +201,12 @@ button:hover {
 
 .noteViewer .codeString {
     color: green;
+}
+
+.searchResultList {
+
+}
+
+.searchResultList .notePreview {
+    margin: 10px 0;
 }
