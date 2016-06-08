@@ -116,24 +116,47 @@ namespace DigestNamespace {
         return tokenSegmentLengths;
     }
 
-    function createContentBeforeSmallestPartCoveringAllKeyWords(para: string[], startOfSmallestPartCoveringAllKeyWords: number){
+    function createContentBeforeSmallestPartCoveringAllKeyWords(para: string[], startOfSmallestPartCoveringAllKeyWords: number, keyWords: Set<string>){
         if(startOfSmallestPartCoveringAllKeyWords === 0) return undefined; //smallest part covering all keys happen to be the first word.
         let start = Math.max(0, startOfSmallestPartCoveringAllKeyWords - 6); //try add 3 words before...
-        let pre = para.slice(start, startOfSmallestPartCoveringAllKeyWords).join("");
-        if(start > 0) pre = "..." + pre;
-        return document.createTextNode(pre);
+        let preTokens = para.slice(start, startOfSmallestPartCoveringAllKeyWords);
+        let buffer = ["..."];
+        let frag = document.createDocumentFragment();
+        for(let preToken of preTokens) {
+            if(keyWords.has(preToken)) {
+                frag.appendChild(document.createTextNode(buffer.join("")));
+                buffer = [];
+                appendKeyWordSpanToFrag(frag, preToken);
+            } else {
+                buffer.push(preToken);
+            }
+        }
+        frag.appendChild(document.createTextNode(buffer.join("")));
+        return frag;
     }
 
-    function createContentAfterSmallestPartCoveringAllKeyWords(para: string[], endOfSmallestPartCoveringAllKeyWords: number){
+    function createContentAfterSmallestPartCoveringAllKeyWords(para: string[], endOfSmallestPartCoveringAllKeyWords: number, keyWords: Set<string>){
         if(endOfSmallestPartCoveringAllKeyWords === para.length - 1) return undefined; //smallest part covering all keys happen to be the last word.
         let end = Math.min(para.length - 1, endOfSmallestPartCoveringAllKeyWords + 6); //try add 3 words after...
-        let after = para.slice(endOfSmallestPartCoveringAllKeyWords + 1, end + 1).join("");
-        if(end < para.length - 1) after = after + "...";
-        return document.createTextNode(after);
+        let afterTokens = para.slice(endOfSmallestPartCoveringAllKeyWords + 1, end + 1);
+        let buffer = [];
+        let frag = document.createDocumentFragment();
+        for(let afterToken of afterTokens) {
+            if(keyWords.has(afterToken)) {
+                frag.appendChild(document.createTextNode(buffer.join("")));
+                buffer = [];
+                appendKeyWordSpanToFrag(frag, afterToken);
+            } else {
+                buffer.push(afterToken);
+            }
+        }
+        buffer.push("...");
+        frag.appendChild(document.createTextNode(buffer.join("")));
+        return frag;
     }
 
     export function findDigestForMultipleKeyWords(components: Component[], keyWords: Set<string>) {
-        let componentsWithTokens = components.filter((c: Component) => {return c.tokens !== undefined});
+        let componentsWithTokens = components.filter((c: Component) => {return c.codeLanguage === undefined && c.tokens !== undefined});
         let listOfTokens = componentsWithTokens.map((c: Component) => {return c.tokens.tokenValues});
         let para: string[] = [].concat(...listOfTokens);
         let smallestPartCoveringAllKeyWords = findSmallestPartThatCoveringKeyWordSet(para, keyWords);
@@ -143,9 +166,9 @@ namespace DigestNamespace {
         let requiredLengthForSegments = calculateSegmentLengths(segmentBetweenKeyWords.map((s: string[]) => s.length), 40);
         shrinkSegments(segmentBetweenKeyWords, requiredLengthForSegments);
         let frag = joinSegmentsWithKeyWords(segmentBetweenKeyWords, keyWordsInDisplayOrder);
-        let pre = createContentBeforeSmallestPartCoveringAllKeyWords(para, smallestPartCoveringAllKeyWords.start);
+        let pre = createContentBeforeSmallestPartCoveringAllKeyWords(para, smallestPartCoveringAllKeyWords.start, keyWords);
         if(pre)frag.insertBefore(pre, frag.firstChild);
-        let after = createContentAfterSmallestPartCoveringAllKeyWords(para, smallestPartCoveringAllKeyWords.end);
+        let after = createContentAfterSmallestPartCoveringAllKeyWords(para, smallestPartCoveringAllKeyWords.end, keyWords);
         if(after)frag.appendChild(after);
         return frag;
     }
