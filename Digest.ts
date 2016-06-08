@@ -46,6 +46,9 @@ namespace DigestNamespace {
         return {start: start, end: end};
     }
 
+    //this method assumes the following pattern.
+    //1. segments are separated by key words.
+    //2. start with key word and end with key word.
     function findSegmentsBetweenKeyWords(digest: string[], keyWords: Set<string>): string[][] {
         let segments: string[][] = [];
         let start = -1;
@@ -76,14 +79,10 @@ namespace DigestNamespace {
         });
     }
 
-    function appendKeyWordSpanToFrag(frag: DocumentFragment, keyWord: string) {
-        let keyWordSpan = document.createElement("span");
-        keyWordSpan.classList.add("keyWord");
-        keyWordSpan.appendChild(document.createTextNode(keyWord));
-        frag.appendChild(keyWordSpan);
-    }
-
-    function joinSegmentsWithKeyWords(segments: string[][], keyWords: string[]): DocumentFragment {
+    //this method assumes the following pattern.
+    //1. segments are separated by key words.
+    //2. start with key word and end with key word.
+    function joinSegmentsWithKeyWordsIntoFrag(segments: string[][], keyWords: string[]): DocumentFragment {
         let frag = document.createDocumentFragment();
         appendKeyWordSpanToFrag(frag, keyWords[0]);
         for(let i = 0; i < segments.length; i++) {
@@ -118,30 +117,13 @@ namespace DigestNamespace {
         return tokenSegmentLengths;
     }
 
-    function createContentBeforeSmallestPartCoveringAllKeyWords(para: string[], startOfSmallestPartCoveringAllKeyWords: number, keyWords: Set<string>, preLength: number){
-        if(startOfSmallestPartCoveringAllKeyWords === 0) return undefined; //smallest part covering all keys happen to be the first word.
-        let start = Math.max(0, startOfSmallestPartCoveringAllKeyWords - preLength); //try add preLength words before...
-        let preTokens = para.slice(start, startOfSmallestPartCoveringAllKeyWords);
-
-        let frag = convertTokensIntoTextNodeAndSpan(preTokens, keyWords);
-        frag.insertBefore(document.createTextNode("..."), frag.firstChild);
-        return frag;
-    }
-
-    function createContentAfterSmallestPartCoveringAllKeyWords(para: string[], endOfSmallestPartCoveringAllKeyWords: number, keyWords: Set<string>, afterLength: number){
-        if(endOfSmallestPartCoveringAllKeyWords === para.length - 1) return undefined; //smallest part covering all keys happen to be the last word.
-        let end = Math.min(para.length - 1, endOfSmallestPartCoveringAllKeyWords + afterLength); //try add afterLength words after...
-        let afterTokens = para.slice(endOfSmallestPartCoveringAllKeyWords + 1, end + 1);
-
-        let frag = convertTokensIntoTextNodeAndSpan(afterTokens, keyWords);
-        frag.appendChild(document.createTextNode("..."));
-        return frag;
-    }
-
-    function convertTokensIntoTextNodeAndSpan(tokens: string[], keyWords: Set<string>): DocumentFragment{
+    function convertTokensIntoTextNodeAndSpan(para: string[], keyWords: Set<string>, start?: number, end?: number): DocumentFragment{
         let buffer = [];
         let frag = document.createDocumentFragment();
-        for(let token of tokens) {
+        if(start === undefined) start = 0;
+        if(end === undefined) end = para.length - 1;
+        for(let i = start; i <= end; i++) {
+            let token = para[i];
             if(keyWords.has(token.toLowerCase())) {
                 frag.appendChild(document.createTextNode(buffer.join("")));
                 buffer = [];
@@ -154,6 +136,13 @@ namespace DigestNamespace {
         return frag;
     }
 
+    function appendKeyWordSpanToFrag(frag: DocumentFragment, keyWord: string) {
+        let keyWordSpan = document.createElement("span");
+        keyWordSpan.classList.add("keyWord");
+        keyWordSpan.appendChild(document.createTextNode(keyWord));
+        frag.appendChild(keyWordSpan);
+    }
+
     /*
      * a digest consist of three parts:
      *
@@ -162,33 +151,53 @@ namespace DigestNamespace {
      * middle is smallest part that covers all key words
      */
     export function digest(components: Component[], keyWords: Set<string>) {
+        let digestFrag = document.createDocumentFragment();
+
         let componentsWithTokens = components.filter((c: Component) => {return c.codeLanguage === undefined && c.tokens !== undefined});
         let listOfTokens = componentsWithTokens.map((c: Component) => {return c.tokens.tokenValues});
         let para: string[] = [].concat(...listOfTokens);
-        let middlePart = findSmallestPartThatCoveringKeyWordSet(para, keyWords);
-        let middleTokens = para.slice(middlePart.start, middlePart.end + 1);
-        let segmentBetweenKeyWords = findSegmentsBetweenKeyWords(middleTokens, keyWords);
-        let keyWordsInDisplayOrder = findKeyWordsInDisplayOrder(middleTokens, keyWords);
 
+        let middlePart:{start: number, end: number};
         const middleLengthLimit = 80;
-        let preLength = 6, afterLength = 6;
-        let digestFrag;
-        if(middleTokens.length > middleLengthLimit) {
-            let requiredLengthForSegments = calculateSegmentLengths(segmentBetweenKeyWords.map((s: string[]) => s.length), 40);
-            shrinkSegments(segmentBetweenKeyWords, requiredLengthForSegments);
-            digestFrag = joinSegmentsWithKeyWords(segmentBetweenKeyWords, keyWordsInDisplayOrder);
+
+        if(keyWords.size === 1) {
+            let keyWord = keyWords.keys().next().value;
+            for(let i = 0; i < para.length; i++) {
+                if(para[i].toLowerCase() === keyWord) {
+                    middlePart = {start: i, end: i};
+                }
+            }
+            appendKeyWordSpanToFrag(digestFrag, keyWord);
         } else {
-            digestFrag = convertTokensIntoTextNodeAndSpan(middleTokens, keyWords);
-            //middle is short, that means I can display longer pre and longer after.
-            let additionalQuotaForPreAndAfter = Math.floor((middleLengthLimit - middleTokens.length)/2);
-            preLength += Math.floor(additionalQuotaForPreAndAfter);
-            afterLength += Math.floor(additionalQuotaForPreAndAfter);
+            //if I have at least two different search key word, and the middle part will then begin with a search key word
+            //and ends with another search key word.
+            middlePart = findSmallestPartThatCoveringKeyWordSet(para, keyWords);
+            let middleTokens = para.slice(middlePart.start, middlePart.end + 1);
+
+            if(middleTokens.length > middleLengthLimit) {
+                let segmentBetweenKeyWords = findSegmentsBetweenKeyWords(middleTokens, keyWords);
+                let keyWordsInDisplayOrder = findKeyWordsInDisplayOrder(middleTokens, keyWords);
+                let requiredLengthForSegments = calculateSegmentLengths(segmentBetweenKeyWords.map((s: string[]) => s.length), middleLengthLimit);
+                shrinkSegments(segmentBetweenKeyWords, requiredLengthForSegments);
+                digestFrag.appendChild(joinSegmentsWithKeyWordsIntoFrag(segmentBetweenKeyWords, keyWordsInDisplayOrder));
+            } else {
+                digestFrag.appendChild(convertTokensIntoTextNodeAndSpan(middleTokens, keyWords));
+
+            }
         }
 
-        let pre = createContentBeforeSmallestPartCoveringAllKeyWords(para, middlePart.start, keyWords, preLength);
-        if(pre)digestFrag.insertBefore(pre, digestFrag.firstChild);
-        let after = createContentAfterSmallestPartCoveringAllKeyWords(para, middlePart.end, keyWords, afterLength);
-        if(after)digestFrag.appendChild(after);
+        const maxTotalDigestLength = 90;
+        let preStart = middlePart.start - 1, preEnd = middlePart.start - 1, afterStart = middlePart.end + 1, afterEnd = middlePart.end + 1;
+        while(preEnd - preStart + 1 + Math.min(middlePart.end - middlePart.start + 1, middleLengthLimit) + afterEnd - afterStart + 1 <= maxTotalDigestLength
+            && !(preStart === 0 && afterEnd === para.length - 1)) {
+            preStart = Math.max(0, preStart - 1);
+            afterEnd = Math.min(para.length - 1, afterEnd + 1);
+        }
+        digestFrag.insertBefore(convertTokensIntoTextNodeAndSpan(para, keyWords, preStart, preEnd), digestFrag.firstChild);
+        digestFrag.appendChild(convertTokensIntoTextNodeAndSpan(para, keyWords, afterStart, afterEnd));
+        if(preStart > 0) digestFrag.insertBefore(document.createTextNode("..."), digestFrag.firstChild);
+        if(afterEnd < para.length - 1) digestFrag.appendChild(document.createTextNode("..."));
+
         return digestFrag;
     }
 
