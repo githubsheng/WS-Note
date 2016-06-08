@@ -18,7 +18,7 @@ namespace RankNamespace {
     const scorePerReferenceBy = 5;
     let index = getIndex();
 
-    interface NoteScoreDetail {
+    export interface NoteScoreDetail {
         noteId: number;
         keyWordAppearance: Map<string, number>;
         isAllKeyWordFound: boolean;
@@ -36,7 +36,7 @@ namespace RankNamespace {
 
         let numberOfSearchKeyWords = searchKeyWords.length;
         let singleKeyWordAppearanceTotalScore = searchKeyWordAppearanceTotalScore / numberOfSearchKeyWords;
-        let scorePerKeyWordAppearance = singleKeyWordAppearanceTotalScore / 5;
+        let scorePerKeyWordAppearance = singleKeyWordAppearanceTotalScore / 3;
 
         let idsOfAllRelatedNotes: Set<number> = new Set();
 
@@ -120,7 +120,7 @@ namespace RankNamespace {
         }
 
         noteRankScoreDetails.sort(function(a:NoteScoreDetail, b:NoteScoreDetail) {
-           return a.totalScore - b.totalScore;
+           return b.totalScore - a.totalScore;
         });
 
         return noteRankScoreDetails;
