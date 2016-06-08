@@ -80,8 +80,6 @@ namespace RankNamespace {
                         numberOfKeyWordsFound++;
                         searchKeyWordAppearanceScore += Math.min(numberOfAppearanceOfKeyWordInNote * scorePerKeyWordAppearance, singleKeyWordAppearanceTotalScore);
                         noteScoreDetail.keyWordAppearance.set(keyWord, numberOfAppearanceOfKeyWordInNote);
-                    } else {
-                        noteScoreDetail.keyWordAppearance.set(keyWord, 0);
                     }
                 }
             }
