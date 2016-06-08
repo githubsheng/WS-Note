@@ -7,7 +7,7 @@ namespace TestDigestNamespace {
 
     import tokenize = TokenizorNamespace.tokenize;
     import shouldBeEqual = TestUtilNamespace.shouldBeEqual;
-    import findDigestForMultipleKeyWords = DigestNamespace.findDigestForMultipleKeyWords;
+    import digest = DigestNamespace.digest;
     function createBRComponent(){
         return {nodeName: "br"};
     }
@@ -38,7 +38,7 @@ namespace TestDigestNamespace {
         keyWords.add("array");
         keyWords.add("elements");
         keyWords.add("shallow");
-        let frag = findDigestForMultipleKeyWords(components, keyWords);
+        let frag = digest(components, keyWords);
         /*
          * the generated nodes should be like this:
          * ... <- text node
