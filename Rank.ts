@@ -7,7 +7,6 @@
 namespace RankNamespace {
 
     import getIndex = IndexNamespace.getIndex;
-    import WordType = IndexNamespace.WordType;
     import getTagsOfNote = TagsCacheNamespace.getTagsOfNote;
     import getIdOfNotesThatReferences = ReferenceCacheNamespace.getIdOfNotesThatReferences;
     import isRecentlyViewed = RecentlyViewedCacheNamespace.isRecentlyViewed;
@@ -33,7 +32,7 @@ namespace RankNamespace {
      * provided by an array of search key words, it should provide a list of note id, the list needs to be sorted by
      * relevance.
      */
-    function search (searchKeyWords: string[]): NoteScoreDetail[] {
+    export function search (searchKeyWords: string[]): NoteScoreDetail[] {
 
         let numberOfSearchKeyWords = searchKeyWords.length;
         let singleKeyWordAppearanceTotalScore = searchKeyWordAppearanceTotalScore / numberOfSearchKeyWords;
