@@ -33,11 +33,13 @@ button:hover {
 }
 
 #header {
+    position: fixed;
+    width: 100%;
     height: 40px;
     line-height: 40px;
     border-bottom: 1px solid lightgray;
-    position: relative;
     box-shadow: 1px 2px 5px 0px darkgray;
+    background-color: white;
 }
 
 #headerLeft, #headerRight {
@@ -66,7 +68,10 @@ button:hover {
 }
 
 #body {
-    margin: 40px 0 20px 0;
+    position: fixed;
+    top: 40px;
+    bottom: 20px;
+    overflow: auto;
 }
 
 #footer {
@@ -81,7 +86,7 @@ button:hover {
 #autoCompletionList {
     position: fixed;
     left: 5px;
-    top: 41px;
+    top: 40px;
     min-width: 200px;
     z-index: 2;
     box-shadow: 1px 2px 5px 0 darkgray;
