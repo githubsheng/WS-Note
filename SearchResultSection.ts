@@ -31,7 +31,7 @@ namespace SearchResultSectionNamespace {
         setBody(getStartedGuideContainer);
     }
 
-    function* createNotePreview(noteScoreDetail:NoteScoreDetail, keyWords:Set<string>):IterableIterator<any> {
+    function* createNotePreview(noteScoreDetail:NoteScoreDetail):IterableIterator<any> {
         let preview = document.createElement("div");
         preview.classList.add("notePreview");
 
@@ -43,7 +43,8 @@ namespace SearchResultSectionNamespace {
         let note:Note = yield getNote(idb, noteScoreDetail.noteId);
 
         let digestContainer = document.createElement("div");
-        let digestFrag = digest(note.components, keyWords);
+        //only pass in key words that are expected to be shown in this specific note
+        let digestFrag = digest(note.components, new Set<string>(noteScoreDetail.keyWordAppearance.keys()));
         digestContainer.appendChild(digestFrag);
         preview.appendChild(digestContainer);
 
@@ -67,7 +68,7 @@ namespace SearchResultSectionNamespace {
                 if (showedResults < rankedResults.length) {
                     let resultsToShow = rankedResults.slice(showedResults, showedResults += numberOfResultsShowedWhenMoreResultsPressed)
                     for (let i = 0; i < resultsToShow.length; i++) {
-                        let notePreview = yield* createNotePreview(resultsToShow[i], searchKeyWords);
+                        let notePreview = yield* createNotePreview(resultsToShow[i]);
                         resultLists.insertBefore(notePreview, moreResultsContainer);
                     }
                     if (showedResults >= rankedResults.length) resultLists.removeChild(moreResultsContainer);
