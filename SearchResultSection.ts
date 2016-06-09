@@ -46,6 +46,10 @@ namespace SearchResultSectionNamespace {
         digestContainer.appendChild(digestFrag);
         preview.appendChild(digestContainer);
 
+        preview.onclick = function(){
+            broadcast(AppEvent.viewNote, note.id);
+        };
+
         return preview;
     }
 
