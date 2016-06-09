@@ -15,8 +15,16 @@ namespace AppNamespace {
     import AppEvent = AppEventsNamespace.AppEvent;
 
     let auto = createAutoComplete();
+    let newNoteButton = document.createElement("button");
+    newNoteButton.appendChild(document.createTextNode("New"));
+
+    newNoteButton.onclick = function () {
+        broadcast(AppEvent.createNewNote);
+    };
+
     let headerLeft = document.querySelector("#headerLeft");
     headerLeft.appendChild(auto.searchEle);
+    headerLeft.appendChild(newNoteButton);
     document.body.appendChild(auto.autoCompletionListEle);
 
     let criteriaSection = createCriterionSection();

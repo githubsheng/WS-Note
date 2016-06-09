@@ -21,9 +21,6 @@ namespace SearchResultSectionNamespace {
     import digest = DigestNamespace.digest;
     import getNote = StorageNamespace.getNote;
 
-    let newNoteButton = document.createElement("button");
-    newNoteButton.appendChild(document.createTextNode("New"));
-
 
     function showGetStartedGuide() {
         let getStartedGuideContainer = document.createElement("div");
@@ -81,13 +78,9 @@ namespace SearchResultSectionNamespace {
 
         setBody(resultLists);
     }
-
-    newNoteButton.onclick = function () {
-        broadcast(AppEvent.createNewNote);
-    };
-
+    
     register(AppEvent.resultsPage, function (searchKeyWord?:Set<string>) {
-        setCommandButtons([newNoteButton]);
+        setCommandButtons([]);
         if (searchKeyWord === undefined) {
             showGetStartedGuide();
         } else {
