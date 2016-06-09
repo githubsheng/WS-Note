@@ -1,4 +1,5 @@
 /// <reference path="Index.ts" />
+///<reference path="AppEvents.ts"/>
 
 namespace UIComponentNamespace {
 
@@ -133,6 +134,7 @@ namespace UIComponentNamespace {
 
             let criterionEle = document.createElement("span");
             criterionEle.appendChild(document.createTextNode(keyword));
+            criterionEle["wsnote-keyWord"] = keyword;
 
             let existingCriterionEles = criteriaEle.children;
 
@@ -160,6 +162,9 @@ namespace UIComponentNamespace {
                     i = sibling;
                 }
                 criterionEle.remove();
+                let keyWord = criterionEle["wsnote-keyWord"];
+                keyWords.delete(keyWord);
+                broadcast(AppEvent.resultsPage, keyWords);
             });
 
             broadcast(AppEvent.resultsPage, keyWords);
