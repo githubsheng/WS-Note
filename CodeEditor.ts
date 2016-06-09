@@ -17,6 +17,8 @@ namespace CodeEditorNamespace {
         startInsertingImg:() => void;
         getValue:() => Component[];
         setValue:(components:Component[]) => void;
+        getTitle:() => string;
+        setTitle:(title: string) => void;
         setValueChangeListener: (listener:() => void) => void;
     }
 
@@ -25,6 +27,10 @@ namespace CodeEditorNamespace {
         let containerEle = document.createElement("div");
         containerEle.classList.add("codeEditorContainer");
 
+        let noteTitleEle = document.createElement("input");
+        noteTitleEle.placeholder = "Please input note title";
+        noteTitleEle.classList.add("titleInput");
+
         let codeEditorEle = document.createElement("div");
         codeEditorEle.classList.add("codeEditor");
         codeEditorEle.contentEditable = "true";
@@ -32,6 +38,7 @@ namespace CodeEditorNamespace {
         let dropContainerEle = document.createElement('div');
         dropContainerEle.classList.add("codeEditorDropGround");
 
+        containerEle.appendChild(noteTitleEle);
         containerEle.appendChild(codeEditorEle);
         containerEle.appendChild(dropContainerEle);
 
@@ -40,6 +47,10 @@ namespace CodeEditorNamespace {
         function setValueChangeListener(listener: () => void){
             valueChangeListener = listener;
         }
+
+        noteTitleEle.addEventListener("keyup", function(){
+            if(valueChangeListener) valueChangeListener();
+        });
 
         codeEditorEle.addEventListener('keydown', keyHandler);
         function keyHandler(e:KeyboardEvent) {
@@ -162,8 +173,16 @@ namespace CodeEditorNamespace {
             return false;
         };
 
+        function getTitle(): string{
+            return noteTitleEle.value;
+        }
+
         function getValue(): Component[] {
             return convertToComponentFormat(codeEditorEle);
+        }
+
+        function setTitle(title: string): void{
+            noteTitleEle.value = title;
         }
 
         function setValue(components: Component[]): void {
@@ -185,6 +204,8 @@ namespace CodeEditorNamespace {
             startInsertingImg: startInsertingImg,
             getValue: getValue,
             setValue: setValue,
+            getTitle: getTitle,
+            setTitle: setTitle,
             setValueChangeListener: setValueChangeListener
         }
 
