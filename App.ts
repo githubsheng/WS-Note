@@ -32,7 +32,7 @@ namespace AppNamespace {
     document.body.appendChild(criteriaSection.containerEle);
     auto.setSearchCriterionFunc(criteriaSection.addNewSearchCriterion);
 
-    register(AppEvent.viewNote, criteriaSection.clearAllSearchCriterion());
+    register(AppEvent.viewNote, criteriaSection.clearAllSearchCriterion);
 
     SearchResultSectionNamespace.init();
     EVNoteSectionNamespace.init();
