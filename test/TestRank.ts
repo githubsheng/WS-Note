@@ -9,7 +9,7 @@ namespace TestRankNamespace {
     import addRecentlyViewed = RecentlyViewedCacheNamespace.addRecentlyViewed;
     import search = RankNamespace.search;
     import NoteScoreDetail = RankNamespace.NoteScoreDetail;
-    import addNoteName = NoteNameCacheNamespace.addNoteName;
+    import addNoteName = NoteNameCacheNamespace.setNoteName;
     import shouldBeEqual = TestUtilNamespace.shouldBeEqual;
     import arrayShouldBeIdentical = TestUtilNamespace.arrayShouldBeIdentical;
     import shouldBeTrue = TestUtilNamespace.shouldBeTrue;

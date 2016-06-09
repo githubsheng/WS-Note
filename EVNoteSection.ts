@@ -27,6 +27,7 @@ namespace EVNoteSectionNamespace {
     import getNote = StorageNamespace.getNote;
     import broadcast = AppEventsNamespace.broadcast;
     import AppWindow = chrome.app.window.AppWindow;
+    import setNoteName = NoteNameCacheNamespace.setNoteName;
 
     let index = getIndex();
 
@@ -118,6 +119,8 @@ namespace EVNoteSectionNamespace {
         for(let i = 0; i < kws.length; i++) {
             index.putAsSearchKeyword(kws[i][0], kws[i][1], note.id);
         }
+        //update note name in note name cache
+        setNoteName(note.id, note.title);
         //add new tags to the tag cache
         setTagsForNote(note.id, note.tags);
         //add new reference relationship to reference cache

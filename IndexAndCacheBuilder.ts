@@ -12,7 +12,7 @@ namespace IndexAndCacheBuilderNamespace {
     import getIndex = IndexNamespace.getIndex;
     import setTagsForNote = TagsCacheNamespace.setTagsForNote;
     import addReference = ReferenceCacheNamespace.addReference;
-    import addNoteName = NoteNameCacheNamespace.addNoteName;
+    import addNoteName = NoteNameCacheNamespace.setNoteName;
 
     let index = getIndex();
 
