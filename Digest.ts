@@ -2,7 +2,32 @@
 
 namespace DigestNamespace {
 
-    function findSmallestPartThatCoveringKeyWordSet(paragraph: string[], keyWords: Set<string>){
+    const middleLengthLimit = 80;
+
+    function findPartCoveringMultipleOccurrencesOfSingleKeyWord(paragraph: string[], keyWord) {
+        let indexOfFirstOccurrenceOfKeyWord = 0;
+        for (let i = 0; i < paragraph.length; i++) {
+            if(paragraph[i].toLowerCase() === keyWord) {
+                indexOfFirstOccurrenceOfKeyWord = i;
+                break;
+            }
+        }
+
+        let partLength = 1;
+        let foundOccurrences = 1;
+        let middleStart = indexOfFirstOccurrenceOfKeyWord; let middleEnd = middleStart;
+        for(let i = indexOfFirstOccurrenceOfKeyWord; (i < paragraph.length) && (partLength < middleLengthLimit || foundOccurrences < 4); i++){
+            if(paragraph[i].toLowerCase() === keyWord) {
+                foundOccurrences++;
+                middleEnd = i;
+            }
+            partLength++;
+        }
+
+        return {start: middleStart, end: middleEnd};
+    }
+
+    function findSmallestPartThatCoveringAllDifferentKeyWords(paragraph: string[], keyWords: Set<string>){
         let keywordsToCount: Map<string, number> = new Map();
         let left = 0, right = 0;
         let start= -1, end = -1;
@@ -166,20 +191,19 @@ namespace DigestNamespace {
         let para: string[] = [].concat(...listOfTokens);
 
         let middlePart:{start: number, end: number};
-        const middleLengthLimit = 80;
 
         if(keyWords.size === 1) {
             let keyWord = keyWords.keys().next().value;
-            for(let i = 0; i < para.length; i++) {
-                if(para[i].toLowerCase() === keyWord) {
-                    middlePart = {start: i, end: i};
-                }
-            }
-            appendKeyWordSpanToFrag(digestFrag, keyWord);
+            middlePart = findPartCoveringMultipleOccurrencesOfSingleKeyWord(para, keyWord);
         } else {
-            //if I have at least two different search key word, and the middle part will then begin with a search key word
-            //and ends with another search key word.
-            middlePart = findSmallestPartThatCoveringKeyWordSet(para, keyWords);
+            middlePart = findSmallestPartThatCoveringAllDifferentKeyWords(para, keyWords);
+        }
+
+        if(middlePart.start === middlePart.end) {
+            //special case, middle part is a single token.
+            appendKeyWordSpanToFrag(digestFrag, para[middlePart.start]);
+        } else {
+            //middle part starts with an occurrence of a key word and ends with an occurrence of a key word
             let middleTokens = para.slice(middlePart.start, middlePart.end + 1);
 
             if(middleTokens.length > middleLengthLimit) {
