@@ -6,6 +6,7 @@
 ///<reference path="ReferenceCache.ts"/>
 ///<reference path="TagsCache.ts"/>
 ///<reference path="typings/chrome/chrome-app.d.ts"/>
+///<reference path="NoteNameCache.ts"/>
 
 namespace EVNoteSectionNamespace {
     
