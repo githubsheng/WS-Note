@@ -33,6 +33,7 @@ namespace SearchResultSectionNamespace {
         preview.classList.add("notePreview");
 
         let titleDiv = document.createElement("div");
+        titleDiv.classList.add("title");
         titleDiv.appendChild(document.createTextNode(noteScoreDetail.noteName));
         preview.appendChild(titleDiv);
 
@@ -78,7 +79,7 @@ namespace SearchResultSectionNamespace {
 
         setBody(resultLists);
     }
-    
+
     register(AppEvent.resultsPage, function (searchKeyWord?:Set<string>) {
         setCommandButtons([]);
         if (searchKeyWord === undefined) {

@@ -244,6 +244,12 @@ button:hover {
     margin: 10px 0;
 }
 
+.searchResultList .notePreview .title {
+    color: #9A9EA2;
+    margin-bottom: 5px;
+    font-size: 18px;
+}
+
 .searchResultList .notePreview .keyWord {
     color: #2196F3;
     font-weight: bold;
