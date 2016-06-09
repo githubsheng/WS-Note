@@ -102,6 +102,17 @@ namespace EVNoteSectionNamespace {
         let components:Component[] = codeEditor.getValue();
         note.components = components;
         note.title = codeEditor.getTitle();
+        //if user does not specify a note title, use the first 50 characters in the note content as the title.
+        if(note.title === undefined || note.title.trim() === "") {
+            for(let component of note.components) {
+                if(component.nodeName === "#text" && component.value.trim() !== "") {
+                    let cv = component.value.trim();
+                    note.title = cv.substring(0, 50);
+                    if(note.title.length < cv.length) note.title += "...";
+                    break;
+                }
+            }
+        }
         //find and set new tags in note
         note.tags = findTags(components);
         //find and set mew references in note.
