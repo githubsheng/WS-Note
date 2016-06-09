@@ -151,6 +151,14 @@ namespace DigestNamespace {
      * middle is smallest part that covers all key words
      */
     export function digest(components: Component[], keyWords: Set<string>) {
+        //this digest algorithmn unfortunately is not able to work when dealing word combo. so I need to decouple a word combo into two search key words.
+        let temp = new Set<string>();
+        for(let keyWord of keyWords.values()) {
+            let s = keyWord.split(" ");
+            for(let e of s) temp.add(e);
+        }
+        keyWords = temp;
+
         let digestFrag = document.createDocumentFragment();
 
         let componentsWithTokens = components.filter((c: Component) => {return c.codeLanguage === undefined && c.tokens !== undefined});
