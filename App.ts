@@ -13,7 +13,7 @@ namespace AppNamespace {
     import r = Utility.r;
     import broadcast = AppEventsNamespace.broadcast;
     import AppEvent = AppEventsNamespace.AppEvent;
-    import register = chrome.gcm.register;
+    import register = AppEventsNamespace.register;
 
     let auto = createAutoComplete();
     let newNoteButton = document.createElement("button");
