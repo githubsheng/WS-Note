@@ -13,6 +13,7 @@ namespace AppNamespace {
     import r = Utility.r;
     import broadcast = AppEventsNamespace.broadcast;
     import AppEvent = AppEventsNamespace.AppEvent;
+    import register = chrome.gcm.register;
 
     let auto = createAutoComplete();
     let newNoteButton = document.createElement("button");
@@ -31,6 +32,8 @@ namespace AppNamespace {
     document.body.appendChild(criteriaSection.containerEle);
     auto.setSearchCriterionFunc(criteriaSection.addNewSearchCriterion);
 
+    register(AppEvent.viewNote, criteriaSection.clearAllSearchCriterion());
+
     SearchResultSectionNamespace.init();
     EVNoteSectionNamespace.init();
 
@@ -39,13 +42,5 @@ namespace AppNamespace {
         document.body.removeChild(document.querySelector("#appLogo"));
         broadcast(AppEvent.resultsPage);
     });
-
-    var index = IndexNamespace.getIndex();
-    index.putAsSearchKeyword("apple", false, 1);
-    index.putAsSearchKeyword("application", false, 1);
-    index.putAsSearchKeyword("apply", false, 1);
-    index.putAsSearchKeyword("ape", false, 1);
-    index.putAsSearchKeyword("ace", false, 1);
-    index.putAsSearchKeyword("a kind man", false, 1);
 
 }
