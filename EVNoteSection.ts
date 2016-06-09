@@ -60,6 +60,7 @@ namespace EVNoteSectionNamespace {
     
     function* editNote(){
         setCommandButtons(editNoteCommandButtons);
+        codeEditor.setTitle(note.title);
         codeEditor.setValue(note.components);
         setBody(codeEditor.containerEle);
         startAutoSaveInterval();
@@ -99,6 +100,7 @@ namespace EVNoteSectionNamespace {
         //convert the new content to component list and set the components in note
         let components:Component[] = codeEditor.getValue();
         note.components = components;
+        note.title = codeEditor.getTitle();
         //find and set new tags in note
         note.tags = findTags(components);
         //find and set mew references in note.
