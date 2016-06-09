@@ -3,7 +3,6 @@ tsc --outFile App.js Demo.ts
 tsc --target es6 --outFile ComponentsDemo.js Demo.ts
 
 tsc --target es6 --outFile test/compiledJS/testApp.js test/Test.ts
-tsc --target es6 --outFile test/compiledJS/testNoteViewer.js test/TestViewer.ts
 tsc --target es6 --outFile WSNote.js App.ts
 
 google font
