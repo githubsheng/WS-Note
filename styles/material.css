@@ -159,6 +159,7 @@ button:hover {
 .codeEditor {
     background: white;
     overflow-y: auto;
+    overflow-x: hidden;
     z-index: 2;
     white-space: pre-wrap;
     position: absolute;
