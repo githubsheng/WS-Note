@@ -76,6 +76,9 @@ namespace IndexNamespace {
         private putHelper(x: Node, key: string, reversed: boolean, wordType: WordType, noteIndex: number, d: number): Node {
             if(x === undefined) x = new Node();
             if(d === key.length) {
+                //when you intend to insert a search key word, but this word is already a special word, this operation should fail.
+                if(wordType === WordType.word && x.wordType !== WordType.word) return x;
+
                 x.wordType = wordType;
                 if(wordType === WordType.word) {
                     if(x.relatedNotes === undefined) x.relatedNotes = new Map();
@@ -105,6 +108,8 @@ namespace IndexNamespace {
         private deleteHelper(x: Node, key: string, reversed: boolean, noteIndex: number, d: number) {
             if( x === undefined) return undefined;
             if( d === key.length) {
+                if(x.wordType !== WordType.word) return x; //special words cannot be deleted.
+
                 if(x.relatedNotes !== undefined) {
                     let frequency = x.relatedNotes.get(noteIndex);
                     if(frequency !== undefined) {
