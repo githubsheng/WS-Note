@@ -110,7 +110,9 @@ namespace SearchResultSectionNamespace {
         resultLists.appendChild(searchSummary);
 
         let moreResultsButton = document.createElement("button");
+        moreResultsButton.innerText = "Show More";
         let moreResultsContainer = document.createElement("div");
+        moreResultsContainer.style.textAlign = "center";
         moreResultsContainer.appendChild(moreResultsButton);
         resultLists.appendChild(moreResultsContainer);
 
