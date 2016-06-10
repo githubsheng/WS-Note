@@ -46,6 +46,38 @@ namespace SearchResultSectionNamespace {
         digestContainer.appendChild(digestFrag);
         preview.appendChild(digestContainer);
 
+        let rankingDetail = document.createElement("div");
+        rankingDetail.classList.add("rankingDetail");
+        let keyWordAppearanceString = "";
+        for(let keyWordAppearance of noteScoreDetail.keyWordAppearance.entries()){
+            keyWordAppearanceString += keyWordAppearance[0] + " x" + keyWordAppearance[1] + " ";
+        }
+        let tagsMatchedString = "";
+        for(let tagMatched of noteScoreDetail.relevantTags) {
+            tagsMatchedString += "#" + tagMatched + "# ";
+        }
+        let referencedByString = noteScoreDetail.referencedByNotesWithName.size ===  0 ?
+            "" : "Referenced by " + noteScoreDetail.referencedByNotesWithName.size + " other notes ";
+        let recentlyViewed = noteScoreDetail.recentlyViewed ? "Recently viewed" : "";
+        rankingDetail.appendChild(document.createTextNode(keyWordAppearanceString + tagsMatchedString + referencedByString + recentlyViewed));
+
+        let totalScoreOutterBar = document.createElement("div");
+        totalScoreOutterBar.style.display = "inline-block";
+        totalScoreOutterBar.style.border = "1px solid lightgray";
+        totalScoreOutterBar.style.width = "100px";
+        totalScoreOutterBar.style.height = "10px";
+        let totalScoreInnerBar = document.createElement("div");
+        totalScoreInnerBar.style.width = noteScoreDetail.totalScore.toString() + "px";
+        totalScoreInnerBar.style.backgroundColor = "lightgray";
+        totalScoreInnerBar.style.height = "10px";
+        totalScoreOutterBar.appendChild(totalScoreInnerBar);
+
+        rankingDetail.appendChild(totalScoreOutterBar);
+
+        preview.appendChild(rankingDetail);
+
+        console.log(noteScoreDetail);
+
         preview.onclick = function(){
             broadcast(AppEvent.viewNote, note.id);
         };
