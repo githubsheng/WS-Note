@@ -186,39 +186,63 @@ button:hover {
 
 .noteViewer {
     white-space: pre-wrap;
+    margin: 20px auto;
+    width: 90%;
+    line-height: 1.5em;
+}
+
+.noteViewer .title {
+    color: #FF9800;
+}
+
+.noteViewer .important, .noteViewer .java, .noteViewer .js, .noteViewer .less {
+    padding: 15px;
+    color: #264c72;
+    font-size: 14px;
+    margin: 10px 0;
 }
 
 .noteViewer .important {
-    background: lightblue;
+    border: 1px solid #97c1da;
+    background-color: #d8ebf8;
 }
 
 .noteViewer .less {
-    background: lightyellow;
+    border: 1px solid #A3A7A8;
+    background-color: #EEEEEE;
 }
 
 .noteViewer .java, .noteViewer .js {
-    background: seashell;
+    border: 1px solid #E8C5AD;
+    border-left-width: 5px;
+    background-color: #FFF5EE;
 }
 
-.noteViewer h2 {
+.noteViewer h3 {
     margin: 0;
 }
 
 .noteViewer .inlineCode {
-    background: pink;
+    border: 1px solid #E8C5AD;
+    background-color: #FFF5EE;
+    color: #264c72;
+    padding: 2px 5px;
+    font-size: 14px;
 }
 
 .noteViewer .emphasis {
-    background: lightblue;
+    color: #2196F3;
 }
 
 .noteViewer .italic {
     font-style: italic;
+    color: #924545;
 }
 
 .noteViewer .tag {
-    background: darkcyan;
+    background: #2196F3;
     color: white;
+    padding: 2px 5px;
 }
 
 .noteViewer .codeKeyword {

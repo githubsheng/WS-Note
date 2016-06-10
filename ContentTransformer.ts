@@ -187,7 +187,7 @@ namespace ContentTransformerNamespace {
                              * previous line text <br>
                              * @header headerText <br>  <-- this br makes sure @header is on its own line in the source code.
                              */
-                            let header = document.createElement("h2");
+                            let header = document.createElement("h3");
                             let headerText = cp.value.substring(8); //header text is the portion that starts from index 8
                             header.appendChild(document.createTextNode(headerText));
                             frag.appendChild(header);

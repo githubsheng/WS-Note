@@ -69,10 +69,18 @@ namespace EVNoteSectionNamespace {
 
     function* viewNote() {
         setCommandButtons(viewNoteCommandButtons);
-        let domFrag = yield* convertToStyledDocumentFragment(note.components);
         while(noteViewerEle.firstChild)
             noteViewerEle.removeChild(noteViewerEle.firstChild);
+
+        let titleEle = document.createElement("h2");
+        titleEle.appendChild(document.createTextNode(note.title));
+        titleEle.classList.add("title");
+
+        let domFrag = yield* convertToStyledDocumentFragment(note.components);
+
+        noteViewerEle.appendChild(titleEle);
         noteViewerEle.appendChild(domFrag);
+
         setBody(noteViewerEle);
     }
 
@@ -193,7 +201,7 @@ namespace EVNoteSectionNamespace {
         return false;
     };
 
-    viewButton.onmouseup = function(){
+    viewButton.onclick = function(){
         closePreviewWindow();
         setCommandButtons(viewNoteCommandButtons);
         r(function*(){
