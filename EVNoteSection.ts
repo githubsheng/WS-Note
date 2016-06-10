@@ -54,6 +54,7 @@ namespace EVNoteSectionNamespace {
     function createNewNote(){
         setCommandButtons(editNoteCommandButtons);
         note = new Note(Date.now(), Date.now());
+        codeEditor.setTitle(note.title);
         codeEditor.setValue([]);
         setBody(codeEditor.containerEle);
         startAutoSaveInterval();
@@ -155,8 +156,6 @@ namespace EVNoteSectionNamespace {
         removeNoteContentFromIndexAndCache();
         note = undefined;
     }
-
-
 
     let isContentChanged = false;
     codeEditor.setValueChangeListener(function(){
