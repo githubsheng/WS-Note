@@ -122,12 +122,17 @@ namespace TokenizorNamespace {
         let tokenType = getCodeCharType(code[0]);
         let tokenValues: string[] = [];
         let tokenTypes: WordType[] = [];
+        let isReadingComment = false;
         let isReadingStringDoubleQuote = tokenType === WordType.codeDoubleQuoteString;
         let isReadingStringSingleQuote = tokenType === WordType.codeSingleQuoteString;
         for(let i = 1; i < code.length; i++) {
             let char = code[i];
 
-            if(isReadingStringDoubleQuote) {
+            if(isReadingComment) {
+                //there is no termination, because //makes the entire rest of the line comment.
+                token += char;
+                continue;
+            } else if(isReadingStringDoubleQuote) {
                 if(char === '\"') isReadingStringDoubleQuote = false;
                 token += char;
                 continue;
@@ -158,6 +163,14 @@ namespace TokenizorNamespace {
                             break;
                         }
                     }
+                }
+
+                /*special handling, if /, and previous one is also /, Im looking at //comment*/
+                if(char === '/' && code[i - 1] === "/") {
+                    //merge the two //into one token. previous they are treated as two specialSymbols.
+                    tokenTypes[tokenTypes.length - 1] = WordType.codeComment; //previous /'s type is now codeComment
+                    tokenType = WordType.codeComment;
+                    isReadingComment = true;
                 }
             }
         }

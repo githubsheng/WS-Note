@@ -371,6 +371,12 @@ namespace ContentTransformerNamespace {
                     span.classList.add("codeString");
                     parent.appendChild(span);
                     break;
+                case WordType.codeComment:
+                    span = document.createElement("span");
+                    span.appendChild(document.createTextNode(tokenValues[i]));
+                    span.classList.add("codeComment");
+                    parent.appendChild(span);
+                    break;
             }
         }
     }

@@ -188,7 +188,6 @@ button:hover {
     white-space: pre-wrap;
     margin: 20px auto;
     width: 90%;
-    line-height: 1.5em;
 }
 
 .noteViewer .title {
@@ -259,6 +258,10 @@ button:hover {
 
 .noteViewer .codeString {
     color: green;
+}
+
+.noteViewer .codeComment {
+    color: #9C7050;
 }
 
 .searchResultList {
