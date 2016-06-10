@@ -139,8 +139,8 @@ button:hover {
 .codeEditorContainer {
     position: absolute;
     top: 0;
-    left: 5px;
-    right: 5px;
+    left: 5%;
+    right: 5%;
     bottom: 5px;
 }
 
@@ -152,8 +152,8 @@ button:hover {
     padding: 5px 0;
     border: none;
     outline: none;
-    border-bottom: 1px solid #2196F3;
-    color: #2196F3;
+    border-bottom: 1px solid #FF9800;
+    color: #FF9800;
 }
 
 .codeEditor {

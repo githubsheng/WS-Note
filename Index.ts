@@ -77,7 +77,7 @@ namespace IndexNamespace {
             if(x === undefined) x = new Node();
             if(d === key.length) {
                 //when you intend to insert a search key word, but this word is already a special word, this operation should fail.
-                if(wordType === WordType.word && x.wordType !== WordType.word) return x;
+                if(wordType === WordType.word && x.wordType && x.wordType !== WordType.word) return x;
 
                 x.wordType = wordType;
                 if(wordType === WordType.word) {
