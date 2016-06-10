@@ -35,6 +35,18 @@ namespace RankNamespace {
      */
     export function search (searchKeyWords: string[]): NoteScoreDetail[] {
 
+        //try break down word combos into individual words and give those words a try as well
+        //in this case, if searchKeyWords is ["wang sheng", "storage"], the output will be ["wang sheng", "wang", "sheng", "storage"]
+        //I need the word combo "wang sheng" kept despite its component "wang" and "sheng" is added, so that notes that actually and really
+        //contain that word combo can receive higher ranking.
+        let temp: string[] = [];
+        for(let kw of searchKeyWords) {
+            temp.push(kw);
+            let s = kw.split(" ");
+            if(s.length > 1) temp.push(s[0], s[1]);
+        }
+        searchKeyWords = temp;
+
         let numberOfSearchKeyWords = searchKeyWords.length;
         let singleKeyWordAppearanceTotalScore = searchKeyWordAppearanceTotalScore / numberOfSearchKeyWords;
         let scorePerKeyWordAppearance = singleKeyWordAppearanceTotalScore / 3;
