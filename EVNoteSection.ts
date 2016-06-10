@@ -5,8 +5,8 @@
 ///<reference path="TextProcessor.ts"/>
 ///<reference path="ReferenceCache.ts"/>
 ///<reference path="TagsCache.ts"/>
-///<reference path="typings/chrome/chrome-app.d.ts"/>
 ///<reference path="NoteNameCache.ts"/>
+///<reference path="PreviewWindow.ts"/>
 
 namespace EVNoteSectionNamespace {
     
@@ -27,8 +27,9 @@ namespace EVNoteSectionNamespace {
     import convertToStyledDocumentFragment = ContentTransformerNamespace.convertToStyledDocumentFragment;
     import getNote = StorageNamespace.getNote;
     import broadcast = AppEventsNamespace.broadcast;
-    import AppWindow = chrome.app.window.AppWindow;
     import setNoteName = NoteNameCacheNamespace.setNoteName;
+    import closePreviewWindow = PreviewWindowNamespace.closePreviewWindow;
+    import getPreviewWindow = PreviewWindowNamespace.getPreviewWindow;
 
     let index = getIndex();
 
@@ -48,7 +49,6 @@ namespace EVNoteSectionNamespace {
     let editNoteCommandButtons = [viewButton, deleteButton];
     let viewNoteCommandButtons = [editButton, deleteButton];
 
-    let previewWindow: Window;
     let viewButtonPressedWhen: number = -1;
     let idOfAutoSaveInterval: number;
 
@@ -149,25 +149,7 @@ namespace EVNoteSectionNamespace {
         note = undefined;
     }
 
-    function closePreviewWindow(){
-        if(previewWindow) previewWindow.close();
-    }
 
-    function openPreviewWindow(){
-        if(chrome && chrome.app && chrome.app.window) {
-            closePreviewWindow();
-            chrome.app.window.create('test/html/viewer.html', {
-                'bounds': {
-                    'width': 400,
-                    'height': 400
-                }
-            }, function(appWindow: AppWindow) {
-                previewWindow = appWindow.contentWindow;
-            });
-        } else {
-            previewWindow = window.open("viewer.html");
-        }
-    }
 
     let isContentChanged = false;
     codeEditor.setValueChangeListener(function(){
@@ -212,7 +194,7 @@ namespace EVNoteSectionNamespace {
         let viewButtonReleasedWhen = Date.now();
         if(viewButtonReleasedWhen - viewButtonPressedWhen > 1000) {
             //this is a long press
-            openPreviewWindow();
+            getPreviewWindow();
         } else {
             closePreviewWindow();
             setCommandButtons(viewNoteCommandButtons);

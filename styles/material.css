@@ -247,10 +247,18 @@ button:hover {
     margin: 20px 0;
 }
 
+.searchResultList .notePreview:hover {
+    cursor: pointer;
+}
+
 .searchResultList .notePreview .title {
     color: #FF9800;
     margin-bottom: 5px;
     font-size: 18px;
+}
+
+.searchResultList .notePreview:hover .title {
+    text-decoration: underline;
 }
 
 .searchResultList .notePreview .keyWord {
