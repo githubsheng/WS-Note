@@ -11,7 +11,7 @@ namespace PreviewWindowNamespace {
         }
     }
 
-    export function getPreviewWindow(){
+    export function getPreviewWindow(): Promise<Window>{
         if(!previewWindow || previewWindow.closed) {
             if(chrome && chrome.app && chrome.app.window) {
                 chrome.app.window.create('Preview.html', {
@@ -25,8 +25,14 @@ namespace PreviewWindowNamespace {
             } else {
                 previewWindow = window.open("Preview.html");
             }
+            return new Promise<Window>(function(resolve){
+                previewWindow.onload = function(){
+                    resolve(previewWindow);
+                };
+            })
+        } else {
+            return Promise.resolve(previewWindow);
         }
-        return previewWindow;
     }
 }
 
