@@ -243,8 +243,15 @@ button:hover {
     margin-right: auto;
 }
 
+.searchResultList .searchSummary{
+    text-align: right;
+    color: lightgray;
+    font-size: 14px;
+    margin: 10px 0
+}
+
 .searchResultList .notePreview {
-    margin: 20px 0;
+    margin: 10px 0 20px 0;
 }
 
 .searchResultList .notePreview:hover {

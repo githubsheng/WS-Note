@@ -33,12 +33,15 @@ namespace RankNamespace {
      * provided by an array of search key words, it should provide a list of note id, the list needs to be sorted by
      * relevance.
      */
-    export function search (searchKeyWords: string[]): NoteScoreDetail[] {
+    export function search (searchKeyWords: string[]): {results: NoteScoreDetail[], searchTime: number} {
 
         //try break down word combos into individual words and give those words a try as well
         //in this case, if searchKeyWords is ["wang sheng", "storage"], the output will be ["wang sheng", "wang", "sheng", "storage"]
         //I need the word combo "wang sheng" kept despite its component "wang" and "sheng" is added, so that notes that actually and really
         //contain that word combo can receive higher ranking.
+
+        let searchStartTime = Date.now();
+
         let temp: string[] = [];
         for(let kw of searchKeyWords) {
             temp.push(kw);
@@ -63,6 +66,8 @@ namespace RankNamespace {
                 }
             }
         }
+
+        let searchEndTime = Date.now();
 
         let noteRankScoreDetails: NoteScoreDetail[] = [];
 
@@ -135,7 +140,10 @@ namespace RankNamespace {
            return b.totalScore - a.totalScore;
         });
 
-        return noteRankScoreDetails;
+        return {
+            results: noteRankScoreDetails,
+            searchTime: searchEndTime - searchStartTime
+        };
     }
 
 

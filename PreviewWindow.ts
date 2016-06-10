@@ -23,7 +23,7 @@ namespace PreviewWindowNamespace {
                     previewWindow = appWindow.contentWindow;
                 });
             } else {
-                previewWindow = window.open("viewer.html");
+                previewWindow = window.open("Preview.html");
             }
         }
         return previewWindow;

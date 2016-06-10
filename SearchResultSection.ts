@@ -99,6 +99,16 @@ namespace SearchResultSectionNamespace {
 
         let resultLists:HTMLDivElement = document.createElement("div");
         resultLists.classList.add("searchResultList");
+
+        let searchReturn = search(Array.from(searchKeyWords));
+        let rankedResults:NoteScoreDetail[] = searchReturn.results;
+        let searchTime = searchReturn.searchTime;
+        let searchSummaryStr = searchReturn.results.length + " results found in " + searchTime + " milliseconds";
+        let searchSummary = document.createElement("div");
+        searchSummary.appendChild(document.createTextNode(searchSummaryStr));
+        searchSummary.classList.add("searchSummary");
+        resultLists.appendChild(searchSummary);
+
         let moreResultsButton = document.createElement("button");
         let moreResultsContainer = document.createElement("div");
         moreResultsContainer.appendChild(moreResultsButton);
@@ -106,9 +116,8 @@ namespace SearchResultSectionNamespace {
 
         function insertNotePreviews() {
             r(function*() {
-                let rankedResults:NoteScoreDetail[] = search(Array.from(searchKeyWords));
                 if (showedResults < rankedResults.length) {
-                    let resultsToShow = rankedResults.slice(showedResults, showedResults += numberOfResultsShowedWhenMoreResultsPressed)
+                    let resultsToShow = rankedResults.slice(showedResults, showedResults += numberOfResultsShowedWhenMoreResultsPressed);
                     for (let i = 0; i < resultsToShow.length; i++) {
                         let notePreview = yield* createNotePreview(resultsToShow[i]);
                         resultLists.insertBefore(notePreview, moreResultsContainer);
