@@ -5,6 +5,7 @@
 ///<reference path="Storage.ts"/>
 ///<reference path="Rank.ts"/>
 ///<reference path="Digest.ts"/>
+///<reference path="PreviewWindow.ts"/>
 
 namespace SearchResultSectionNamespace {
 
@@ -20,6 +21,8 @@ namespace SearchResultSectionNamespace {
     import search = RankNamespace.search;
     import digest = DigestNamespace.digest;
     import getNote = StorageNamespace.getNote;
+    import getPreviewWindow = PreviewWindowNamespace.getPreviewWindow;
+    import closePreviewWindow = PreviewWindowNamespace.closePreviewWindow;
 
 
     function showGetStartedGuide() {
@@ -76,9 +79,14 @@ namespace SearchResultSectionNamespace {
 
         preview.appendChild(rankingDetail);
 
-        console.log(noteScoreDetail);
+        preview.oncontextmenu = function(evt){
+            evt.preventDefault();
+            let previewWindow = getPreviewWindow();
+            return false;
+        };
 
-        preview.onclick = function(){
+        preview.onclick = function(evt: MouseEvent){
+            closePreviewWindow();
             broadcast(AppEvent.viewNote, note.id);
         };
 
