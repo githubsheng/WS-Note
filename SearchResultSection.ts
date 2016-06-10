@@ -81,7 +81,9 @@ namespace SearchResultSectionNamespace {
 
         preview.oncontextmenu = function(evt){
             evt.preventDefault();
-            let previewWindow = getPreviewWindow();
+            getPreviewWindow().then(function(previewWindow: Window){
+                previewWindow.postMessage(note.components, "*");
+            });
             return false;
         };
 

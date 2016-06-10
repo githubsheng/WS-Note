@@ -49,7 +49,6 @@ namespace EVNoteSectionNamespace {
     let editNoteCommandButtons = [viewButton, deleteButton];
     let viewNoteCommandButtons = [editButton, deleteButton];
 
-    let viewButtonPressedWhen: number = -1;
     let idOfAutoSaveInterval: number;
 
     function createNewNote(){
@@ -186,23 +185,21 @@ namespace EVNoteSectionNamespace {
         r(editNote);
     };
 
-    viewButton.onmousedown = function(){
-        viewButtonPressedWhen = Date.now();
+    viewButton.oncontextmenu = function(evt){
+        evt.preventDefault();
+        getPreviewWindow().then(function(previewWindow: Window){
+            previewWindow.postMessage(note.components, "*");
+        });
+        return false;
     };
 
     viewButton.onmouseup = function(){
-        let viewButtonReleasedWhen = Date.now();
-        if(viewButtonReleasedWhen - viewButtonPressedWhen > 1000) {
-            //this is a long press
-            getPreviewWindow();
-        } else {
-            closePreviewWindow();
-            setCommandButtons(viewNoteCommandButtons);
-            r(function*(){
-                yield* storeNote();
-                yield* viewNote()
-            });
-        }
+        closePreviewWindow();
+        setCommandButtons(viewNoteCommandButtons);
+        r(function*(){
+            yield* storeNote();
+            yield* viewNote()
+        });
     };
 
     //todo: implement delete button
