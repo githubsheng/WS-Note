@@ -243,6 +243,14 @@ button:hover {
     padding: 2px 5px;
 }
 
+.noteViewer .inlineRef {
+    color: #2196F3;
+}
+
+.noteViewer .inlineRef:hover {
+    cursor: pointer;
+}
+
 .noteViewer .codeKeyword {
     color: cornflowerblue;
 }

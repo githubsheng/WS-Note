@@ -3,6 +3,8 @@
 ///<reference path="AsyncUtil.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
 ///<reference path="Tokenizor.ts"/>
+///<reference path="NoteNameCache.ts"/>
+///<reference path="AppEvents.ts"/>
 
 /**
  * Inside the editor is a large dom fragment. While I can store that dom fragment in the indexeddb,
@@ -25,6 +27,9 @@ namespace ContentTransformerNamespace {
     import createImageFromBlob = Utility.createImageFromBlob;
     import getIndex = IndexNamespace.getIndex;
     import tokenize = TokenizorNamespace.tokenize;
+    import getNoteName = NoteNameCacheNamespace.getNoteName;
+    import broadcast = AppEventsNamespace.broadcast;
+    import AppEvent = AppEventsNamespace.AppEvent;
 
     const textNodeName = "#text";
     const imgNodeName = "img";
@@ -320,7 +325,17 @@ namespace ContentTransformerNamespace {
                     }
                     parent.appendChild(span);
                     buffer.shift();
-                    span.appendChild(document.createTextNode(buffer.join("")));
+                    let spanText = buffer.join("");
+                    if(c === "`" && spanText.startsWith("note-ref:") && !Number.isNaN(+(spanText.substring(9)))) {
+                        let refNoteId = +(spanText.substring(9));
+                        spanText = getNoteName(refNoteId);
+                        span.classList.remove("inlineCode");
+                        span.classList.add("inlineRef");
+                        span.onclick = function(){
+                            broadcast(AppEvent.viewNote, refNoteId);
+                        }
+                    }
+                    span.appendChild(document.createTextNode(spanText));
                     buffer = [];
                     targetMarkup = undefined;
                 } else {
