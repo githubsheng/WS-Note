@@ -142,6 +142,7 @@ button:hover {
     left: 5%;
     right: 5%;
     bottom: 5px;
+    line-height: 1.5em;
 }
 
 .codeEditorContainer input.titleInput {
