@@ -60,6 +60,9 @@ namespace ViewNote {
         let relatedNoteIds = searchResults.results.map(function(r: NoteScoreDetail) {
             return r.noteId;
         }).slice(0, 10);
+        //skip the note itself
+        let idx = relatedNoteIds.indexOf(note.id);
+        if(idx > -1) relatedNoteIds.splice(idx, 1);
 
         if(relatedNoteIds.length > 0) {
             let relatedDiv = document.createElement("div");
