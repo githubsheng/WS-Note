@@ -4,6 +4,10 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+::-webkit-scrollbar {
+    display:none;
+}
+
 div, button {
     outline: none !important;
 }
@@ -330,4 +334,9 @@ button:hover {
     position: fixed;
     background: white;
     right: 5px;
+    top: 45px;
+}
+
+#closePreviewButtonContainer button {
+    font-size: 12px;
 }

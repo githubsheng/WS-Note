@@ -7,6 +7,14 @@ namespace PreviewWindowNamespace {
     let body = document.querySelector("#body");
     let previewWindow: HTMLDivElement = <HTMLDivElement>document.querySelector("#preview");
     let noteViewerEle: HTMLDivElement;
+    
+    let closePreviewButtonContainer = document.createElement("div");
+    closePreviewButtonContainer.id = "closePreviewButtonContainer";
+    let closePreviewButton = document.createElement("button");
+    closePreviewButton.innerText = "close preview";
+    closePreviewButton.onclick = closePreview;
+    closePreviewButtonContainer.appendChild(closePreviewButton);
+    previewWindow.appendChild(closePreviewButtonContainer);
 
     export function closePreview(){
         body.classList.remove("whenPreview");
