@@ -35,6 +35,7 @@ namespace EVNoteSectionNamespace {
     import closePreview = PreviewWindowNamespace.closePreview;
     import generateNoteViewerContent = ViewNote.generateNoteViewerContent;
     import refreshPreviewIfPreviewIsOpen = PreviewWindowNamespace.refreshPreviewIfPreviewIsOpen;
+    import tokenizeParagraph = TokenizorNamespace.tokenizeParagraph;
 
     let index = getIndex();
 
@@ -83,10 +84,13 @@ namespace EVNoteSectionNamespace {
 
     function removeNoteContentFromIndexAndCache(){
         //if not a new note, first remove all search key words from pre-modified content
-        let titleWords = note.title.split(" ");
-        titleWords.forEach(function(e) {
-            index.remove(e, false, note.id);
-        });
+        let titleTokens = tokenizeParagraph(note.title);
+        for(let i = 0; i < titleTokens.tokenTypes.length; i++) {
+            if(titleTokens.tokenTypes[i] === WordType.word) {
+                let searchKeyWord = titleTokens.tokenValues[i];
+                index.remove(searchKeyWord, false, note.id);
+            }
+        }
         let tpc = new KeywordProcessor(note.components);
         let kws = tpc.getKeyWords();
         for(let i = 0; i < kws.length; i++) {
@@ -126,10 +130,13 @@ namespace EVNoteSectionNamespace {
         let idb: IDBDatabase = yield getIDB();
         yield StorageNamespace.storeNote(idb, note);
         //add search key words from new content to index
-        let titleWords = note.title.split(" ");
-        titleWords.forEach(function(e) {
-            index.putAsSearchKeyword(e, false, note.id);
-        });
+        let titleTokens = tokenizeParagraph(note.title);
+        for(let i = 0; i < titleTokens.tokenTypes.length; i++) {
+            if(titleTokens.tokenTypes[i] === WordType.word) {
+                let searchKeyWord = titleTokens.tokenValues[i];
+                index.putAsSearchKeyword(searchKeyWord, false, note.id);
+            }
+        }
         let tpc = new KeywordProcessor(components);
         let kws = tpc.getKeyWords();
         for(let i = 0; i < kws.length; i++) {
