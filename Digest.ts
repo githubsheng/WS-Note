@@ -186,8 +186,13 @@ namespace DigestNamespace {
 
         let digestFrag = document.createDocumentFragment();
 
-        let componentsWithTokens = components.filter((c: Component) => {return c.codeLanguage === undefined && c.tokens !== undefined});
-        let listOfTokens = componentsWithTokens.map((c: Component) => {return c.tokens.tokenValues});
+        let componentsWithTokens = components.filter((c: Component) => {
+            return (c.codeLanguage === undefined && c.tokens !== undefined) || c.nodeName === "br"; //I need br since i need to transform br into white space.
+        });
+        let listOfTokens = componentsWithTokens.map((c: Component) => {
+            if(c.nodeName === "br") return [" "]; //br is treated as a whitespace. otherwise contents in two different lines won't be separated in digest
+            return c.tokens.tokenValues
+        });
         let para: string[] = [].concat(...listOfTokens);
 
         let middlePart:{start: number, end: number};
