@@ -32,6 +32,9 @@ namespace EVNoteSectionNamespace {
     import getPreviewWindow = PreviewWindowNamespace.getPreviewWindow;
     import getNoteName = NoteNameCacheNamespace.getNoteName;
     import getIdOfNotesThatReferences = ReferenceCacheNamespace.getIdOfNotesThatReferences;
+    import tokenizeParagraph = TokenizorNamespace.tokenizeParagraph;
+    import search = RankNamespace.search;
+    import NoteScoreDetail = RankNamespace.NoteScoreDetail;
 
     let index = getIndex();
 
@@ -79,21 +82,25 @@ namespace EVNoteSectionNamespace {
         titleEle.appendChild(document.createTextNode(note.title));
         titleEle.classList.add("title");
 
+        noteViewerEle.appendChild(titleEle);
+
         let domFrag = yield* convertToStyledDocumentFragment(note.components);
+        noteViewerEle.appendChild(domFrag);
 
         //references
-        if(note.references.length > 1) {
+        if(note.references.length > 0) {
             let referencesDiv = document.createElement("div");
             let referencesDivTitle = document.createElement("h3");
-            referencesDivTitle.innerText = "This note references"
+            referencesDivTitle.innerText = "This note references";
             referencesDiv.appendChild(referencesDivTitle);
             for(let reference of note.references) {
                 referencesDiv.appendChild(createNoteLink(reference));
             }
+            noteViewerEle.appendChild(referencesDiv);
         }
 
         //referenced by
-        if(getIdOfNotesThatReferences(note.id).size > 1) {
+        if(getIdOfNotesThatReferences(note.id).size > 0) {
             let referencedBysDiv = document.createElement("div");
             let referencedByTitle = document.createElement("h3");
             referencedByTitle.innerText = "This note is referenced by";
@@ -101,16 +108,31 @@ namespace EVNoteSectionNamespace {
             for(let referencedBy of getIdOfNotesThatReferences(note.id)) {
                 referencedBysDiv.appendChild(createNoteLink(referencedBy));
             }
+            noteViewerEle.appendChild(referencedBysDiv);
         }
-
-        //todo: related notes based on search by tags
-
-        noteViewerEle.appendChild(titleEle);
-        noteViewerEle.appendChild(domFrag);
-
-        noteViewerEle.appendChild(referencesDiv);
-        noteViewerEle.appendChild(referencedBysDiv);
-
+        
+        let searchKeyWordsForFindingRelatedNotes = [];
+        let titleTokens = tokenizeParagraph(note.title);
+        for (let i = 0; i < titleTokens.tokenTypes.length; i++) {
+            if(titleTokens.tokenTypes[i] === WordType.word)
+                searchKeyWordsForFindingRelatedNotes.push(titleTokens.tokenValues[i]);
+        }
+        searchKeyWordsForFindingRelatedNotes = searchKeyWordsForFindingRelatedNotes.concat(note.tags);
+        let searchResults = search(searchKeyWordsForFindingRelatedNotes);
+        let relatedNoteIds = searchResults.results.map(function(r: NoteScoreDetail) {
+            return r.noteId;
+        }).slice(0, 10);
+        
+        if(relatedNoteIds.length > 0) {
+            let relatedDiv = document.createElement("div");
+            let relatedDivTitle = document.createElement("h3");
+            relatedDivTitle.innerText = "Possible related notes";
+            relatedDiv.appendChild(relatedDivTitle);
+            for(let related of relatedNoteIds) {
+                relatedDiv.appendChild(createNoteLink(related));
+            }
+            noteViewerEle.appendChild(relatedDiv);           
+        }
         setBody(noteViewerEle);
     }
 
