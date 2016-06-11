@@ -109,7 +109,13 @@ namespace EVNoteSectionNamespace {
     }
 
     function createNoteLink(noteId: number) {
-        return document.createTextNode(getNoteName(noteId));
+        let noteName = getNoteName(noteId);
+        let button = document.createElement("button");
+        button.innerText = noteName;
+        button.onclick = function(){
+            broadcast(AppEvent.viewNote, noteId);
+        };
+        return button;
     }
 
     function removeNoteContentFromIndexAndCache(){
