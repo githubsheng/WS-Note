@@ -152,8 +152,8 @@ button:hover {
     padding: 5px 0;
     border: none;
     outline: none;
-    border-bottom: 1px solid #FF9800;
-    color: #FF9800;
+    border-bottom: 1px solid black;
+    color: black;
 }
 
 .codeEditor {
@@ -188,10 +188,13 @@ button:hover {
     white-space: pre-wrap;
     margin: 20px auto;
     width: 90%;
+    line-height: 1.5em;
 }
 
 .noteViewer .title {
-    color: #FF9800;
+    font-size: 30px;
+    font-weight: 300;
+    margin: 10px 0;
 }
 
 .noteViewer .important, .noteViewer .java, .noteViewer .js, .noteViewer .less {
@@ -287,9 +290,8 @@ button:hover {
 }
 
 .searchResultList .notePreview .title {
-    color: #FF9800;
     margin-bottom: 5px;
-    font-size: 18px;
+    font-size: 20px;
 }
 
 .searchResultList .notePreview:hover .title {
