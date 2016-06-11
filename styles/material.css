@@ -300,6 +300,6 @@ button:hover {
 }
 
 .searchResultList .notePreview .rankingDetail {
-    color: lightgray;
+    color: darkgray;
     font-size: 14px;
 }
