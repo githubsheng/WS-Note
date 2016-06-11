@@ -60,9 +60,13 @@ namespace SearchResultSectionNamespace {
             tagsMatchedString += "#" + tagMatched + "# ";
         }
         let referencedByString = noteScoreDetail.referencedByNotesWithName.size ===  0 ?
-            "" : "Referenced by " + noteScoreDetail.referencedByNotesWithName.size + " other notes ";
+            "" : "Referenced by " + noteScoreDetail.referencedByNotesWithName.size + " other note(s) ";
         let recentlyViewed = noteScoreDetail.recentlyViewed ? "Recently viewed" : "";
-        rankingDetail.appendChild(document.createTextNode(keyWordAppearanceString + tagsMatchedString + referencedByString + recentlyViewed));
+
+        let rankDetailStr = [keyWordAppearanceString, tagsMatchedString, referencedByString, recentlyViewed].filter(function(s){
+            return s !== "";
+        }).join("| ");
+        rankingDetail.appendChild(document.createTextNode(rankDetailStr));
 
         let totalScoreOutterBar = document.createElement("div");
         totalScoreOutterBar.style.display = "inline-block";
