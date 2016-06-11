@@ -95,6 +95,7 @@ namespace EVNoteSectionNamespace {
             referencesDiv.appendChild(referencesDivTitle);
             for(let reference of note.references) {
                 referencesDiv.appendChild(createNoteLink(reference));
+                referencesDiv.appendChild(document.createElement("br"));
             }
             noteViewerEle.appendChild(referencesDiv);
         }
@@ -107,10 +108,11 @@ namespace EVNoteSectionNamespace {
             referencedBysDiv.appendChild(referencedByTitle);
             for(let referencedBy of getIdOfNotesThatReferences(note.id)) {
                 referencedBysDiv.appendChild(createNoteLink(referencedBy));
+                referencedBysDiv.appendChild(document.createElement("br"));
             }
             noteViewerEle.appendChild(referencedBysDiv);
         }
-        
+
         let searchKeyWordsForFindingRelatedNotes = [];
         let titleTokens = tokenizeParagraph(note.title);
         for (let i = 0; i < titleTokens.tokenTypes.length; i++) {
@@ -130,6 +132,7 @@ namespace EVNoteSectionNamespace {
             relatedDiv.appendChild(relatedDivTitle);
             for(let related of relatedNoteIds) {
                 relatedDiv.appendChild(createNoteLink(related));
+                relatedDiv.appendChild(document.createElement("br"));
             }
             noteViewerEle.appendChild(relatedDiv);           
         }

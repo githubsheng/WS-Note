@@ -49,7 +49,7 @@ namespace TokenizorNamespace {
         }
     }
 
-    function tokenizeParagraph(paragraph: string): {tokenValues: string[], tokenTypes: WordType[]}{
+    export function tokenizeParagraph(paragraph: string): {tokenValues: string[], tokenTypes: WordType[]}{
         if(paragraph.length === 0) return {tokenValues: [], tokenTypes: []};
         let token = paragraph[0];
         let tokenType = getParagraphCharType(paragraph[0]);
@@ -116,7 +116,7 @@ namespace TokenizorNamespace {
     }
 
 
-    function tokenizeCode(code: string, language:CodeLanguage): {tokenValues: string[], tokenTypes: WordType[]}{
+    export function tokenizeCode(code: string, language:CodeLanguage): {tokenValues: string[], tokenTypes: WordType[]}{
         if(code.length === 0) return {tokenValues: [], tokenTypes: []};
         let token = code[0];
         let tokenType = getCodeCharType(code[0]);
