@@ -58,7 +58,7 @@ namespace RankNamespace {
 
         for(let keyWord of searchKeyWords) {
             let result = index.get(keyWord);
-            if(result.wordType === WordType.word) {
+            if(result && result.wordType === WordType.word) {
                 let notesRelatedToKeyWord = result.relatedNotes;
 
                 for(let noteId of notesRelatedToKeyWord.keys()) {
