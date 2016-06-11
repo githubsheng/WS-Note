@@ -220,10 +220,6 @@ button:hover {
     background-color: #FFF5EE;
 }
 
-.noteViewer h3 {
-    margin: 0;
-}
-
 .noteViewer .inlineCode {
     border: 1px solid #E8C5AD;
     background-color: #FFF5EE;
