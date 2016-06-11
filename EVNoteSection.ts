@@ -82,21 +82,27 @@ namespace EVNoteSectionNamespace {
         let domFrag = yield* convertToStyledDocumentFragment(note.components);
 
         //references
-        let referencesDiv = document.createElement("div");
-        let referencesDivTitle = document.createElement("h3");
-        referencesDivTitle.innerText = "This note references"
-        referencesDiv.appendChild(referencesDivTitle);
-        for(let reference of note.references) {
-            referencesDiv.appendChild(createNoteLink(reference));
+        if(note.references.length > 1) {
+            let referencesDiv = document.createElement("div");
+            let referencesDivTitle = document.createElement("h3");
+            referencesDivTitle.innerText = "This note references"
+            referencesDiv.appendChild(referencesDivTitle);
+            for(let reference of note.references) {
+                referencesDiv.appendChild(createNoteLink(reference));
+            }
         }
+
         //referenced by
-        let referencedBysDiv = document.createElement("div");
-        let referencedByTitle = document.createElement("h3");
-        referencedByTitle.innerText = "This note is referenced by";
-        referencedBysDiv.appendChild(referencedByTitle);
-        for(let referencedBy of getIdOfNotesThatReferences(note.id)) {
-            referencedBysDiv.appendChild(createNoteLink(referencedBy));
+        if(getIdOfNotesThatReferences(note.id).size > 1) {
+            let referencedBysDiv = document.createElement("div");
+            let referencedByTitle = document.createElement("h3");
+            referencedByTitle.innerText = "This note is referenced by";
+            referencedBysDiv.appendChild(referencedByTitle);
+            for(let referencedBy of getIdOfNotesThatReferences(note.id)) {
+                referencedBysDiv.appendChild(createNoteLink(referencedBy));
+            }
         }
+
         //todo: related notes based on search by tags
 
         noteViewerEle.appendChild(titleEle);
@@ -242,8 +248,8 @@ namespace EVNoteSectionNamespace {
         });
     };
 
-    //todo: implement delete button
     deleteButton.onclick = function(){
+        //todo: ask the user to confirm
         r(deleteNote);
         broadcast(AppEvent.resultsPage);
     };
