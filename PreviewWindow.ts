@@ -1,38 +1,40 @@
-///<reference path="typings/chrome/chrome-app.d.ts"/>
+///<reference path="AsyncUtil.ts"/>
+///<reference path="ViewNote.ts"/>
 
 namespace PreviewWindowNamespace {
-    import AppWindow = chrome.app.window.AppWindow;
+    import r = Utility.r;
+    import generateNoteViewerContent = ViewNote.generateNoteViewerContent;
+    let body = document.querySelector("#body");
+    let previewWindow: HTMLDivElement = <HTMLDivElement>document.querySelector("#preview");
+    let noteViewerEle: HTMLDivElement;
 
-    let previewWindow: Window;
-
-    export function closePreviewWindow(){
-        if(previewWindow) {
-            previewWindow.close();
+    export function closePreview(){
+        body.classList.remove("whenPreview");
+        previewWindow.style.display = "none";
+        if(noteViewerEle) {
+            noteViewerEle.remove();
+            noteViewerEle = undefined;
         }
     }
 
-    export function getPreviewWindow(): Promise<Window>{
-        if(!previewWindow || previewWindow.closed) {
-            if(chrome && chrome.app && chrome.app.window) {
-                chrome.app.window.create('Preview.html', {
-                    'bounds': {
-                        'width': 400,
-                        'height': 400
-                    }
-                }, function(appWindow: AppWindow) {
-                    previewWindow = appWindow.contentWindow;
-                });
-            } else {
-                previewWindow = window.open("Preview.html");
-            }
-            return new Promise<Window>(function(resolve){
-                previewWindow.onload = function(){
-                    resolve(previewWindow);
-                };
-            })
-        } else {
-            return Promise.resolve(previewWindow);
-        }
+    export function* refreshPreviewIfPreviewIsOpen(note: Note){
+        if(noteViewerEle === undefined) return; //preview is not open
+        noteViewerEle.remove();
+        noteViewerEle = document.createElement("div");
+        noteViewerEle.classList.add("noteViewer");
+        yield* generateNoteViewerContent(noteViewerEle, note);
+        previewWindow.appendChild(noteViewerEle);
+    }
+
+    export function displayPreview(note: Note):void {
+        r(function*(){
+            if(noteViewerEle) noteViewerEle.remove();
+            noteViewerEle = document.createElement("div");
+            noteViewerEle.classList.add("noteViewer");
+            yield* generateNoteViewerContent(noteViewerEle, note);
+            previewWindow.appendChild(noteViewerEle);
+            previewWindow.style.display = "block";
+            body.classList.add("whenPreview");
+        });
     }
 }
-

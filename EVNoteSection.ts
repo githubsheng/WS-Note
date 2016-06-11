@@ -7,6 +7,7 @@
 ///<reference path="TagsCache.ts"/>
 ///<reference path="NoteNameCache.ts"/>
 ///<reference path="PreviewWindow.ts"/>
+///<reference path="ViewNote.ts"/>
 
 namespace EVNoteSectionNamespace {
     
@@ -24,17 +25,16 @@ namespace EVNoteSectionNamespace {
     import setTagsForNote = TagsCacheNamespace.setTagsForNote;
     import addReference = ReferenceCacheNamespace.addReference;
     import r = Utility.r;
-    import convertToStyledDocumentFragment = ContentTransformerNamespace.convertToStyledDocumentFragment;
     import getNote = StorageNamespace.getNote;
     import broadcast = AppEventsNamespace.broadcast;
     import setNoteName = NoteNameCacheNamespace.setNoteName;
-    import closePreviewWindow = PreviewWindowNamespace.closePreviewWindow;
-    import getPreviewWindow = PreviewWindowNamespace.getPreviewWindow;
     import getNoteName = NoteNameCacheNamespace.getNoteName;
     import getIdOfNotesThatReferences = ReferenceCacheNamespace.getIdOfNotesThatReferences;
-    import tokenizeParagraph = TokenizorNamespace.tokenizeParagraph;
-    import search = RankNamespace.search;
     import NoteScoreDetail = RankNamespace.NoteScoreDetail;
+    import displayPreview = PreviewWindowNamespace.displayPreview;
+    import closePreview = PreviewWindowNamespace.closePreview;
+    import generateNoteViewerContent = ViewNote.generateNoteViewerContent;
+    import refreshPreviewIfPreviewIsOpen = PreviewWindowNamespace.refreshPreviewIfPreviewIsOpen;
 
     let index = getIndex();
 
@@ -62,7 +62,7 @@ namespace EVNoteSectionNamespace {
         codeEditor.setTitle(note.title);
         codeEditor.setValue([]);
         setBody(codeEditor.containerEle);
-        startAutoSaveInterval();
+        startAutoSaveAndPreviewInterval();
     }
     
     function* editNote(){
@@ -70,83 +70,15 @@ namespace EVNoteSectionNamespace {
         codeEditor.setTitle(note.title);
         codeEditor.setValue(note.components);
         setBody(codeEditor.containerEle);
-        startAutoSaveInterval();
+        startAutoSaveAndPreviewInterval();
     }
 
     function* viewNote() {
         setCommandButtons(viewNoteCommandButtons);
         while(noteViewerEle.firstChild)
             noteViewerEle.removeChild(noteViewerEle.firstChild);
-
-        let titleEle = document.createElement("h2");
-        titleEle.appendChild(document.createTextNode(note.title));
-        titleEle.classList.add("title");
-
-        noteViewerEle.appendChild(titleEle);
-
-        let domFrag = yield* convertToStyledDocumentFragment(note.components);
-        noteViewerEle.appendChild(domFrag);
-
-        //references
-        if(note.references.length > 0) {
-            let referencesDiv = document.createElement("div");
-            let referencesDivTitle = document.createElement("h3");
-            referencesDivTitle.innerText = "This note references";
-            referencesDiv.appendChild(referencesDivTitle);
-            for(let reference of note.references) {
-                referencesDiv.appendChild(createNoteLink(reference));
-                referencesDiv.appendChild(document.createElement("br"));
-            }
-            noteViewerEle.appendChild(referencesDiv);
-        }
-
-        //referenced by
-        if(getIdOfNotesThatReferences(note.id).size > 0) {
-            let referencedBysDiv = document.createElement("div");
-            let referencedByTitle = document.createElement("h3");
-            referencedByTitle.innerText = "This note is referenced by";
-            referencedBysDiv.appendChild(referencedByTitle);
-            for(let referencedBy of getIdOfNotesThatReferences(note.id)) {
-                referencedBysDiv.appendChild(createNoteLink(referencedBy));
-                referencedBysDiv.appendChild(document.createElement("br"));
-            }
-            noteViewerEle.appendChild(referencedBysDiv);
-        }
-
-        let searchKeyWordsForFindingRelatedNotes = [];
-        let titleTokens = tokenizeParagraph(note.title);
-        for (let i = 0; i < titleTokens.tokenTypes.length; i++) {
-            if(titleTokens.tokenTypes[i] === WordType.word)
-                searchKeyWordsForFindingRelatedNotes.push(titleTokens.tokenValues[i]);
-        }
-        searchKeyWordsForFindingRelatedNotes = searchKeyWordsForFindingRelatedNotes.concat(note.tags);
-        let searchResults = search(searchKeyWordsForFindingRelatedNotes);
-        let relatedNoteIds = searchResults.results.map(function(r: NoteScoreDetail) {
-            return r.noteId;
-        }).slice(0, 10);
-        
-        if(relatedNoteIds.length > 0) {
-            let relatedDiv = document.createElement("div");
-            let relatedDivTitle = document.createElement("h3");
-            relatedDivTitle.innerText = "Possible related notes";
-            relatedDiv.appendChild(relatedDivTitle);
-            for(let related of relatedNoteIds) {
-                relatedDiv.appendChild(createNoteLink(related));
-                relatedDiv.appendChild(document.createElement("br"));
-            }
-            noteViewerEle.appendChild(relatedDiv);           
-        }
+        yield* generateNoteViewerContent(noteViewerEle, note);
         setBody(noteViewerEle);
-    }
-
-    function createNoteLink(noteId: number) {
-        let noteName = getNoteName(noteId);
-        let button = document.createElement("button");
-        button.innerText = noteName;
-        button.onclick = function(){
-            broadcast(AppEvent.viewNote, noteId);
-        };
-        return button;
     }
 
     function removeNoteContentFromIndexAndCache(){
@@ -226,25 +158,27 @@ namespace EVNoteSectionNamespace {
         isContentChanged = true;
     });
 
-    function startAutoSaveInterval(){
+    function startAutoSaveAndPreviewInterval(){
         idOfAutoSaveInterval = window.setInterval(function(){
             if(isContentChanged) {
                 r(function*(){
                     isContentChanged = false;
                     yield* storeNote();
+                    yield* refreshPreviewIfPreviewIsOpen(note);
                 });
             }
         }, 500);
     }
 
     register(AppEvent.resultsPage, () => {
-        closePreviewWindow();
+        closePreview();
         window.clearInterval(idOfAutoSaveInterval)
     });
 
     register(AppEvent.createNewNote, createNewNote);
 
     register(AppEvent.viewNote, function(noteId: number){
+        closePreview();
         r(function*(){
             let idb: IDBDatabase = yield getIDB();
             note = yield StorageNamespace.getNote(idb, noteId);
@@ -258,14 +192,12 @@ namespace EVNoteSectionNamespace {
 
     viewButton.oncontextmenu = function(evt){
         evt.preventDefault();
-        getPreviewWindow().then(function(previewWindow: Window){
-            previewWindow.postMessage(note.components, "*");
-        });
+        displayPreview(note);
         return false;
     };
 
     viewButton.onclick = function(){
-        closePreviewWindow();
+        closePreview();
         setCommandButtons(viewNoteCommandButtons);
         r(function*(){
             yield* storeNote();
