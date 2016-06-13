@@ -33,6 +33,7 @@ namespace ViewNote {
                 referencesDiv.appendChild(createNoteLink(reference));
                 referencesDiv.appendChild(document.createElement("br"));
             }
+            noteViewerEle.appendChild(document.createElement("br"));
             noteViewerEle.appendChild(referencesDiv);
         }
 
@@ -46,9 +47,11 @@ namespace ViewNote {
                 referencedBysDiv.appendChild(createNoteLink(referencedBy));
                 referencedBysDiv.appendChild(document.createElement("br"));
             }
+            noteViewerEle.appendChild(document.createElement("br"));
             noteViewerEle.appendChild(referencedBysDiv);
         }
 
+        //related notes
         let searchKeyWordsForFindingRelatedNotes = [];
         let titleTokens = tokenizeParagraph(note.title);
         for (let i = 0; i < titleTokens.tokenTypes.length; i++) {
@@ -73,6 +76,7 @@ namespace ViewNote {
                 relatedDiv.appendChild(createNoteLink(related));
                 relatedDiv.appendChild(document.createElement("br"));
             }
+            noteViewerEle.appendChild(document.createElement("br"));
             noteViewerEle.appendChild(relatedDiv);
         }
     }
