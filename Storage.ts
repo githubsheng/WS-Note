@@ -100,6 +100,7 @@ namespace StorageNamespace {
             //now i need to pick one object store mentioned above
             let store = transaction.objectStore(noteStoreName);
             //this `add` operation will be included in the transaction
+            note.modifiedWhen = Date.now();
             let request = store.put(note);
             let id;
             //this callback will be invoked when the item gets added

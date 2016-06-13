@@ -17,8 +17,12 @@ namespace ViewNote {
         let titleEle = document.createElement("h2");
         titleEle.appendChild(document.createTextNode(note.title));
         titleEle.classList.add("title");
-
         noteViewerEle.appendChild(titleEle);
+
+        let refIdEle = document.createElement("div");
+        refIdEle.innerText = `note-ref:${note.id}`;
+        refIdEle.classList.add("refNo");
+        noteViewerEle.appendChild(refIdEle);
 
         let domFrag = yield* convertToStyledDocumentFragment(note.components);
         noteViewerEle.appendChild(domFrag);

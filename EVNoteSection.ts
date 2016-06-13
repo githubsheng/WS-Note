@@ -63,6 +63,7 @@ namespace EVNoteSectionNamespace {
         codeEditor.setTitle(note.title);
         codeEditor.setValue([]);
         setBody(codeEditor.containerEle);
+        closePreview();
         startAutoSaveAndPreviewInterval();
     }
     

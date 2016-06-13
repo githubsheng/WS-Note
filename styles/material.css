@@ -216,7 +216,7 @@ button:hover {
 .noteViewer .title {
     font-size: 30px;
     font-weight: 300;
-    margin: 10px 0 30px 0;
+    margin: 40px 0 20px 0;
 }
 
 .noteViewer .important, .noteViewer .java, .noteViewer .js, .noteViewer .less {
@@ -290,6 +290,11 @@ button:hover {
 
 .noteViewer .codeComment {
     color: #9C7050;
+}
+
+.noteViewer .refNo {
+    color: darkgray;
+    margin-bottom: 10px;
 }
 
 .searchResultList {
