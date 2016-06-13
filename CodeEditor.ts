@@ -11,6 +11,8 @@ namespace CodeEditorNamespace {
     import storeImageBlob = StorageNamespace.storeImageBlob;
     import createCanvasBasedOnImage = Utility.createCanvasBasedOnImage;
     import getIDB = StorageNamespace.getIDB;
+    import broadcast = AppEventsNamespace.broadcast;
+    import AppEvent = AppEventsNamespace.AppEvent;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
@@ -36,6 +38,40 @@ namespace CodeEditorNamespace {
         codeEditorEle.contentEditable = "true";
 
         let dropContainerEle = document.createElement('div');
+
+        let dropInstructions = document.createElement("div");
+        dropInstructions.classList.add("instructionContainer");
+
+        let divLeft = document.createElement("div");
+        divLeft.classList.add("left");
+        dropInstructions.appendChild(divLeft);
+
+        let divRight = document.createElement("div");
+        divRight.classList.add("right");
+        dropInstructions.appendChild(divRight);
+
+        let divBottom = document.createElement("div");
+        divBottom.classList.add("bottom");
+
+        let dropImageToUploadInstruction = document.createTextNode("Drop images here to upload");
+        let createNewImageInstruction = document.createElement("button");
+        createNewImageInstruction.innerText = "Create a blank image";
+        let cancelInsertImage = document.createElement("button");
+        cancelInsertImage.innerText = "Cancel";
+
+        divBottom.appendChild(dropImageToUploadInstruction);
+        divBottom.appendChild(document.createElement("br"));
+        divBottom.appendChild(createNewImageInstruction);
+        divBottom.appendChild(document.createElement("br"));
+        divBottom.appendChild(cancelInsertImage);
+
+        dropInstructions.appendChild(divBottom);
+        dropContainerEle.appendChild(dropInstructions);
+
+        let dropSensor = document.createElement("div");
+        dropSensor.classList.add("dropSensor");
+        dropContainerEle.appendChild(dropSensor);
+
         dropContainerEle.classList.add("codeEditorDropGround");
 
         containerEle.appendChild(noteTitleEle);
@@ -116,7 +152,7 @@ namespace CodeEditorNamespace {
             referenceRangeToInsertNode = window.getSelection().getRangeAt(0);
         }
 
-        dropContainerEle.ondragenter = function (e) {
+        dropSensor.ondragenter = function (e) {
             //if the drag is something other than files, ignore it.
             var types = e.dataTransfer.types;
             if ((types.contains && types.contains("Files")) || (types["indexOf"] && types["indexOf"]("Files") != -1)) {
@@ -128,20 +164,22 @@ namespace CodeEditorNamespace {
         };
 
         //change the style of the drop zone if the user moves out of it
-        dropContainerEle.ondragleave = function () {
+        dropSensor.ondragleave = function () {
             dropContainerEle.classList.remove("active");
         };
 
         // This handler just tells the browser to keep sending notifications (that Im still interested)
-        dropContainerEle.ondragover = function () {
+        dropSensor.ondragover = function () {
             return false;
         };
 
         //When the user drops files, store the file if the files are images, and insert the images in editor
-        dropContainerEle.ondrop = function (e) {
+        dropSensor.ondrop = function (e) {
+            //e.dataTransfer.files will become empty when ondrop function return false. and it is likely it returns false
+            //before the logic in generator is executed asynchronously. so i need to remember the files first.
+            let files = e.dataTransfer.files; // The dropped files
             r(function*() {
                 let idb = yield getIDB();
-                let files = e.dataTransfer.files; // The dropped files
                 for (let i = 0; i < files.length; i++) {
                     let file = files[i];
                     let type = file.type;
@@ -154,7 +192,13 @@ namespace CodeEditorNamespace {
 
                     let selection = window.getSelection();
                     let range = selection.getRangeAt(0);
-                    range.insertNode(img);
+                    if(range.startContainer === codeEditorEle || range.startContainer.parentNode === codeEditorEle) {
+                        //check to see if the range is in the code editor.
+                        range.insertNode(img);
+                    } else {
+                        //if range is not in code editor then just append the image to the end of code editor.
+                        codeEditorEle.appendChild(img);
+                    }
 
                     let newRange = new Range();
                     newRange.setEndAfter(img);
@@ -166,11 +210,16 @@ namespace CodeEditorNamespace {
                 dropContainerEle.classList.remove("active");
                 dropContainerEle.style.zIndex = "1";
                 codeEditorEle.focus();
+                stopInsertingImg();
                 //once the images are ready, notify listeners that values have changed.
                 if(valueChangeListener) valueChangeListener();
             });
             //I've handled the drop
             return false;
+        };
+        
+        cancelInsertImage.onclick = function(){
+            stopInsertingImg();
         };
 
         function getTitle(): string{
@@ -197,6 +246,11 @@ namespace CodeEditorNamespace {
 
         function startInsertingImg() {
             dropContainerEle.style.zIndex = "3";
+        }
+
+        function stopInsertingImg(){
+            dropContainerEle.style.zIndex = "1";
+            broadcast(AppEvent.cancelUploadImage);
         }
 
         return {

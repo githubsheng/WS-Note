@@ -190,12 +190,59 @@ button:hover {
 .codeEditorDropGround {
     position: absolute;
     z-index: 1;
-    background: lightblue;
-    position: absolute;
     top: 45px;
     left: 0;
     right: 0;
     bottom: 0;
+    background: white;
+    box-shadow: inset 0 0 30px #007BDD;
+}
+
+.codeEditorDropGround .dropSensor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.codeEditorDropGround .instructionContainer {
+    width: 200px;
+    height: 290px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.codeEditorDropGround .instructionContainer div.left {
+    width: 100px;
+    height: 130px;
+    background: #6BB8F4;
+    position: absolute;
+    top: 0;
+    left: 10px;
+    transform: rotate(-20deg);
+    border: 1px solid #05435F;
+}
+
+.codeEditorDropGround .instructionContainer div.right {
+    width: 100px;
+    height: 130px;
+    background: rgba(232, 197, 173, 0.86);
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    transform: rotate(20deg);
+    border: 1px solid #844F00;
+}
+
+.codeEditorDropGround .instructionContainer div.bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
 }
 
 .codeEditorDropGround.active {

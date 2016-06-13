@@ -48,12 +48,21 @@ namespace EVNoteSectionNamespace {
 
     let viewButton = document.createElement("button");
     viewButton.appendChild(document.createTextNode("View"));
+
+    let imageButton = document.createElement("button");
+    imageButton.innerText = "Image";
+
     let deleteButton = document.createElement("button");
     deleteButton.appendChild(document.createTextNode("Delete"));
+
     let editButton = document.createElement("button");
     editButton.appendChild(document.createTextNode("Edit"));
-    let editNoteCommandButtons = [viewButton, deleteButton];
+
+    let cancelAddImageButton = document.createElement("button");
+    cancelAddImageButton.innerText = "Cancel";
+
     let viewNoteCommandButtons = [editButton, deleteButton];
+    let editNoteCommandButtons = [viewButton, imageButton, deleteButton];
 
     let idOfAutoSaveInterval: number;
 
@@ -212,6 +221,15 @@ namespace EVNoteSectionNamespace {
             yield* viewNote()
         });
     };
+
+    imageButton.onclick = function(){
+        codeEditor.startInsertingImg();
+        setCommandButtons([]);
+    };
+
+    register(AppEvent.cancelUploadImage, function(){
+        setCommandButtons(editNoteCommandButtons);
+    });
 
     deleteButton.onclick = function(){
         //todo: ask the user to confirm
