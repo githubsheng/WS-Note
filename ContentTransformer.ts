@@ -55,7 +55,12 @@ namespace ContentTransformerNamespace {
             let node = codeEditor.childNodes[i];
             let cp:Component = {nodeName: node.nodeName.toLowerCase()};
             if (cp.nodeName === textNodeName) cp.value = node.nodeValue;
-            if (cp.nodeName === imgNodeName) cp.imageDataId = (<HTMLImageElement>node).imageDataId;
+            if (cp.nodeName === imgNodeName) {
+                let img = <HTMLImageElement>node;
+                cp.imageDataId = img.imageDataId;
+                cp.imageWidth = img.width;
+                cp.imageHeight = img.height;
+            }
             addChildAndNormalize(normalizedComponents, cp);
         }
 
@@ -152,7 +157,10 @@ namespace ContentTransformerNamespace {
                     let imageDataId = cp.imageDataId;
                     let imageData = yield getImageBlob(idb, imageDataId);
                     node = yield createImageFromBlob(imageData);
-                    (<HTMLImageElement>node).imageDataId = imageDataId;
+                    let img = <HTMLImageElement>node;
+                    img.imageDataId = imageDataId;
+                    img.width = cp.imageWidth;
+                    img.height = cp.imageHeight;
                     break;
                 default:
                     node = document.createElement(cp.nodeName);
@@ -281,6 +289,8 @@ namespace ContentTransformerNamespace {
                     let imageData = yield getImageBlob(idb, imageDataId);
                     let img = yield createImageFromBlob(imageData);
                     img.imageDataId = imageDataId;
+                    img.width = cp.imageWidth;
+                    img.height = cp.imageHeight;
                     getParent().appendChild(img);
                     break;
                 default:
