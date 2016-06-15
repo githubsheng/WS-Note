@@ -6,6 +6,8 @@
 ///<reference path="TestTokenizer.ts"/>
 ///<reference path="TestRank.ts"/>
 
+StorageNamespace.dbName = "test";
+
 TestIndexNamespace.runIndexTest();
 TestTextProcessorNamespace.runTextProcessorTest();
 TestStorageNamespace.runStorageTest();

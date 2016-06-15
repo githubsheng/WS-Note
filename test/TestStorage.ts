@@ -36,7 +36,7 @@ namespace TestStorageNamespace {
 
         function* testGetIDB() {
             window.indexedDB.deleteDatabase("test");
-            let idb = yield getIDB("test");
+            let idb = yield getIDB();
             shouldNotBeUndefined(idb);
             shouldBeInstanceOf(idb, IDBDatabase);
             return idb;

@@ -61,7 +61,7 @@ namespace TestContentTransformerNamespace {
         }
 
         r(function*(){
-            let idb = yield getIDB("test");
+            let idb = yield getIDB();
             let imgId = yield* storeTestImage(idb);
 
             let expectedDomFrag = document.createDocumentFragment();
@@ -78,7 +78,7 @@ namespace TestContentTransformerNamespace {
 
     function testConvertToStyledDocumentFragment(){
         r(function*(){
-            let idb = yield getIDB("test");
+            let idb = yield getIDB();
             let imgId = yield* storeTestImage(idb);
 
             let components = createDummyComponents(imgId);
