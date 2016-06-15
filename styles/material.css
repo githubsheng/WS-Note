@@ -185,6 +185,11 @@ button:hover {
     left: 0;
     right: 0;
     bottom: 0;
+    padding: 4px;
+}
+
+.codeEditor img.imgSelected {
+    box-shadow: 0 0 0 2px #2196F3;
 }
 
 .codeEditorDropGround {
@@ -206,9 +211,18 @@ button:hover {
     bottom: 0;
 }
 
+.codeEditorDropGround .dropSensor .command {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 220px;
+    text-align: center;
+    transform: translate(-50%, 210%);
+}
+
 .codeEditorDropGround .instructionContainer {
     width: 200px;
-    height: 290px;
+    height: 230px;
     position: absolute;
     top: 50%;
     left: 50%;

@@ -64,6 +64,18 @@ namespace EVNoteSectionNamespace {
     let viewNoteCommandButtons = [editButton, deleteButton];
     let editNoteCommandButtons = [viewButton, imageButton, deleteButton];
 
+    //resize img command buttons
+    let resizeImgWidthCB = createButton("Width");
+    let resizeImgHeightCB = createButton("Height");
+    let resizeImgCB = createButton("Resize");
+    let resizeImgCommandButtons = [resizeImgWidthCB, resizeImgHeightCB, resizeImgCB];
+
+    function createButton(text: string){
+        let button = document.createElement("button");
+        button.innerText = text;
+        return button;
+    }
+
     let idOfAutoSaveInterval: number;
 
     function createNewNote(){
@@ -230,6 +242,44 @@ namespace EVNoteSectionNamespace {
     register(AppEvent.cancelUploadImage, function(){
         setCommandButtons(editNoteCommandButtons);
     });
+
+    register(AppEvent.imgFocus, function(){
+        setCommandButtons(resizeImgCommandButtons);
+    });
+
+    register(AppEvent.imgLoseFocus, function(){
+        setCommandButtons(editNoteCommandButtons);
+    });
+
+    resizeImgWidthCB.onclick = function(){
+        broadcast(AppEvent.incImgWidth);
+    };
+
+    resizeImgWidthCB.oncontextmenu = function(e) {
+        broadcast(AppEvent.decImgWidth);
+        e.preventDefault();
+        return false;
+    };
+
+    resizeImgHeightCB.onclick = function(){
+        broadcast(AppEvent.incImgHeight);
+    };
+
+    resizeImgHeightCB.oncontextmenu = function(e) {
+        broadcast(AppEvent.decImgHeight);
+        e.preventDefault();
+        return false;
+    };
+
+    resizeImgCB.onclick = function(){
+        broadcast(AppEvent.incImgSize);
+    };
+
+    resizeImgCB.oncontextmenu = function(e) {
+        broadcast(AppEvent.decImgSize);
+        e.preventDefault();
+        return false;
+    };
 
     deleteButton.onclick = function(){
         //todo: ask the user to confirm

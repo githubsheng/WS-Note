@@ -13,6 +13,7 @@ namespace CodeEditorNamespace {
     import getIDB = StorageNamespace.getIDB;
     import broadcast = AppEventsNamespace.broadcast;
     import AppEvent = AppEventsNamespace.AppEvent;
+    import register = AppEventsNamespace.register;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
@@ -60,16 +61,20 @@ namespace CodeEditorNamespace {
         cancelInsertImage.innerText = "Cancel";
 
         divBottom.appendChild(dropImageToUploadInstruction);
-        divBottom.appendChild(document.createElement("br"));
-        divBottom.appendChild(createNewImageInstruction);
-        divBottom.appendChild(document.createElement("br"));
-        divBottom.appendChild(cancelInsertImage);
+        // divBottom.appendChild(document.createElement("br"));
 
         dropInstructions.appendChild(divBottom);
         dropContainerEle.appendChild(dropInstructions);
 
         let dropSensor = document.createElement("div");
         dropSensor.classList.add("dropSensor");
+        let commands = document.createElement("div");
+        commands.classList.add("command");
+        commands.appendChild(createNewImageInstruction);
+        commands.appendChild(document.createElement("br"));
+        commands.appendChild(cancelInsertImage);
+        dropSensor.appendChild(commands);
+
         dropContainerEle.appendChild(dropSensor);
 
         dropContainerEle.classList.add("codeEditorDropGround");
@@ -146,6 +151,11 @@ namespace CodeEditorNamespace {
             }
         }
 
+        codeEditorEle.addEventListener("click", function(){
+            resetSelectedImg();
+            broadcast(AppEvent.imgLoseFocus);
+        });
+
         let referenceRangeToInsertNode:Range;
         codeEditorEle.addEventListener("blur", codeEditorFocusLostHandler);
         function codeEditorFocusLostHandler() {
@@ -190,6 +200,8 @@ namespace CodeEditorNamespace {
                     let img:HTMLImageElement = yield createImageFromBlob(file);
                     img.imageDataId = imgId;
 
+                    img.onclick = imgSelectCallback;
+
                     let selection = window.getSelection();
                     let range = selection.getRangeAt(0);
                     if(range.startContainer === codeEditorEle || range.startContainer.parentNode === codeEditorEle) {
@@ -217,6 +229,76 @@ namespace CodeEditorNamespace {
             //I've handled the drop
             return false;
         };
+
+        let selectedImg: HTMLImageElement;
+
+        function resetSelectedImg(){
+            if(selectedImg) selectedImg.classList.remove("imgSelected");
+        }
+
+        function setSelectedImg(img: HTMLImageElement){
+            selectedImg = img;
+            img.classList.add("imgSelected");
+        }
+
+        function imgSelectCallback(evt: MouseEvent) {
+            let img = <HTMLImageElement>evt.target;
+            resetSelectedImg();
+            setSelectedImg(img);
+            broadcast(AppEvent.imgFocus);
+            evt.stopPropagation();
+        }
+
+        function incSelectedImgWidth(){
+            var originalHeight = selectedImg.height;
+            selectedImg.width = Math.round(selectedImg.width * 1.1); //this will automatically change the height as well.
+            selectedImg.height = originalHeight;
+        }
+
+        function decSelectedImgWidth(){
+            var originalHeight = selectedImg.height;
+            selectedImg.width = Math.round(selectedImg.width * 0.9);
+            selectedImg.height = originalHeight;
+        }
+
+        function incSelectedImgHeight(){
+            var originalWidth = selectedImg.width;
+            selectedImg.height = Math.round(selectedImg.height * 1.1);
+            selectedImg.width = originalWidth;
+        }
+
+        function decSelectedImgHeight(){
+            var originalWidth = selectedImg.width;
+            selectedImg.height = Math.round(selectedImg.height * 0.9);
+            selectedImg.width = originalWidth;
+        }
+
+        function changeImgSizeAndKeepWidthHeightRadio(radio: number){
+            var originalWidth = selectedImg.width;
+            var originalHeight = selectedImg.height;
+            selectedImg.width = Math.round(originalWidth * radio);
+            selectedImg.height = Math.round(originalHeight * radio);
+        }
+
+        function increaseImgSizeAndKeepWidthHeightRadio(){
+            changeImgSizeAndKeepWidthHeightRadio(1.1);
+        }
+
+        function decreaseImgSizeAndKeepWidthHeightRadio(){
+            changeImgSizeAndKeepWidthHeightRadio(0.9);
+        }
+
+        register(AppEvent.incImgWidth, incSelectedImgWidth);
+
+        register(AppEvent.decImgWidth, decSelectedImgWidth);
+
+        register(AppEvent.incImgHeight, incSelectedImgHeight);
+
+        register(AppEvent.decImgHeight, decSelectedImgHeight);
+
+        register(AppEvent.incImgSize, increaseImgSizeAndKeepWidthHeightRadio);
+
+        register(AppEvent.decImgSize, decreaseImgSizeAndKeepWidthHeightRadio);
         
         cancelInsertImage.onclick = function(){
             stopInsertingImg();
@@ -241,6 +323,10 @@ namespace CodeEditorNamespace {
             r(function*(){
                 let fragment: DocumentFragment = yield* convertToDocumentFragment(components);
                 codeEditorEle.appendChild(fragment);
+                let imgs = codeEditorEle.querySelectorAll("img");
+                for(let i = 0; i < imgs.length; i++) {
+                    (<HTMLImageElement>imgs.item(i)).onclick = imgSelectCallback;
+                }
             });
         }
 

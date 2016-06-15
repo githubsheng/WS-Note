@@ -1,6 +1,9 @@
 namespace AppEventsNamespace {
 
-    export enum AppEvent {createNewNote, viewNote, editNote, resultsPage, cancelUploadImage}
+    export enum AppEvent {
+        createNewNote, viewNote, editNote, resultsPage,
+        cancelUploadImage, imgFocus, imgLoseFocus, incImgWidth, decImgWidth, incImgHeight, decImgHeight, incImgSize, decImgSize
+    }
 
     let eventListenerMap: Map<AppEvent, Array<(data? : any) => void>> = new Map();
 
