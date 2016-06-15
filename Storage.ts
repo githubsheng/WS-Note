@@ -2,18 +2,17 @@
 
 namespace StorageNamespace {
 
-    const dbName = "test";
     const noteStoreName = "notes";
     const imageStoreName = "images";
     let idb: IDBDatabase;
 
-    export function getIDB(): Promise<IDBDatabase>{
+    export function getIDB(databaseName?: string): Promise<IDBDatabase>{
         function promiseFunc(resolve) {
             //get idb factory
             let dbFactory:IDBFactory = window.indexedDB;
             //use idb factory to connect to db called `test`. the function call immediately returns the request that is sent to
             //connect to db. When the connection is successful, the request's onsuccess/onerror call back will be invoked.
-            let request:IDBOpenDBRequest = dbFactory.open(dbName);
+            let request:IDBOpenDBRequest = dbFactory.open(databaseName || "prod");
             //when the connection is successful this call back is invoked.
             //note that if onupgradeneeded is invoked, it is called before onsuccess.
             request.onsuccess = function(evt: Event) {

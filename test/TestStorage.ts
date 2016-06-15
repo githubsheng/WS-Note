@@ -29,15 +29,14 @@ namespace TestStorageNamespace {
         let img = yield createImageFromRegularURL("../resources/test.jpeg");
         let canvas = createCanvasBasedOnImage(img);
         let blob = yield getBlobFromCanvas(canvas);
-        let id = yield storeImageBlob(idb, blob);
-        return id;
+        return yield storeImageBlob(idb, blob);
     }
 
     export function runStorageTest() {
 
         function* testGetIDB() {
             window.indexedDB.deleteDatabase("test");
-            let idb = yield getIDB();
+            let idb = yield getIDB("test");
             shouldNotBeUndefined(idb);
             shouldBeInstanceOf(idb, IDBDatabase);
             return idb;
