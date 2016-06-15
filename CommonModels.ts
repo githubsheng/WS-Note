@@ -8,6 +8,8 @@ interface Component {
     nodeName:string;
     value?:string;
     imageDataId?:number;
+    imageWidth?: number;
+    imageHeight?: number;
     isBlockLevelMarkup?:boolean;
     codeLanguage?:CodeLanguage;
     noticeLevel?:NoticeLevel;
