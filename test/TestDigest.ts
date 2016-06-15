@@ -46,7 +46,7 @@ namespace TestDigestNamespace {
         shouldBeEqual(generatedNodes[0].nodeValue, "...");
         shouldBeEqual(generatedNodes[1].nodeValue, "is not an ");
         shouldBeEqual(generatedNodes[2].firstChild.nodeValue, "array");
-        shouldBeEqual(generatedNodes[3].nodeValue, "). concat does not alter this or any of the arrays provided as arguments (and ...extra content to make really long and long and long and long) but instead returns a ");
+        shouldBeEqual(generatedNodes[3].nodeValue, "). concat does not alter this or any of the arrays provided as arguments (and ... content to make really long and long and long and long) but instead  returns a ");
         shouldBeEqual(generatedNodes[4].firstChild.nodeValue, "shallow");
         shouldBeEqual(generatedNodes[5].nodeValue, " copy that contains copies of the same ");
         shouldBeEqual(generatedNodes[6].firstChild.nodeValue, "elements");
