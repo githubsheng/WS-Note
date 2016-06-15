@@ -203,8 +203,8 @@ namespace CodeEditorNamespace {
                     img.onclick = imgSelectCallback;
 
                     let selection = window.getSelection();
-                    let range = selection.getRangeAt(0);
-                    if(range.startContainer === codeEditorEle || range.startContainer.parentNode === codeEditorEle) {
+                    let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : undefined;
+                    if(range && (range.startContainer === codeEditorEle || range.startContainer.parentNode === codeEditorEle)) {
                         //check to see if the range is in the code editor.
                         range.insertNode(img);
                     } else {
