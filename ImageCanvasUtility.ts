@@ -1,6 +1,5 @@
 ///<reference path="typings/extended.d.ts"/>
 ///<reference path="AsyncUtil.ts"/>
-///<reference path="typings/extended.d.ts"/>
 
 namespace Utility {
 
