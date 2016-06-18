@@ -138,6 +138,10 @@ class FreeDrawCanvas {
         canvas.classList.add("x"+ size);
     }
 
+    public getCanvas(): HTMLCanvasElement{
+        return this.canvas;
+    }
+
     public getBlobPromise(): Promise<Blob> {
         let canvas = this.canvas;
         return new Promise<Blob>((resolve) => {
