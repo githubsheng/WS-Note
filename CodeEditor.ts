@@ -1,5 +1,8 @@
 ///<reference path="ImageCanvasUtility.ts"/>
 ///<reference path="ContentTransformer.ts"/>
+///<reference path="FreeDrawCanvas.ts"/>
+///<reference path="CommandsSection.ts"/>
+///<reference path="FooterSection.ts"/>
 
 namespace CodeEditorNamespace {
 
@@ -14,6 +17,8 @@ namespace CodeEditorNamespace {
     import broadcast = AppEventsNamespace.broadcast;
     import AppEvent = AppEventsNamespace.AppEvent;
     import register = AppEventsNamespace.register;
+    import getBlobFromCanvas = Utility.getBlobFromCanvas;
+    import setCommandButtons = CommandsSectionNamespace.setCommandButtons;
 
     export interface CodeEditor {
         containerEle:HTMLElement;
@@ -159,7 +164,8 @@ namespace CodeEditorNamespace {
         let referenceRangeToInsertNode:Range;
         codeEditorEle.addEventListener("blur", codeEditorFocusLostHandler);
         function codeEditorFocusLostHandler() {
-            referenceRangeToInsertNode = window.getSelection().getRangeAt(0);
+            if(window.getSelection().rangeCount > 0)
+                referenceRangeToInsertNode = window.getSelection().getRangeAt(0);
         }
 
         dropSensor.ondragenter = function (e) {
@@ -231,9 +237,12 @@ namespace CodeEditorNamespace {
         };
 
         let selectedImg: HTMLImageElement;
+        let freeDraw: FreeDrawCanvas;
 
         function resetSelectedImg(){
-            if(selectedImg) selectedImg.classList.remove("imgSelected");
+            stopDrawingOnSelectedImage();
+            if(selectedImg)
+                selectedImg.classList.remove("imgSelected");
         }
 
         function setSelectedImg(img: HTMLImageElement){
@@ -288,6 +297,78 @@ namespace CodeEditorNamespace {
             changeImgSizeAndKeepWidthHeightRadio(0.9);
         }
 
+        function createButton(text: string, className?: string){
+            let button = document.createElement("button");
+            button.innerText = text;
+            if(className) button.classList.add(className);
+            return button;
+        }
+
+        function startDrawingOnSelectedImage(){
+            let fd = new FreeDrawCanvas(selectedImg);
+            freeDraw = fd;
+            let p = selectedImg.parentNode;
+            p.replaceChild(fd.getCanvas(), selectedImg);
+            fd.getCanvas().imageDataId = selectedImg.imageDataId;
+
+            let pencilButton = createButton("Pencil");
+            let eraserButton = createButton("Eraser");
+
+            let pencilColorButton = createButton("Pencil Color", "sub");
+            let pencilWidthButton = createButton("Pencil Width", "sub");
+            let eraserSizeButton = createButton("Eraser Size", "sub");
+
+            pencilButton.onclick = fd.setPencil.bind(fd);
+            eraserButton.onclick = fd.setEraser.bind(fd);
+
+            let colors = ["black", "red", "green", "blue"];
+            let colorIndex= 0;
+            fd.setColor(colors[colorIndex]);
+            pencilColorButton.onclick = function(){
+                colorIndex = (colorIndex + 1) % 4;
+                let color = colors[colorIndex];
+                fd.setColor(color);
+            };
+
+            let pencilWidths = [1, 2, 4];
+            let pencilWidthIdx = 0;
+            fd.setLineWidth(pencilWidths[pencilWidthIdx]);
+            pencilWidthButton.onclick = function(){
+                pencilWidthIdx = (pencilWidthIdx + 1) % 3;
+                let width = pencilWidths[pencilWidthIdx];
+                fd.setLineWidth(width);
+            };
+
+            let eraserSizes = [2, 4, 8];
+            let eraserSizeIdx = 1;
+            fd.setEraserSize(eraserSizes[eraserSizeIdx]);
+            eraserSizeButton.onclick = function(){
+                eraserSizeIdx = (eraserSizeIdx + 1) % 3;
+                let size = eraserSizes[eraserSizeIdx];
+                fd.setEraserSize(size);
+            };
+
+            setCommandButtons([pencilColorButton, pencilWidthButton, eraserSizeButton, pencilButton, eraserButton]);
+        }
+
+        function stopDrawingOnSelectedImage(){
+            if(freeDraw) {
+                r(function*(){
+                    //has been replaced by canvas in its original parent node
+                    let canvas = freeDraw.getCanvas();
+                    let blob = yield getBlobFromCanvas(canvas);
+                    let idb = yield getIDB();
+                    yield storeImageBlob(idb, blob, canvas.imageDataId);
+                    //set the image url to blob url
+                    selectedImg.src = window.URL.createObjectURL(blob);
+                    //replace the canvas with image
+                    let p = freeDraw.getCanvas().parentNode;
+                    p.replaceChild(selectedImg, canvas);
+                    freeDraw = undefined;
+                });
+            }
+        }
+
         register(AppEvent.incImgWidth, incSelectedImgWidth);
 
         register(AppEvent.decImgWidth, decSelectedImgWidth);
@@ -299,6 +380,8 @@ namespace CodeEditorNamespace {
         register(AppEvent.incImgSize, increaseImgSizeAndKeepWidthHeightRadio);
 
         register(AppEvent.decImgSize, decreaseImgSizeAndKeepWidthHeightRadio);
+        
+        register(AppEvent.drawOnImg, startDrawingOnSelectedImage);
         
         cancelInsertImage.onclick = function(){
             stopInsertingImg();

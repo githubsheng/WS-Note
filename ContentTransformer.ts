@@ -33,6 +33,7 @@ namespace ContentTransformerNamespace {
 
     const textNodeName = "#text";
     const imgNodeName = "img";
+    const canvasNodeName = "canvas";
 
     let index = getIndex();
 
@@ -60,6 +61,14 @@ namespace ContentTransformerNamespace {
                 cp.imageDataId = img.imageDataId;
                 cp.imageWidth = img.width;
                 cp.imageHeight = img.height;
+            }
+
+            if (cp.nodeName === canvasNodeName) {
+                let canvas = <HTMLCanvasElement>node;
+                cp.imageDataId = canvas.imageDataId;
+                cp.imageWidth = canvas.width;
+                cp.imageHeight = canvas.height;
+                cp.nodeName = imgNodeName; //i don't wanna store canvas element, only image element.
             }
             addChildAndNormalize(normalizedComponents, cp);
         }

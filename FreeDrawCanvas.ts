@@ -26,7 +26,7 @@ class FreeDrawCanvas {
         this.setPencil();
         this.setEraserSize(4);
 
-        context.drawImage(img, 0, 0);
+        context.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         let mouseMoveListener = (evt: MouseEvent) => {
             this.mouseX = evt.clientX;
@@ -52,17 +52,25 @@ class FreeDrawCanvas {
             context.fillStyle = "white";
 
             this.draw();
+
+            evt.stopPropagation();
         };
 
         canvas.onmouseup = (evt: MouseEvent) => {
             this.isMouseDown = false;
             canvas.removeEventListener("mousemove", mouseMoveListener);
+            evt.stopPropagation();
         };
 
         canvas.onmouseout = (evt: MouseEvent) => {
             this.isMouseDown = false;
             canvas.removeEventListener("mousemove", mouseMoveListener);
+            evt.stopPropagation();
         };
+
+        canvas.onclick = (evt: MouseEvent) => {
+            evt.stopPropagation();
+        }
     }
 
     private windowToCanvas(x: number, y: number): {x: number, y: number} {
@@ -141,15 +149,7 @@ class FreeDrawCanvas {
     public getCanvas(): HTMLCanvasElement{
         return this.canvas;
     }
-
-    public getBlobPromise(): Promise<Blob> {
-        let canvas = this.canvas;
-        return new Promise<Blob>((resolve) => {
-            canvas.toBlob(function(blob: Blob){
-                resolve(blob);
-            });
-        });
-    }
+    
 }
 
 

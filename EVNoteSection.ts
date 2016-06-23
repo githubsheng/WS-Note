@@ -68,7 +68,8 @@ namespace EVNoteSectionNamespace {
     let resizeImgWidthCB = createButton("Width");
     let resizeImgHeightCB = createButton("Height");
     let resizeImgCB = createButton("Resize");
-    let resizeImgCommandButtons = [resizeImgWidthCB, resizeImgHeightCB, resizeImgCB];
+    let drawOnImgCB = createButton("Draw");
+    let resizeImgCommandButtons = [resizeImgWidthCB, resizeImgHeightCB, resizeImgCB, drawOnImgCB];
 
     function createButton(text: string){
         let button = document.createElement("button");
@@ -279,6 +280,11 @@ namespace EVNoteSectionNamespace {
         broadcast(AppEvent.decImgSize);
         e.preventDefault();
         return false;
+    };
+
+    drawOnImgCB.onclick = function(){
+        setCommandButtons([]);
+        broadcast(AppEvent.drawOnImg);
     };
 
     deleteButton.onclick = function(){

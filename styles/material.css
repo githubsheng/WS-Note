@@ -24,6 +24,11 @@ button {
     transition: 0.3s;
 }
 
+button.sub {
+    color: #9E9E9E;
+    font-size: 12px;
+}
+
 button:hover {
     background: #EAEAEA;
     cursor: pointer;
