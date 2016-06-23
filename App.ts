@@ -23,9 +23,17 @@ namespace AppNamespace {
         broadcast(AppEvent.createNewNote);
     };
 
+    let clearSearchKeyWordButton = document.createElement("button");
+    clearSearchKeyWordButton.appendChild(document.createTextNode("Clear"));
+    clearSearchKeyWordButton.onclick = function(){
+        criteriaSection.clearAllSearchCriterion();
+        broadcast(AppEvent.resultsPage);
+    };
+
     let headerLeft = document.querySelector("#headerLeft");
     headerLeft.appendChild(auto.searchEle);
     headerLeft.appendChild(newNoteButton);
+    headerLeft.appendChild(clearSearchKeyWordButton);
     document.body.appendChild(auto.autoCompletionListEle);
 
     let criteriaSection = createCriterionSection();
