@@ -1,7 +1,7 @@
 namespace AppEventsNamespace {
 
     export enum AppEvent {
-        createNewNote, viewNote, editNote, resultsPage,
+        createNewNote, viewNote, editNote, resultsPage, viewManual,
         cancelUploadImage, imgFocus, imgLoseFocus, incImgWidth, decImgWidth, incImgHeight, decImgHeight, incImgSize, decImgSize, drawOnImg
     }
 

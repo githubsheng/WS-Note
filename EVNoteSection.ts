@@ -36,6 +36,7 @@ namespace EVNoteSectionNamespace {
     import generateNoteViewerContent = ViewNote.generateNoteViewerContent;
     import refreshPreviewIfPreviewIsOpen = PreviewWindowNamespace.refreshPreviewIfPreviewIsOpen;
     import tokenizeParagraph = TokenizorNamespace.tokenizeParagraph;
+    import tokenize = TokenizorNamespace.tokenize;
 
     let index = getIndex();
 
@@ -102,6 +103,14 @@ namespace EVNoteSectionNamespace {
         while(noteViewerEle.firstChild)
             noteViewerEle.removeChild(noteViewerEle.firstChild);
         yield* generateNoteViewerContent(noteViewerEle, note);
+        setBody(noteViewerEle);
+    }
+
+    function* viewManual(){
+        setCommandButtons([]);
+        while(noteViewerEle.firstChild)
+            noteViewerEle.removeChild(noteViewerEle.firstChild);
+        yield* generateNoteViewerContent(noteViewerEle, manual);
         setBody(noteViewerEle);
     }
 
@@ -216,6 +225,14 @@ namespace EVNoteSectionNamespace {
         });
     });
 
+    register(AppEvent.viewManual, function(){
+        closePreview();
+        r(function*(){
+            yield* viewManual();
+        });
+
+    });
+
     editButton.onclick = function(){
         r(editNote);
     };
@@ -292,6 +309,20 @@ namespace EVNoteSectionNamespace {
         r(deleteNote);
         broadcast(AppEvent.resultsPage);
     };
+
+    let manual = createManual();
+    function createManual() {
+        let manual = new Note(Date.now(), Date.now());
+        manual.title = "Manual";
+        manual.permanent = true;
+        manual.components.push({nodeName: "#text", value: "Oops, the manual is missing"});
+        for(let com of manual.components) {
+            com.tokens = tokenize(com);
+        }
+        return manual;
+    }
+
+
 
     //this seemly awkward useless function is called by App.ts to ensure that this search results section module is created first
     export function init(){}

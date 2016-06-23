@@ -27,7 +27,13 @@ namespace SearchResultSectionNamespace {
 
     function showGetStartedGuide() {
         let getStartedGuideContainer = document.createElement("div");
-        getStartedGuideContainer.appendChild(document.createTextNode("Get Started"));
+        getStartedGuideContainer.classList.add("getStartedContainer");
+        let getStartedBtn = document.createElement("button");
+        getStartedBtn.innerText = "Get Started";
+        getStartedBtn.onclick = function(){
+            broadcast(AppEvent.viewManual);
+        };
+        getStartedGuideContainer.appendChild(getStartedBtn);
         setBody(getStartedGuideContainer);
     }
 

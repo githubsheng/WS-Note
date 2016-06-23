@@ -44,6 +44,7 @@ class Note {
     public tags: string[] = [];
     public references: number[] = [];
     public components: Component[] = [];
+    public permanent = false;
 
     constructor(createdWhen: number, modifiedWhen: number) {
         this.createdWhen = createdWhen;
