@@ -2,7 +2,7 @@
 
 namespace StorageNamespace {
 
-    export var dbName = "test";
+    export var dbName = "prod";
     const noteStoreName = "notes";
     const imageStoreName = "images";
     let idb: IDBDatabase;
