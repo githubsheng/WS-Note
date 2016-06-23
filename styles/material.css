@@ -414,3 +414,7 @@ button:hover {
 #closePreviewButtonContainer button {
     font-size: 12px;
 }
+
+canvas {
+    box-shadow: 0 0 0 2px #2196F3;
+}
