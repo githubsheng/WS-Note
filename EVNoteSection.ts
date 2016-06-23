@@ -37,6 +37,7 @@ namespace EVNoteSectionNamespace {
     import refreshPreviewIfPreviewIsOpen = PreviewWindowNamespace.refreshPreviewIfPreviewIsOpen;
     import tokenizeParagraph = TokenizorNamespace.tokenizeParagraph;
     import tokenize = TokenizorNamespace.tokenize;
+    import setHint = FooterSectionNamespace.setHint;
 
     let index = getIndex();
 
@@ -88,6 +89,7 @@ namespace EVNoteSectionNamespace {
         setBody(codeEditor.containerEle);
         closePreview();
         startAutoSaveAndPreviewInterval();
+        setHint("You can right click on view button to open preview window");
     }
     
     function* editNote(){
@@ -96,6 +98,7 @@ namespace EVNoteSectionNamespace {
         codeEditor.setValue(note.components);
         setBody(codeEditor.containerEle);
         startAutoSaveAndPreviewInterval();
+        setHint("You can right click on view button to open preview window");
     }
 
     function* viewNote() {
@@ -263,10 +266,12 @@ namespace EVNoteSectionNamespace {
 
     register(AppEvent.imgFocus, function(){
         setCommandButtons(resizeImgCommandButtons);
+        setHint("left click to increase width/height/size, right click to decrease.");
     });
 
     register(AppEvent.imgLoseFocus, function(){
         setCommandButtons(editNoteCommandButtons);
+        setHint("You can right click on view button to open preview window");
     });
 
     resizeImgWidthCB.onclick = function(){
@@ -321,8 +326,6 @@ namespace EVNoteSectionNamespace {
         }
         return manual;
     }
-
-
 
     //this seemly awkward useless function is called by App.ts to ensure that this search results section module is created first
     export function init(){}

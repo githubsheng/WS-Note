@@ -6,6 +6,7 @@
 ///<reference path="Rank.ts"/>
 ///<reference path="Digest.ts"/>
 ///<reference path="PreviewWindow.ts"/>
+///<reference path="FooterSection.ts"/>
 
 namespace SearchResultSectionNamespace {
 
@@ -23,6 +24,7 @@ namespace SearchResultSectionNamespace {
     import getNote = StorageNamespace.getNote;
     import displayPreview = PreviewWindowNamespace.displayPreview;
     import closePreview = PreviewWindowNamespace.closePreview;
+    import setHint = FooterSectionNamespace.setHint;
 
 
     function showGetStartedGuide() {
@@ -150,6 +152,7 @@ namespace SearchResultSectionNamespace {
             showGetStartedGuide();
         } else {
             showRankedResults(searchKeyWord);
+            setHint("You can right click on any item in result list to preview. You can also click on any search key word on left bottom corner to remove the search key word");
         }
     });
 
