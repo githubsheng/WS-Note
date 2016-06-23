@@ -35,6 +35,13 @@ namespace RankNamespace {
      */
     export function search (searchKeyWords: string[]): {results: NoteScoreDetail[], searchTime: number} {
 
+        if(searchKeyWords.length === 0) {
+            return {
+                results: [],
+                searchTime: 0
+            };
+        }
+
         //try break down word combos into individual words and give those words a try as well
         //in this case, if searchKeyWords is ["wang sheng", "storage"], the output will be ["wang sheng", "wang", "sheng", "storage"]
         //I need the word combo "wang sheng" kept despite its component "wang" and "sheng" is added, so that notes that actually and really
