@@ -1,6 +1,6 @@
 ///<reference path="../Storage.ts"/>
 ///<reference path="TestUtil.ts"/>
-///<reference path="../AsyncUtil.ts"/>
+///<reference path="../Util.ts"/>
 ///<reference path="../ImageCanvasUtility.ts"/>
 
 namespace TestStorageNamespace {

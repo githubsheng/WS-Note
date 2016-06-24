@@ -1,7 +1,7 @@
 ///<reference path="AppEvents.ts"/>
 ///<reference path="BodySection.ts"/>
 ///<reference path="CommandsSection.ts"/>
-///<reference path="AsyncUtil.ts"/>
+///<reference path="Util.ts"/>
 ///<reference path="Storage.ts"/>
 ///<reference path="Rank.ts"/>
 ///<reference path="Digest.ts"/>

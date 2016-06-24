@@ -26,5 +26,13 @@ namespace Utility {
 
     export let r = runGenerator;
 
+    export function button(text:string, callback?: (evt: MouseEvent) => void): HTMLButtonElement {
+        let button = document.createElement("button");
+        button.innerText = text;
+        if(callback)
+            button.addEventListener("click", callback);
+        return button;
+    }
+
 }
 

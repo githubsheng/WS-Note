@@ -38,6 +38,7 @@ namespace EVNoteSectionNamespace {
     import tokenizeParagraph = TokenizorNamespace.tokenizeParagraph;
     import tokenize = TokenizorNamespace.tokenize;
     import setHint = FooterSectionNamespace.setHint;
+    import setBackNavigation = FooterSectionNamespace.setBackNavigation;
 
     let index = getIndex();
 
@@ -217,10 +218,14 @@ namespace EVNoteSectionNamespace {
         window.clearInterval(idOfAutoSaveInterval)
     });
 
-    register(AppEvent.createNewNote, createNewNote);
+    register(AppEvent.createNewNote, function(){
+        if(note) setBackNavigation(note.title, note.id);
+        createNewNote();
+    });
 
     register(AppEvent.viewNote, function(noteId: number){
         closePreview();
+        if(note) setBackNavigation(note.title, note.id);
         r(function*(){
             let idb: IDBDatabase = yield getIDB();
             note = yield StorageNamespace.getNote(idb, noteId);

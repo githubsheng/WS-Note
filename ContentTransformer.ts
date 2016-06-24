@@ -1,10 +1,11 @@
 ///<reference path="typings/extended.d.ts"/>
 ///<reference path="Storage.ts"/>
-///<reference path="AsyncUtil.ts"/>
+///<reference path="Util.ts"/>
 ///<reference path="ImageCanvasUtility.ts"/>
 ///<reference path="Tokenizor.ts"/>
 ///<reference path="NoteNameCache.ts"/>
 ///<reference path="AppEvents.ts"/>
+///<reference path="FooterSection.ts"/>
 
 /**
  * Inside the editor is a large dom fragment. While I can store that dom fragment in the indexeddb,
@@ -30,6 +31,7 @@ namespace ContentTransformerNamespace {
     import getNoteName = NoteNameCacheNamespace.getNoteName;
     import broadcast = AppEventsNamespace.broadcast;
     import AppEvent = AppEventsNamespace.AppEvent;
+    import setBackNavigation = FooterSectionNamespace.setBackNavigation;
 
     const textNodeName = "#text";
     const imgNodeName = "img";

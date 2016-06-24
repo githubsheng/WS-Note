@@ -1,5 +1,5 @@
 ///<reference path="AutoComplete.ts"/>
-///<reference path="AsyncUtil.ts"/>
+///<reference path="Util.ts"/>
 ///<reference path="IndexAndCacheBuilder.ts"/>
 ///<reference path="AppEvents.ts"/>
 ///<reference path="SearchResultSection.ts"/>
