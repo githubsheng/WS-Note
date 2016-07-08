@@ -158,6 +158,7 @@ namespace CodeEditorNamespace {
 
         codeEditorEle.addEventListener("click", function(){
             resetSelectedImg();
+            if(valueChangeListener) valueChangeListener();
             broadcast(AppEvent.imgLoseFocus);
         });
 
@@ -365,6 +366,7 @@ namespace CodeEditorNamespace {
                     let p = freeDraw.getCanvas().parentNode;
                     p.replaceChild(selectedImg, canvas);
                     freeDraw = undefined;
+                    if(valueChangeListener) valueChangeListener();
                 });
             }
         }

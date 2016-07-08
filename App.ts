@@ -20,6 +20,7 @@ namespace AppNamespace {
     newNoteButton.appendChild(document.createTextNode("New"));
 
     newNoteButton.onclick = function () {
+        criteriaSection.clearAllSearchCriterion();
         broadcast(AppEvent.createNewNote);
     };
 

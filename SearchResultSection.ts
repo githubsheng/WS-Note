@@ -69,7 +69,7 @@ namespace SearchResultSectionNamespace {
         }
         let referencedByString = noteScoreDetail.referencedByNotesWithName.size ===  0 ?
             "" : "Referenced by " + noteScoreDetail.referencedByNotesWithName.size + " other note(s) ";
-        let recentlyViewed = noteScoreDetail.recentlyViewed ? "Recently viewed" : "";
+        let recentlyViewed = noteScoreDetail.recentlyViewed ? "Recently viewed " : "";
 
         let rankDetailStr = [keyWordAppearanceString, tagsMatchedString, referencedByString, recentlyViewed].filter(function(s){
             return s !== "";

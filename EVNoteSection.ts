@@ -39,6 +39,7 @@ namespace EVNoteSectionNamespace {
     import tokenize = TokenizorNamespace.tokenize;
     import setHint = FooterSectionNamespace.setHint;
     import setBackNavigation = FooterSectionNamespace.setBackNavigation;
+    import addRecentlyViewed = RecentlyViewedCacheNamespace.addRecentlyViewed;
 
     let index = getIndex();
 
@@ -221,6 +222,7 @@ namespace EVNoteSectionNamespace {
     register(AppEvent.createNewNote, function(){
         if(note) setBackNavigation(note.title, note.id);
         createNewNote();
+        addRecentlyViewed(note.id);
     });
 
     register(AppEvent.viewNote, function(noteId: number){
@@ -230,6 +232,7 @@ namespace EVNoteSectionNamespace {
             let idb: IDBDatabase = yield getIDB();
             note = yield StorageNamespace.getNote(idb, noteId);
             yield* viewNote();
+            addRecentlyViewed(note.id);
         });
     });
 

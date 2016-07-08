@@ -76,7 +76,7 @@ namespace SpecialWordsNamespace {
         "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true",
         "try", "typeof", "var", "void", "volatile", "while", "with", "yield"];
 
-    export let specialCodeSymbols = ['{', '}', '.', ',', '=', ';', '(', ')', "+", "-", "%", "/", "!", "&", "|"];
+    export let specialCodeSymbols = ['{', '}', '.', ',', '=', ';', '(', ')', "+", "-", "%", "/", "!", "&", "|", "[", "]"];
     
     //todo: add java related
 }
